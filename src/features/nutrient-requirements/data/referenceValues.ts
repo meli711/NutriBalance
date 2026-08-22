@@ -6,7 +6,9 @@ import type { AgeGroup, Gender, NutrientRequirement } from '../models/requiremen
  * (dieselben Werte werden von der SGE für die Schweiz übernommen, sge-ssn.ch).
  * Abgerufen am 22.08.2026, jeweils die aktuell auf dge.de veröffentlichten Tabellen
  * (3. Auflage 2025). Für jede Nährstoffgruppe steht die genaue Unterseite als
- * `source` bei den einzelnen Werten.
+ * `source` bei den einzelnen Werten. Lokale Snapshots der Quellseiten liegen
+ * in `quellen/dge-referenzwerte-*.html` (Stand 22.08.2026, für Zitierfähigkeit
+ * in der schriftlichen Arbeit, falls sich die Seiten später ändern).
  *
  * Abgedeckt sind bewusst nur die Makronährstoffe (Energie, Protein, Fett,
  * Kohlenhydrate, Ballaststoffe) für 5 Altersgruppen je Geschlecht — das sind
