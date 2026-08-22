@@ -22,13 +22,11 @@ export async function renderMenuListView(options: MenuListViewOptions): Promise<
       menus = await getAllMenus()
     } catch {
       container.innerHTML = `
-        <main>
-          <section class="recipe-list">
-            <h1>Eigene Menüs</h1>
-            <p class="field-error" role="alert">Menüs konnten nicht geladen werden.</p>
-            <button type="button" class="button-secondary" data-action="back">Zurück</button>
-          </section>
-        </main>
+        <section class="recipe-list">
+          <h1>Eigene Menüs</h1>
+          <p class="field-error" role="alert">Menüs konnten nicht geladen werden.</p>
+          <button type="button" class="button-secondary" data-action="back">Zurück</button>
+        </section>
       `
       container.querySelector('[data-action="back"]')?.addEventListener('click', onBack)
       return
@@ -50,18 +48,16 @@ export async function renderMenuListView(options: MenuListViewOptions): Promise<
       .join('')
 
     container.innerHTML = `
-      <main>
-        <section class="recipe-list">
-          <h1>Eigene Menüs</h1>
-          ${
-            menus.length === 0
-              ? '<p class="recipe-list__status">Noch keine Menüs gespeichert.</p>'
-              : `<ul class="recipe-list__items">${items}</ul>`
-          }
-          <button type="button" class="button-primary" data-action="create">Neues Menü erstellen</button>
-          <button type="button" class="button-secondary" data-action="back">Zurück</button>
-        </section>
-      </main>
+      <section class="recipe-list">
+        <h1>Eigene Menüs</h1>
+        ${
+          menus.length === 0
+            ? '<p class="recipe-list__status">Noch keine Menüs gespeichert.</p>'
+            : `<ul class="recipe-list__items">${items}</ul>`
+        }
+        <button type="button" class="button-primary" data-action="create">Neues Menü erstellen</button>
+        <button type="button" class="button-secondary" data-action="back">Zurück</button>
+      </section>
     `
 
     container.querySelectorAll<HTMLButtonElement>('[data-menu-id]').forEach((button) => {
@@ -87,12 +83,10 @@ export async function renderMenuListView(options: MenuListViewOptions): Promise<
   }
 
   container.innerHTML = `
-    <main>
-      <section class="recipe-list">
-        <h1>Eigene Menüs</h1>
-        <p class="recipe-list__status">Lade Menüs…</p>
-      </section>
-    </main>
+    <section class="recipe-list">
+      <h1>Eigene Menüs</h1>
+      <p class="recipe-list__status">Lade Menüs…</p>
+    </section>
   `
   await renderList()
 }

@@ -1,6 +1,7 @@
 import '../styles/main.css'
 import type { UserProfile } from '../data/models/userProfile.ts'
 import { getUserProfile } from '../data/localStorageService.ts'
+import { renderAppShell } from './appShell.ts'
 import { renderProfileForm } from '../features/profile/profileForm.ts'
 import { renderProfileView } from '../features/profile/profileView.ts'
 import { renderRecipeListView } from '../features/recipes/recipeListView.ts'
@@ -9,7 +10,8 @@ import { renderMenuListView } from '../features/menu-builder/menuListView.ts'
 import { renderMenuBuilderView } from '../features/menu-builder/menuBuilderView.ts'
 import { renderMenuDetailView } from '../features/menu-builder/menuDetailView.ts'
 
-const app = document.querySelector<HTMLDivElement>('#app')
+const shellRoot = document.querySelector<HTMLDivElement>('#app')
+const app = shellRoot ? renderAppShell(shellRoot) : null
 
 function showForm(existingProfile: UserProfile | null): void {
   if (!app) return

@@ -67,9 +67,18 @@ export function renderProfileView(options: ProfileViewOptions): void {
   }
 
   container.innerHTML = `
-    <main>
     <section class="profile-view">
       <h1>Dein Nährstoffbedarf</h1>
+      <figure class="profile-view__hero">
+        <img
+          src="/images/header-balanced-meals.jpg"
+          alt="Ausgewogene Teller mit Lachs, Gemüse, Vollkorn und frischen Zutaten"
+          width="1000"
+          height="520"
+          loading="eager"
+        />
+        <figcaption>Foto: Shayda Torabi / Unsplash</figcaption>
+      </figure>
       ${bodyHtml}
       <div class="profile-view__actions">
         <button type="button" class="button-primary" data-action="recipes">Rezepte ansehen</button>
@@ -77,7 +86,6 @@ export function renderProfileView(options: ProfileViewOptions): void {
         <button type="button" class="button-secondary" data-action="edit">Profil bearbeiten</button>
       </div>
     </section>
-    </main>
   `
 
   container.querySelector('[data-action="edit"]')?.addEventListener('click', onEdit)

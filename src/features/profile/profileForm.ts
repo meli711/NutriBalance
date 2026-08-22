@@ -37,7 +37,6 @@ export function renderProfileForm(options: ProfileFormOptions): void {
   const { container, existingProfile, onSaved } = options
 
   container.innerHTML = `
-    <main>
     <form class="profile-form" novalidate>
       <h1>${existingProfile ? 'Profil bearbeiten' : 'Willkommen bei NutriBalance'}</h1>
       <p class="profile-form__intro">
@@ -100,7 +99,6 @@ export function renderProfileForm(options: ProfileFormOptions): void {
 
       <button type="submit" class="button-primary">Speichern</button>
     </form>
-    </main>
   `
 
   const form = container.querySelector<HTMLFormElement>('.profile-form')

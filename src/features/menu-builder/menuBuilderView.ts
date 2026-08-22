@@ -51,8 +51,7 @@ export function renderMenuBuilderView(options: MenuBuilderViewOptions): void {
   let activeSummary: NutritionSummaryHandle | null = null
 
   container.innerHTML = `
-    <main>
-      <section class="menu-builder">
+    <section class="menu-builder">
         <h1>Neues Menü erstellen</h1>
 
         <div class="field">
@@ -92,7 +91,6 @@ export function renderMenuBuilderView(options: MenuBuilderViewOptions): void {
           <button type="button" class="button-secondary" data-action="cancel">Abbrechen</button>
         </div>
       </section>
-    </main>
   `
 
   const nameInput = container.querySelector<HTMLInputElement>('#menu-name')!

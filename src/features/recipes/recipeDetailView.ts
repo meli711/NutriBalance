@@ -45,22 +45,18 @@ export async function renderRecipeDetailView(options: RecipeDetailViewOptions): 
   }
 
   container.innerHTML = `
-    <main>
-      <section class="recipe-detail">
-        <p class="recipe-list__status">Lade Rezept…</p>
-      </section>
-    </main>
+    <section class="recipe-detail">
+      <p class="recipe-list__status">Lade Rezept…</p>
+    </section>
   `
 
   const recipe = await getRecipeById(recipeId)
   if (!recipe) {
     container.innerHTML = `
-      <main>
-        <section class="recipe-detail">
-          <p class="field-error" role="alert">Rezept nicht gefunden.</p>
-          <button type="button" class="button-secondary" data-action="back">Zurück</button>
-        </section>
-      </main>
+      <section class="recipe-detail">
+        <p class="field-error" role="alert">Rezept nicht gefunden.</p>
+        <button type="button" class="button-secondary" data-action="back">Zurück</button>
+      </section>
     `
     container.querySelector('[data-action="back"]')?.addEventListener('click', handleBack)
     return
@@ -84,21 +80,19 @@ export async function renderRecipeDetailView(options: RecipeDetailViewOptions): 
     .join('')
 
   container.innerHTML = `
-    <main>
-      <section class="recipe-detail">
-        <h1>${recipe.name}</h1>
-        <p class="recipe-detail__meta">${recipe.servings} Portion${recipe.servings === 1 ? '' : 'en'}</p>
+    <section class="recipe-detail">
+      <h1>${recipe.name}</h1>
+      <p class="recipe-detail__meta">${recipe.servings} Portion${recipe.servings === 1 ? '' : 'en'}</p>
 
-        <h2>Zutaten</h2>
-        <table class="recipe-detail__table">
-          <tbody>${ingredientRows}</tbody>
-        </table>
+      <h2>Zutaten</h2>
+      <table class="recipe-detail__table">
+        <tbody>${ingredientRows}</tbody>
+      </table>
 
-        <div data-summary-container></div>
+      <div data-summary-container></div>
 
-        <button type="button" class="button-secondary" data-action="back">Zurück zur Rezeptliste</button>
-      </section>
-    </main>
+      <button type="button" class="button-secondary" data-action="back">Zurück zur Rezeptliste</button>
+    </section>
   `
 
   const summaryContainer = container.querySelector<HTMLDivElement>('[data-summary-container]')

@@ -50,22 +50,18 @@ export async function renderMenuDetailView(options: MenuDetailViewOptions): Prom
   }
 
   container.innerHTML = `
-    <main>
-      <section class="recipe-detail">
-        <p class="recipe-list__status">Lade Menü…</p>
-      </section>
-    </main>
+    <section class="recipe-detail">
+      <p class="recipe-list__status">Lade Menü…</p>
+    </section>
   `
 
   const menu = await getMenuById(menuId)
   if (!menu) {
     container.innerHTML = `
-      <main>
-        <section class="recipe-detail">
-          <p class="field-error" role="alert">Menü nicht gefunden.</p>
-          <button type="button" class="button-secondary" data-action="back">Zurück</button>
-        </section>
-      </main>
+      <section class="recipe-detail">
+        <p class="field-error" role="alert">Menü nicht gefunden.</p>
+        <button type="button" class="button-secondary" data-action="back">Zurück</button>
+      </section>
     `
     container.querySelector('[data-action="back"]')?.addEventListener('click', handleBack)
     return
@@ -89,25 +85,23 @@ export async function renderMenuDetailView(options: MenuDetailViewOptions): Prom
     .join('')
 
   container.innerHTML = `
-    <main>
-      <section class="recipe-detail">
-        <h1>${menu.name}</h1>
-        <p class="recipe-detail__meta">Erstellt am ${formatDate(menu.createdAt)}</p>
-        ${menu.description ? `<p class="recipe-detail__meta">${menu.description}</p>` : ''}
+    <section class="recipe-detail">
+      <h1>${menu.name}</h1>
+      <p class="recipe-detail__meta">Erstellt am ${formatDate(menu.createdAt)}</p>
+      ${menu.description ? `<p class="recipe-detail__meta">${menu.description}</p>` : ''}
 
-        <h2>Zutaten</h2>
-        <table class="recipe-detail__table">
-          <tbody>${ingredientRows}</tbody>
-        </table>
+      <h2>Zutaten</h2>
+      <table class="recipe-detail__table">
+        <tbody>${ingredientRows}</tbody>
+      </table>
 
-        <div data-summary-container></div>
+      <div data-summary-container></div>
 
-        <div class="profile-view__actions">
-          <button type="button" class="button-secondary" data-action="back">Zurück zur Menü-Liste</button>
-          <button type="button" class="menu-list__delete-full" data-action="delete">Menü löschen</button>
-        </div>
-      </section>
-    </main>
+      <div class="profile-view__actions">
+        <button type="button" class="button-secondary" data-action="back">Zurück zur Menü-Liste</button>
+        <button type="button" class="menu-list__delete-full" data-action="delete">Menü löschen</button>
+      </div>
+    </section>
   `
 
   const summaryContainer = container.querySelector<HTMLDivElement>('[data-summary-container]')

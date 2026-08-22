@@ -1,18 +1,30 @@
 :root {
-  --color-bg: #ffffff;
-  --color-surface: #f5f5f5;
-  --color-text: #1a1a1a;
-  --color-text-muted: #5f5f5f;
-  --color-primary: #00796b;
-  --color-primary-dark: #00564c;
-  --color-border: #e0e0e0;
+  /* Ink & Paper — bewusst kein Creme-Beige, sondern ein kühl-warmes Neutral. */
+  --color-bg: #f5f7f2;
+  --color-surface: #eceee6;
+  --color-text: #1c2321;
+  --color-text-muted: #5b5d54;
+  --color-border: #d8dbd0;
 
-  /* Chart-Farben (validiert mit dem dataviz-Skill-Validator: Chroma-Floor,
-     CVD-Trennung, Kontrast — die UI-Primärfarbe allein ist für Datenmarken
-     zu entsättigt, daher eine sattere Teal-Variante). Konsistent über das
-     ganze Chart-Feature: Aufnahme = Teal, Bedarf/100%-Linie = Orange. */
-  --chart-color-intake: #009688;
-  --chart-color-intake-fill: rgb(0 150 136 / 20%);
+  /* Deep Balance-Green (Primär) — steht für "Aufnahme", siehe DESIGN.md. */
+  --color-primary: #1f5f5b;
+  --color-primary-dark: #133f3c;
+
+  /* Warm Balance-Amber (Akzent) — steht für "Bedarf". */
+  --color-accent: #b5651d;
+  --color-accent-dark: #9c5518;
+
+  /* Muted Plum — Tertiärfarbe, sparsam für Zusatzakzente. */
+  --color-support: #6b4a63;
+
+  --color-error: #a13d2c;
+
+  /* Chart-Farben: gesättigtere Varianten von Primary/Accent — die gedeckten
+     UI-Töne fallen für dünne Chart-Linien/Punkte unter die Sättigungs-
+     Wahrnehmbarkeitsgrenze (mit dem dataviz-Skill-Validator geprüft:
+     Chroma-Floor, CVD-Trennung ΔE 10.1, Kontrast — alle Checks bestanden). */
+  --chart-color-intake: #0b8a6f;
+  --chart-color-intake-fill: rgb(11 138 111 / 20%);
   --chart-color-requirement: #b5651d;
   --chart-color-requirement-fill: rgb(181 101 29 / 15%);
 
@@ -23,7 +35,8 @@
   --space-xl: 2rem;
 
   --radius: 0.5rem;
-  --font-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: 'Work Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
 
   color-scheme: light;
 }
@@ -45,14 +58,66 @@ body {
   min-height: 100dvh;
 }
 
-#app {
+h1 {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-primary);
+}
+
+h2 {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  margin: var(--space-md) 0 0;
+}
+
+/* Sichtbarer Fokus-Zustand für Tastaturnavigation (Accessibility) — bewusst
+   :focus-visible statt :focus, damit Maus-Klicks keinen Ring auslösen. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+/* App-Rahmen (Header/Content/Footer), siehe DESIGN.md */
+
+.app-shell {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  max-width: 100%;
 }
 
-main {
+.app-header {
+  background-color: var(--color-primary);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  max-width: 960px;
+  margin-inline: auto;
+}
+
+.app-header__wordmark {
+  margin: 0;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.app-header__wordmark strong {
+  font-weight: 700;
+}
+
+.app-content {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -61,7 +126,7 @@ main {
 }
 
 @media (min-width: 768px) {
-  main {
+  .app-content {
     padding: var(--space-xl);
     max-width: 960px;
     margin-inline: auto;
@@ -69,9 +134,46 @@ main {
   }
 }
 
-h1 {
-  font-size: 1.5rem;
+.app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.app-footer__mark {
+  display: flex;
+  opacity: 0.7;
+}
+
+.app-footer p {
   margin: 0;
+}
+
+/* Dezenter Screen-Übergang — einzige Animation der App, siehe DESIGN.md. */
+@keyframes screen-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.app-content > * {
+  animation: screen-enter 220ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-content > * {
+    animation: none;
+  }
 }
 
 /* Formular */
@@ -116,13 +218,6 @@ h1 {
   resize: vertical;
 }
 
-.field input[type='number']:focus,
-.field input[type='text']:focus,
-.field textarea:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
-}
-
 .radio-option {
   display: flex;
   align-items: center;
@@ -141,7 +236,7 @@ h1 {
 }
 
 .field-error {
-  color: #b3261e;
+  color: var(--color-error);
   font-weight: 600;
 }
 
@@ -173,6 +268,27 @@ h1 {
 }
 
 /* Bedarfs-Anzeige */
+
+.profile-view__hero {
+  margin: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.profile-view__hero img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1000 / 520;
+  object-fit: cover;
+}
+
+.profile-view__hero figcaption {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  background-color: var(--color-surface);
+}
 
 .profile-view__meta {
   color: var(--color-text-muted);
@@ -234,12 +350,29 @@ h1 {
   cursor: pointer;
 }
 
+.recipe-list__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.recipe-list__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
 .recipe-list__name {
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .recipe-list__servings {
   color: var(--color-text-muted);
+  flex-shrink: 0;
 }
 
 /* Rezept-Detail */
@@ -260,8 +393,9 @@ h1 {
 }
 
 .recipe-detail__incomplete {
-  color: var(--color-text-muted);
+  color: var(--color-support);
   cursor: help;
+  font-weight: 600;
 }
 
 .recipe-detail__note {
@@ -359,7 +493,7 @@ h1 {
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   background-color: var(--color-bg);
-  color: #b3261e;
+  color: var(--color-error);
   cursor: pointer;
   font-size: 1rem;
 }
@@ -432,6 +566,7 @@ h1 {
 .menu-builder__selected {
   margin: 0;
   font-weight: 600;
+  color: var(--color-accent-dark);
 }
 
 .menu-builder__ingredients {
