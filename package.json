@@ -1,0 +1,27 @@
+{
+  "name": "nutribalance",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Nährstoff-Webapp (Matura-Arbeit): Nährstoffbedarf vs. Nährstoffaufnahme inkl. Rezept-Feature",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.9.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.6",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.67.0",
+    "vite": "^8.2.0",
+    "vite-plugin-pwa": "^1.3.0"
+  },
+  "dependencies": {
+    "idb": "^8.0.3"
+  }
+}
