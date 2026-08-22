@@ -1,6 +1,10 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { calculatePerServing, calculateRecipeNutrition } from './nutritionCalculator.ts'
+import {
+  calculateNutrition,
+  calculatePerServing,
+  calculateRecipeNutrition,
+} from './nutritionCalculator.ts'
 import type { FoodItem, FoodMinerals, FoodVitamins } from '../../data/models/food.ts'
 import type { Recipe } from './models/recipe.ts'
 
@@ -130,6 +134,22 @@ test('calculatePerServing teilt durch die Anzahl Portionen', () => {
   assert.equal(find(perServing, 'fiber').value, 2) // 4 / 2
   assert.equal(find(perServing, 'protein').value, 10) // 20 / 2
   assert.equal(find(perServing, 'protein').incomplete, true) // bleibt unvollständig
+})
+
+test('calculateNutrition funktioniert mit einer reinen Zutatenliste (z.B. für Menüs ohne Recipe/servings)', () => {
+  // 100g von A + 100g von B, manuell zu einem "Menü" zusammengestellt.
+  const total = calculateNutrition(
+    [
+      { foodId: 'A', amountGrams: 100 },
+      { foodId: 'B', amountGrams: 100 },
+    ],
+    FOODS,
+  )
+
+  // Energie: (200/100*100) + (100/100*100) = 200 + 100 = 300
+  assert.equal(find(total, 'energy').value, 300)
+  // Kohlenhydrate: (20/100*100) + (10/100*100) = 20 + 10 = 30
+  assert.equal(find(total, 'carbohydrates').value, 30)
 })
 
 test('unbekannte foodId markiert alle Nährstoffe als unvollständig', () => {

@@ -5,16 +5,14 @@ import {
 } from '../nutrient-requirements/requirementService.ts'
 import type { NutrientRequirement } from '../nutrient-requirements/models/requirement.ts'
 import { NUTRIENT_LABELS, UNIT_LABELS } from '../../utils/nutrientLabels.ts'
+import { formatNumber } from '../../utils/formatNumber.ts'
 
 export interface ProfileViewOptions {
   container: HTMLElement
   profile: UserProfile
   onEdit: () => void
   onShowRecipes: () => void
-}
-
-function formatNumber(value: number): string {
-  return Number.isInteger(value) ? String(value) : value.toFixed(1).replace('.', ',')
+  onShowMenus: () => void
 }
 
 function formatRequirementValue(requirement: NutrientRequirement): string {
@@ -30,7 +28,7 @@ function formatRequirementValue(requirement: NutrientRequirement): string {
 }
 
 export function renderProfileView(options: ProfileViewOptions): void {
-  const { container, profile, onEdit, onShowRecipes } = options
+  const { container, profile, onEdit, onShowRecipes, onShowMenus } = options
   const genderLabel = profile.gender === 'male' ? 'Männlich' : 'Weiblich'
 
   let bodyHtml: string
@@ -75,6 +73,7 @@ export function renderProfileView(options: ProfileViewOptions): void {
       ${bodyHtml}
       <div class="profile-view__actions">
         <button type="button" class="button-primary" data-action="recipes">Rezepte ansehen</button>
+        <button type="button" class="button-primary" data-action="menus">Eigene Menüs</button>
         <button type="button" class="button-secondary" data-action="edit">Profil bearbeiten</button>
       </div>
     </section>
@@ -83,4 +82,5 @@ export function renderProfileView(options: ProfileViewOptions): void {
 
   container.querySelector('[data-action="edit"]')?.addEventListener('click', onEdit)
   container.querySelector('[data-action="recipes"]')?.addEventListener('click', onShowRecipes)
+  container.querySelector('[data-action="menus"]')?.addEventListener('click', onShowMenus)
 }

@@ -19,6 +19,7 @@
     "@types/node": "^26.2.0",
     "eslint": "^10.9.0",
     "eslint-config-prettier": "^10.1.8",
+    "fake-indexeddb": "^6.2.5",
     "prettier": "^3.9.6",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.67.0",

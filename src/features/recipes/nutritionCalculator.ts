@@ -1,5 +1,5 @@
 import type { FoodItem } from '../../data/models/food.ts'
-import type { Recipe } from './models/recipe.ts'
+import type { Recipe, RecipeIngredient } from './models/recipe.ts'
 import type { NutrientAmount, NutrientValues } from './models/nutritionValues.ts'
 
 /**
@@ -42,15 +42,20 @@ const NUTRIENT_DEFINITIONS: {
   { nutrientId: 'vitaminC', unit: 'mg', getPer100g: (food) => food.vitamins.c.value },
 ]
 
-export function calculateRecipeNutrition(
-  recipe: Recipe,
+/**
+ * Kernfunktion: summiert Nährwerte für eine beliebige Zutatenliste (nicht an
+ * `Recipe` gebunden — wird z.B. auch für Menüs aus Instruktion 6 verwendet,
+ * die keine `servings`/`instructions` haben).
+ */
+export function calculateNutrition(
+  ingredients: RecipeIngredient[],
   foodsById: Map<string, FoodItem>,
 ): NutrientValues {
   return NUTRIENT_DEFINITIONS.map(({ nutrientId, unit, getPer100g }): NutrientAmount => {
     let value = 0
     let incomplete = false
 
-    for (const ingredient of recipe.ingredients) {
+    for (const ingredient of ingredients) {
       const food = foodsById.get(ingredient.foodId)
       if (!food) {
         incomplete = true
@@ -66,6 +71,13 @@ export function calculateRecipeNutrition(
 
     return { nutrientId, unit, value, incomplete }
   })
+}
+
+export function calculateRecipeNutrition(
+  recipe: Recipe,
+  foodsById: Map<string, FoodItem>,
+): NutrientValues {
+  return calculateNutrition(recipe.ingredients, foodsById)
 }
 
 export function calculatePerServing(

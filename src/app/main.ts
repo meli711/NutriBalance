@@ -5,6 +5,9 @@ import { renderProfileForm } from '../features/profile/profileForm.ts'
 import { renderProfileView } from '../features/profile/profileView.ts'
 import { renderRecipeListView } from '../features/recipes/recipeListView.ts'
 import { renderRecipeDetailView } from '../features/recipes/recipeDetailView.ts'
+import { renderMenuListView } from '../features/menu-builder/menuListView.ts'
+import { renderMenuBuilderView } from '../features/menu-builder/menuBuilderView.ts'
+import { renderMenuDetailView } from '../features/menu-builder/menuDetailView.ts'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 
@@ -24,6 +27,7 @@ function showView(profile: UserProfile): void {
     profile,
     onEdit: () => showForm(profile),
     onShowRecipes: () => showRecipeList(profile),
+    onShowMenus: () => showMenuList(profile),
   })
 }
 
@@ -43,6 +47,37 @@ function showRecipeDetail(profile: UserProfile, recipeId: string): void {
     recipeId,
     profile,
     onBack: () => showRecipeList(profile),
+  })
+}
+
+function showMenuList(profile: UserProfile): void {
+  if (!app) return
+  void renderMenuListView({
+    container: app,
+    onSelectMenu: (menuId) => showMenuDetail(profile, menuId),
+    onCreateNew: () => showMenuBuilder(profile),
+    onBack: () => showView(profile),
+  })
+}
+
+function showMenuBuilder(profile: UserProfile): void {
+  if (!app) return
+  renderMenuBuilderView({
+    container: app,
+    profile,
+    onSaved: () => showMenuList(profile),
+    onCancel: () => showMenuList(profile),
+  })
+}
+
+function showMenuDetail(profile: UserProfile, menuId: string): void {
+  if (!app) return
+  void renderMenuDetailView({
+    container: app,
+    menuId,
+    profile,
+    onBack: () => showMenuList(profile),
+    onDeleted: () => showMenuList(profile),
   })
 }
 
