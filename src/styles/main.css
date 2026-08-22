@@ -7,6 +7,15 @@
   --color-primary-dark: #00564c;
   --color-border: #e0e0e0;
 
+  /* Chart-Farben (validiert mit dem dataviz-Skill-Validator: Chroma-Floor,
+     CVD-Trennung, Kontrast — die UI-Primärfarbe allein ist für Datenmarken
+     zu entsättigt, daher eine sattere Teal-Variante). Konsistent über das
+     ganze Chart-Feature: Aufnahme = Teal, Bedarf/100%-Linie = Orange. */
+  --chart-color-intake: #009688;
+  --chart-color-intake-fill: rgb(0 150 136 / 20%);
+  --chart-color-requirement: #b5651d;
+  --chart-color-requirement-fill: rgb(181 101 29 / 15%);
+
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 1rem;
@@ -249,4 +258,75 @@ h1 {
 .recipe-detail__note {
   color: var(--color-text-muted);
   font-size: 0.875rem;
+}
+
+/* Nährstoff-Vergleichs-Chart */
+
+.nutrient-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.nutrient-chart__toggle {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.nutrient-chart__toggle-btn {
+  flex: 1;
+  min-height: 44px;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+.nutrient-chart__toggle-btn.is-active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.nutrient-chart__view[data-view-panel='radar'] {
+  position: relative;
+  height: min(360px, 85vw);
+}
+
+.nutrient-chart__bars {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-md);
+}
+
+.nutrient-chart__bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.nutrient-chart__bar-caption {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.nutrient-chart__bar-caption span {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.nutrient-chart__bar-canvas {
+  position: relative;
+  height: 160px;
+}
+
+.chart-note {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
 }

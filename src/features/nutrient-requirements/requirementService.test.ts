@@ -15,7 +15,7 @@ test('findAgeGroup wirft für nicht abgedeckte Alter (z.B. Kinder < 15)', () => 
   assert.throws(() => findAgeGroup(10))
 })
 
-test('getRequirementsForProfile liefert Makronährstoffe für ein Profil', () => {
+test('getRequirementsForProfile liefert Makro- und Kern-Mikronährstoffe für ein Profil', () => {
   const profile: UserProfile = {
     age: 17,
     heightCm: 170,
@@ -25,13 +25,42 @@ test('getRequirementsForProfile liefert Makronährstoffe für ein Profil', () =>
   const requirements = getRequirementsForProfile(profile)
   const nutrientIds = requirements.map((r) => r.nutrientId).sort()
 
-  assert.deepEqual(nutrientIds, ['carbohydrates', 'energy', 'fat', 'fiber', 'protein'])
+  assert.deepEqual(nutrientIds, [
+    'calcium',
+    'carbohydrates',
+    'energy',
+    'fat',
+    'fiber',
+    'iron',
+    'protein',
+    'vitaminC',
+  ])
 
   const energy = requirements.find((r) => r.nutrientId === 'energy')
   assert.equal(energy?.recommended, 2300) // 15-19, weiblich, PAL 1.6
 
   const protein = requirements.find((r) => r.nutrientId === 'protein')
   assert.equal(protein?.recommended, 48)
+
+  const calcium = requirements.find((r) => r.nutrientId === 'calcium')
+  assert.equal(calcium?.recommended, 1200) // 15-19: erhöhter Wert
+
+  const iron = requirements.find((r) => r.nutrientId === 'iron')
+  assert.equal(iron?.recommended, 16) // 15-19, weiblich
+
+  const vitaminC = requirements.find((r) => r.nutrientId === 'vitaminC')
+  assert.equal(vitaminC?.recommended, 90) // 15-19, weiblich
+})
+
+test('getRequirementsForProfile bildet die Eisen-Prä-/Postmenopause-Näherung altersbasiert ab', () => {
+  const youngerWoman: UserProfile = { age: 45, heightCm: 165, gender: 'female' }
+  const olderWoman: UserProfile = { age: 60, heightCm: 165, gender: 'female' }
+
+  const youngerIron = getRequirementsForProfile(youngerWoman).find((r) => r.nutrientId === 'iron')
+  const olderIron = getRequirementsForProfile(olderWoman).find((r) => r.nutrientId === 'iron')
+
+  assert.equal(youngerIron?.recommended, 16)
+  assert.equal(olderIron?.recommended, 14)
 })
 
 test('getRequirementsForProfile unterscheidet nach Geschlecht bei gleichem Alter', () => {

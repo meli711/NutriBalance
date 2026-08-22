@@ -10,11 +10,15 @@ export const NUTRIENT_LABELS: Record<string, string> = {
   fat: 'Fett',
   carbohydrates: 'Kohlenhydrate',
   fiber: 'Ballaststoffe',
+  calcium: 'Calcium',
+  iron: 'Eisen',
+  vitaminC: 'Vitamin C',
 }
 
 export const UNIT_LABELS: Record<string, string> = {
   kcal: 'kcal',
   g: 'g',
+  mg: 'mg',
   '%energy': '% der Energie',
   'g/1000kcal': 'g pro 1000 kcal',
 }

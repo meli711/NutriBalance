@@ -10,14 +10,15 @@ import type { AgeGroup, Gender, NutrientRequirement } from '../models/requiremen
  * in `quellen/dge-referenzwerte-*.html` (Stand 22.08.2026, für Zitierfähigkeit
  * in der schriftlichen Arbeit, falls sich die Seiten später ändern).
  *
- * Abgedeckt sind bewusst nur die Makronährstoffe (Energie, Protein, Fett,
- * Kohlenhydrate, Ballaststoffe) für 5 Altersgruppen je Geschlecht — das sind
- * die realen DACH-Altersklassen (nicht künstlich zusammengefasst), da sich
- * z.B. Energie- und Proteinbedarf zwischen 51–65 und 65+ deutlich unterscheiden.
- * Mikronährstoffe (Vitamine, Mineralstoffe) sind noch nicht erfasst — das
- * `NutrientRequirement`-Modell ist dafür bereits vorbereitet (siehe
- * `models/requirement.ts`), die Werte müssten aber pro Nährstoff einzeln aus
- * den jeweiligen DGE-Unterseiten nachgetragen werden.
+ * Abgedeckt sind die Makronährstoffe (Energie, Protein, Fett, Kohlenhydrate,
+ * Ballaststoffe) für 5 Altersgruppen je Geschlecht — das sind die realen
+ * DACH-Altersklassen (nicht künstlich zusammengefasst), da sich z.B. Energie-
+ * und Proteinbedarf zwischen 51–65 und 65+ deutlich unterscheiden. Dazu drei
+ * Mikronährstoffe (Calcium, Eisen, Vitamin C) für das Chart aus Instruktion 5
+ * — ausgewählt, weil sie sowohl fachlich relevant sind als auch in der
+ * Lebensmitteldatenbank kaum fehlende Werte haben (siehe Auswahlbegründung
+ * in `features/charts/nutrientComparisonChart.ts`). Weitere Mikronährstoffe
+ * sind im `NutrientRequirement`-Modell vorbereitet, aber noch nicht befüllt.
  */
 
 export const AGE_GROUPS: AgeGroup[] = [
@@ -41,6 +42,10 @@ const CARBS_SOURCE =
   'https://www.dge.de/wissenschaft/referenzwerte/kohlenhydrate/ (Abruf: 22.08.2026)'
 const FIBER_SOURCE =
   'https://www.dge.de/wissenschaft/referenzwerte/ballaststoffe/ (Abruf: 22.08.2026)'
+const CALCIUM_SOURCE = 'https://www.dge.de/wissenschaft/referenzwerte/calcium/ (Abruf: 22.08.2026)'
+const IRON_SOURCE = 'https://www.dge.de/wissenschaft/referenzwerte/eisen/ (Abruf: 22.08.2026)'
+const VITAMIN_C_SOURCE =
+  'https://www.dge.de/wissenschaft/referenzwerte/vitamin-c/ (Abruf: 22.08.2026)'
 
 /**
  * Energiebedarf ist ein "Richtwert" und hängt vom Aktivitätsniveau (PAL) ab.
@@ -134,6 +139,56 @@ function fiberForAgeGroup(ageGroupId: string, gender: Gender): ReferenceValueEnt
   }
 }
 
+function calciumForAgeGroup(ageGroupId: string, gender: Gender): ReferenceValueEntry {
+  const recommended = ageGroupId === '15-19' ? 1200 : 1000
+  return {
+    ageGroupId,
+    gender,
+    nutrientId: 'calcium',
+    unit: 'mg',
+    referenceType: 'empfohleneZufuhr',
+    recommended,
+    source: CALCIUM_SOURCE,
+  }
+}
+
+/**
+ * DACH gibt den Eisenbedarf für Frauen 25–65 explizit als "prämenopausal
+ * 16mg / postmenopausal 14mg" an — keine feste Altersgrenze. Da `UserProfile`
+ * keinen Menopausen-Status erfasst, wird hier das mittlere Menopausenalter
+ * (~51 Jahre) als Näherung verwendet: Altersgruppe 51–65 gilt als
+ * überwiegend postmenopausal. Bewusste Vereinfachung, im Bericht erwähnenswert.
+ */
+function ironForAgeGroup(ageGroupId: string, gender: Gender): ReferenceValueEntry {
+  let recommended = 11 // Männer: konstant über alle Altersgruppen
+  if (gender === 'female') {
+    recommended = ageGroupId === '51-65' || ageGroupId === '65+' ? 14 : 16
+  }
+  return {
+    ageGroupId,
+    gender,
+    nutrientId: 'iron',
+    unit: 'mg',
+    referenceType: 'empfohleneZufuhr',
+    recommended,
+    source: IRON_SOURCE,
+  }
+}
+
+function vitaminCForAgeGroup(ageGroupId: string, gender: Gender): ReferenceValueEntry {
+  const recommended =
+    gender === 'male' ? (ageGroupId === '15-19' ? 105 : 110) : ageGroupId === '15-19' ? 90 : 95
+  return {
+    ageGroupId,
+    gender,
+    nutrientId: 'vitaminC',
+    unit: 'mg',
+    referenceType: 'empfohleneZufuhr',
+    recommended,
+    source: VITAMIN_C_SOURCE,
+  }
+}
+
 const GENDERS: Gender[] = ['male', 'female']
 
 export const REFERENCE_VALUES: ReferenceValueEntry[] = [
@@ -171,4 +226,13 @@ export const REFERENCE_VALUES: ReferenceValueEntry[] = [
 
   // Ballaststoffe
   ...AGE_GROUPS.flatMap((group) => GENDERS.map((gender) => fiberForAgeGroup(group.id, gender))),
+
+  // Calcium (mg/Tag)
+  ...AGE_GROUPS.flatMap((group) => GENDERS.map((gender) => calciumForAgeGroup(group.id, gender))),
+
+  // Eisen (mg/Tag) — siehe Kommentar bei ironForAgeGroup zur Prä-/Postmenopause-Näherung
+  ...AGE_GROUPS.flatMap((group) => GENDERS.map((gender) => ironForAgeGroup(group.id, gender))),
+
+  // Vitamin C (mg/Tag)
+  ...AGE_GROUPS.flatMap((group) => GENDERS.map((gender) => vitaminCForAgeGroup(group.id, gender))),
 ]

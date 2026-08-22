@@ -7,8 +7,14 @@ const KCAL_PER_GRAM: Record<string, number> = {
   carbohydrates: 4,
 }
 
-function targetValue(requirement: NutrientRequirement): number | undefined {
+export function targetValue(requirement: NutrientRequirement): number | undefined {
   return requirement.recommended ?? requirement.min ?? requirement.max
+}
+
+/** Für Aufrufer (z.B. das Chart-Feature), die den Energiebedarf separat brauchen. */
+export function getEnergyRequirementKcal(requirements: NutrientRequirement[]): number | undefined {
+  const energyRequirement = requirements.find((r) => r.nutrientId === 'energy')
+  return energyRequirement ? targetValue(energyRequirement) : undefined
 }
 
 /**
@@ -23,8 +29,12 @@ function targetValue(requirement: NutrientRequirement): number | undefined {
  *   Gesamtenergie; eine korrekte Umrechnung bräuchte die Tagesenergiezufuhr
  *   der ganzen Ernährung, nicht nur dieses einen Rezepts. Bleibt offen für
  *   eine spätere Instruktion mit echtem Tagesprotokoll.
+ *
+ * Exportiert (statt privat), damit das Chart-Feature (Instruktion 5) für das
+ * Balkendiagramm denselben umgerechneten Zielwert in Gramm/kcal/mg anzeigen
+ * kann, ohne die Umrechnung zu duplizieren.
  */
-function targetInSameUnit(
+export function resolveComparableTarget(
   requirement: NutrientRequirement,
   amountUnit: string,
   energyRequirementKcal: number | undefined,
@@ -54,8 +64,7 @@ export function calculateDailyRequirementPercentage(
   requirements: NutrientRequirement[],
 ): Map<string, number | null> {
   const requirementsById = new Map(requirements.map((r) => [r.nutrientId, r]))
-  const energyRequirement = requirementsById.get('energy')
-  const energyTargetKcal = energyRequirement ? targetValue(energyRequirement) : undefined
+  const energyTargetKcal = getEnergyRequirementKcal(requirements)
 
   const result = new Map<string, number | null>()
   for (const amount of perServing) {
@@ -64,7 +73,7 @@ export function calculateDailyRequirementPercentage(
       result.set(amount.nutrientId, null)
       continue
     }
-    const target = targetInSameUnit(requirement, amount.unit, energyTargetKcal)
+    const target = resolveComparableTarget(requirement, amount.unit, energyTargetKcal)
     result.set(amount.nutrientId, target ? (amount.value / target) * 100 : null)
   }
   return result

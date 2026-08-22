@@ -13,14 +13,19 @@ import type { NutrientAmount, NutrientValues } from './models/nutritionValues.ts
  * bauen daraus die Map, z.B. in `recipeDetailView.ts`.
  *
  * Kompatibilität mit `NutrientRequirement` (Instruktion 2): Nährstoff-IDs
- * ('energy', 'protein', 'fat', 'carbohydrates', 'fiber') sind identisch.
- * Einheiten stimmen für 'energy' (kcal), 'protein' (g) und 'fiber' (g, für
- * die Altersgruppen ab 19 Jahren) direkt überein. 'fat' und 'carbohydrates'
- * werden hier — wie in der Lebensmitteldatenbank — in Gramm berechnet,
- * während die DACH-Referenzwerte dafür bewusst in %-der-Energie angegeben
- * sind (da der Grammbedarf vom individuellen Energiebedarf abhängt, siehe
- * `referenceValues.ts`). Die Umrechnung für den Vergleich "% Tagesbedarf"
- * übernimmt `dailyRequirementPercentage.ts`, nicht dieses Modul.
+ * ('energy', 'protein', 'fat', 'carbohydrates', 'fiber', 'calcium', 'iron',
+ * 'vitaminC') sind identisch. Einheiten stimmen für 'energy' (kcal),
+ * 'protein' (g), 'fiber' (g, für die Altersgruppen ab 19 Jahren), 'calcium'
+ * (mg), 'iron' (mg) und 'vitaminC' (mg) direkt überein. 'fat' und
+ * 'carbohydrates' werden hier — wie in der Lebensmitteldatenbank — in Gramm
+ * berechnet, während die DACH-Referenzwerte dafür bewusst in %-der-Energie
+ * angegeben sind (da der Grammbedarf vom individuellen Energiebedarf
+ * abhängt, siehe `referenceValues.ts`). Die Umrechnung für den Vergleich
+ * "% Tagesbedarf" übernimmt `dailyRequirementPercentage.ts`, nicht dieses
+ * Modul.
+ *
+ * Calcium/Eisen/Vitamin C wurden für das Chart aus Instruktion 5 ergänzt,
+ * siehe `features/charts/nutrientComparisonChart.ts` für die Auswahlbegründung.
  */
 const NUTRIENT_DEFINITIONS: {
   nutrientId: string
@@ -32,6 +37,9 @@ const NUTRIENT_DEFINITIONS: {
   { nutrientId: 'fat', unit: 'g', getPer100g: (food) => food.fat },
   { nutrientId: 'carbohydrates', unit: 'g', getPer100g: (food) => food.carbohydrates },
   { nutrientId: 'fiber', unit: 'g', getPer100g: (food) => food.fiber },
+  { nutrientId: 'calcium', unit: 'mg', getPer100g: (food) => food.minerals.calcium.value },
+  { nutrientId: 'iron', unit: 'mg', getPer100g: (food) => food.minerals.iron.value },
+  { nutrientId: 'vitaminC', unit: 'mg', getPer100g: (food) => food.vitamins.c.value },
 ]
 
 export function calculateRecipeNutrition(

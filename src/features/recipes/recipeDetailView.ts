@@ -7,12 +7,24 @@ import { getRecipeById } from './recipeService.ts'
 import { calculatePerServing } from './nutritionCalculator.ts'
 import { calculateDailyRequirementPercentage } from './dailyRequirementPercentage.ts'
 import { NUTRIENT_LABELS, UNIT_LABELS } from '../../utils/nutrientLabels.ts'
+import { renderNutrientComparisonChart } from '../charts/nutrientComparisonChart.ts'
+import type { NutrientComparisonChartHandle } from '../charts/nutrientComparisonChart.ts'
 
 export interface RecipeDetailViewOptions {
   container: HTMLElement
   recipeId: string
   profile: UserProfile
   onBack: () => void
+}
+
+// Nur eine Detailansicht ist je aktiv — vor jedem Neu-Rendern und beim
+// Verlassen der Ansicht wird das vorherige Chart sauber zerstört (Chart.js
+// hält sonst Referenzen auf das entfernte Canvas, z.B. für Resize-Handling).
+let activeChart: NutrientComparisonChartHandle | null = null
+
+function destroyActiveChart(): void {
+  activeChart?.destroy()
+  activeChart = null
 }
 
 /** Siehe Instruktion 2/3: für nicht abgedeckte Altersgruppen (<15 Jahre) gibt es keine DACH-Referenzwerte. */
@@ -30,6 +42,12 @@ function formatAmount(value: number): string {
 
 export async function renderRecipeDetailView(options: RecipeDetailViewOptions): Promise<void> {
   const { container, recipeId, profile, onBack } = options
+  destroyActiveChart()
+
+  const handleBack = (): void => {
+    destroyActiveChart()
+    onBack()
+  }
 
   container.innerHTML = `
     <main>
@@ -49,7 +67,7 @@ export async function renderRecipeDetailView(options: RecipeDetailViewOptions): 
         </section>
       </main>
     `
-    container.querySelector('[data-action="back"]')?.addEventListener('click', onBack)
+    container.querySelector('[data-action="back"]')?.addEventListener('click', handleBack)
     return
   }
 
@@ -102,6 +120,9 @@ export async function renderRecipeDetailView(options: RecipeDetailViewOptions): 
           <tbody>${ingredientRows}</tbody>
         </table>
 
+        <h2>Bedarf vs. Aufnahme</h2>
+        <div data-chart-container></div>
+
         <h2>Nährwerte pro Portion</h2>
         <table class="requirements-table">
           <thead>
@@ -120,5 +141,14 @@ export async function renderRecipeDetailView(options: RecipeDetailViewOptions): 
     </main>
   `
 
-  container.querySelector('[data-action="back"]')?.addEventListener('click', onBack)
+  const chartContainer = container.querySelector<HTMLDivElement>('[data-chart-container]')
+  if (chartContainer) {
+    activeChart = renderNutrientComparisonChart({
+      container: chartContainer,
+      intake: perServing,
+      requirements,
+    })
+  }
+
+  container.querySelector('[data-action="back"]')?.addEventListener('click', handleBack)
 }
