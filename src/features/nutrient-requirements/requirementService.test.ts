@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { findAgeGroup, getRequirementsForProfile } from './requirementService.ts'
-import type { UserProfile } from '../../data/localStorageService.ts'
+import type { UserProfile } from '../../data/models/userProfile.ts'
 
 test('findAgeGroup ordnet Alter der richtigen DACH-Gruppe zu', () => {
   assert.equal(findAgeGroup(17).id, '15-19')
@@ -20,7 +20,6 @@ test('getRequirementsForProfile liefert Makronährstoffe für ein Profil', () =>
     age: 17,
     heightCm: 170,
     gender: 'female',
-    selectedNutrients: [],
   }
 
   const requirements = getRequirementsForProfile(profile)
@@ -35,13 +34,13 @@ test('getRequirementsForProfile liefert Makronährstoffe für ein Profil', () =>
   assert.equal(protein?.recommended, 48)
 })
 
-test('getRequirementsForProfile wirft für gender "other" statt einen Wert zu erfinden', () => {
-  const profile: UserProfile = {
-    age: 25,
-    heightCm: 180,
-    gender: 'other',
-    selectedNutrients: [],
-  }
+test('getRequirementsForProfile unterscheidet nach Geschlecht bei gleichem Alter', () => {
+  const female: UserProfile = { age: 30, heightCm: 165, gender: 'female' }
+  const male: UserProfile = { age: 30, heightCm: 180, gender: 'male' }
 
-  assert.throws(() => getRequirementsForProfile(profile))
+  const femaleEnergy = getRequirementsForProfile(female).find((r) => r.nutrientId === 'energy')
+  const maleEnergy = getRequirementsForProfile(male).find((r) => r.nutrientId === 'energy')
+
+  assert.equal(femaleEnergy?.recommended, 2100)
+  assert.equal(maleEnergy?.recommended, 2700)
 })

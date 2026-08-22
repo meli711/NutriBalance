@@ -11,7 +11,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "convert:food-db": "node scripts/convert-food-db.ts",
-    "test": "node --test src/**/*.test.ts",
+    "test": "find src -name '*.test.ts' -print0 | xargs -0 node --test",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json"
   },
   "devDependencies": {

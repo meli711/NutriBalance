@@ -7,8 +7,7 @@
  */
 export type DachReferenceType = 'empfohleneZufuhr' | 'schaetzwert' | 'richtwert'
 
-/** DACH-Referenzwerte unterscheiden nur männlich/weiblich; siehe requirementService.ts für den Umgang mit 'other'. */
-export type Gender = 'male' | 'female'
+export type { Gender } from '../../../data/models/userProfile.ts'
 
 export interface AgeGroup {
   id: string
