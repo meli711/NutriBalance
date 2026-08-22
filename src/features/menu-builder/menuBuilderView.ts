@@ -179,19 +179,31 @@ export function renderMenuBuilderView(options: MenuBuilderViewOptions): void {
     void searchFoodsByName(query).then((results) => {
       if (requestId !== searchRequestId) return // veraltete Antwort (Nutzer:in hat weitergetippt) ignorieren
 
-      const topResults = results.slice(0, 8)
-      if (topResults.length === 0) {
+      if (results.length === 0) {
         suggestionsList.innerHTML = '<li class="menu-builder__suggestion-empty">Keine Treffer</li>'
         suggestionsList.hidden = false
         return
       }
 
-      suggestionsList.innerHTML = topResults
-        .map(
-          (food) =>
-            `<li><button type="button" data-food-id="${food.id}">${food.name.de}</button></li>`,
-        )
-        .join('')
+      // Bei sehr allgemeinen Suchbegriffen (z.B. "Milch": 44 Treffer in der
+      // Datenbank) frühere Version zeigte nur die ersten 8 in Datenbank-
+      // Reihenfolge — Vollmilch/Magermilch fielen dabei komplett raus, ohne
+      // Hinweis. Jetzt: grosszügigeres Limit, Rest wird transparent als
+      // "+ N weitere" angezeigt statt still verschluckt.
+      const SUGGESTION_LIMIT = 50
+      const topResults = results.slice(0, SUGGESTION_LIMIT)
+      const remaining = results.length - topResults.length
+
+      suggestionsList.innerHTML =
+        topResults
+          .map(
+            (food) =>
+              `<li><button type="button" data-food-id="${food.id}">${food.name.de}</button></li>`,
+          )
+          .join('') +
+        (remaining > 0
+          ? `<li class="menu-builder__suggestion-empty">+ ${remaining} weitere Treffer — bitte genauer suchen</li>`
+          : '')
       suggestionsList.hidden = false
 
       suggestionsList.querySelectorAll<HTMLButtonElement>('[data-food-id]').forEach((button) => {
