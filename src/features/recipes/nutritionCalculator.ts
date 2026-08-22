@@ -19,9 +19,8 @@ import type { NutrientAmount, NutrientValues } from './models/nutritionValues.ts
  * werden hier — wie in der Lebensmitteldatenbank — in Gramm berechnet,
  * während die DACH-Referenzwerte dafür bewusst in %-der-Energie angegeben
  * sind (da der Grammbedarf vom individuellen Energiebedarf abhängt, siehe
- * `referenceValues.ts`). Ein direkter Vergleich dieser beiden Nährstoffe
- * braucht deshalb eine Umrechnung zum Zeitpunkt des Vergleichs (geplant für
- * die nächste Instruktion), nicht schon hier.
+ * `referenceValues.ts`). Die Umrechnung für den Vergleich "% Tagesbedarf"
+ * übernimmt `dailyRequirementPercentage.ts`, nicht dieses Modul.
  */
 const NUTRIENT_DEFINITIONS: {
   nutrientId: string

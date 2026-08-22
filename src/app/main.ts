@@ -41,6 +41,7 @@ function showRecipeDetail(profile: UserProfile, recipeId: string): void {
   void renderRecipeDetailView({
     container: app,
     recipeId,
+    profile,
     onBack: () => showRecipeList(profile),
   })
 }

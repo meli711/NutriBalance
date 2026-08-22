@@ -89,12 +89,36 @@ interface Recipe {
 - Unit-Test für `calculatePerServing` mit einem einfachen Beispielrezept
   (Zahlen von Hand nachrechenbar), um Skalierungslogik abzusichern
 
+### 7. Ergänzung: Spalte "% Tagesbedarf" in der Nährwerte-Tabelle
+*(Nachträglich ergänzt, nachdem Instruktion 4 ursprünglich umgesetzt war.)*
+
+- In der "Nährwerte pro Portion"-Tabelle (`recipeDetailView.ts`) zusätzliche
+  Spalte nach "Einheit": **% des täglichen Bedarfs**, berechnet anhand des
+  gespeicherten `UserProfile` (`getRequirementsForProfile`).
+- Neues Modul `src/features/recipes/dailyRequirementPercentage.ts`:
+  - Bei übereinstimmender Einheit (Energie, Protein, Ballaststoffe ab
+    19 Jahren) direkter Prozentsatz `Aufnahme / Referenzwert * 100`.
+  - Bei Fett/Kohlenhydraten (Referenzwert in `%energy`, Aufnahme in Gramm):
+    Umrechnung über den Energiebedarf derselben Altersgruppe
+    (`Zielwert_g = %-Anteil * Energiebedarf_kcal / kcal-pro-Gramm`,
+    9 kcal/g Fett, 4 kcal/g Kohlenhydrate).
+  - Wenn kein Vergleich möglich ist (keine Referenzwerte für die
+    Altersgruppe, oder Ballaststoffe bei 15–19 Jahren, deren Referenzwert in
+    `g/1000kcal` statt Gramm vorliegt) → `null`, angezeigt als „–“, nicht
+    als „0 %“.
+- Unit-Test dafür (`dailyRequirementPercentage.test.ts`), inkl. der
+  %energy-Umrechnung mit von Hand nachrechenbaren Zahlen.
+
 ---
 
 ## Was NICHT Teil dieses Auftrags ist
 - Kein UI zum Erstellen/Bearbeiten eigener Rezepte
 - Keine Mengen-Einheiten ausser Gramm
-- Kein Vergleich Bedarf vs. Aufnahme (kommt in der nächsten Instruktion)
+- Kein vollständiger Bedarf-vs-Aufnahme-Vergleich über einen ganzen Tag
+  (mehrere Mahlzeiten, Tagesprotokoll, Restbudget) — das bleibt einer
+  späteren Instruktion vorbehalten. Die "% Tagesbedarf"-Spalte (siehe
+  Punkt 7) ist bewusst nur ein Vergleich für **eine einzelne Portion**,
+  kein Tages-Tracking.
 - Keine Charts
 
 ## Nach Abschluss
@@ -104,3 +128,5 @@ Bitte zeigen:
   gegenprüfen lässt
 - Kurz bestätigen: sind `NutrientValues` und `NutrientRequirement` wirklich
   strukturell kompatibel (gleiche Nährstoff-IDs)?
+- Ein Beispiel mit der "% Tagesbedarf"-Spalte, inkl. eines Nährstoffs, bei
+  dem die Umrechnung über die Energie greift (Fett oder Kohlenhydrate)
