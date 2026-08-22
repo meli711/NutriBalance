@@ -22,9 +22,6 @@ export interface DailyLogViewOptions {
   date: string
   onNavigateDate: (date: string) => void
   onAddEntry: () => void
-  onShowProfile: () => void
-  onShowRecipes: () => void
-  onShowMenus: () => void
 }
 
 let activeSummary: NutritionSummaryHandle | null = null
@@ -73,16 +70,7 @@ async function resolveEntry(entry: LogEntry): Promise<ResolvedEntry> {
 }
 
 export async function renderDailyLogView(options: DailyLogViewOptions): Promise<void> {
-  const {
-    container,
-    profile,
-    date,
-    onNavigateDate,
-    onAddEntry,
-    onShowProfile,
-    onShowRecipes,
-    onShowMenus,
-  } = options
+  const { container, profile, date, onNavigateDate, onAddEntry } = options
   destroyActiveSummary()
 
   container.innerHTML = `
@@ -136,12 +124,6 @@ export async function renderDailyLogView(options: DailyLogViewOptions): Promise<
       </div>
 
       ${bodyHtml}
-
-      <div class="profile-view__actions">
-        <button type="button" class="button-secondary" data-action="profile">Mein Bedarf</button>
-        <button type="button" class="button-secondary" data-action="recipes">Rezepte</button>
-        <button type="button" class="button-secondary" data-action="menus">Eigene Menüs</button>
-      </div>
     </section>
   `
 
@@ -173,18 +155,6 @@ export async function renderDailyLogView(options: DailyLogViewOptions): Promise<
   container.querySelector('[data-action="add"]')?.addEventListener('click', () => {
     destroyActiveSummary()
     onAddEntry()
-  })
-  container.querySelector('[data-action="profile"]')?.addEventListener('click', () => {
-    destroyActiveSummary()
-    onShowProfile()
-  })
-  container.querySelector('[data-action="recipes"]')?.addEventListener('click', () => {
-    destroyActiveSummary()
-    onShowRecipes()
-  })
-  container.querySelector('[data-action="menus"]')?.addEventListener('click', () => {
-    destroyActiveSummary()
-    onShowMenus()
   })
 
   container.querySelectorAll<HTMLButtonElement>('[data-remove-entry-id]').forEach((button) => {
