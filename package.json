@@ -9,17 +9,22 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "convert:food-db": "node scripts/convert-food-db.ts",
+    "test": "node --test src/**/*.test.ts",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/node": "^26.2.0",
     "eslint": "^10.9.0",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.9.6",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.67.0",
     "vite": "^8.2.0",
-    "vite-plugin-pwa": "^1.3.0"
+    "vite-plugin-pwa": "^1.3.0",
+    "xlsx": "^0.18.5"
   },
   "dependencies": {
     "idb": "^8.0.3"
