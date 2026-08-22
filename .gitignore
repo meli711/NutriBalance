@@ -13,6 +13,11 @@ dist-ssr
 dev-dist
 *.local
 
+# Rohdaten Dritter (Schweizer Nährwertdatenbank, DGE-Referenzwerte) — nicht
+# unsere eigenen Daten, daher lokal statt im öffentlichen Repo. Herkunft und
+# Download-Links siehe README.md.
+quellen/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

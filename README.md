@@ -4,10 +4,6 @@ Matura-Arbeit von Meliane Sterchi: Nährstoffbedarf vs. Nährstoffaufnahme,
 inkl. Rezept-Feature. Reines Frontend-Projekt, installierbar als PWA auf
 macOS, iPad/iPhone und Desktop-Browsern.
 
-> Dieser Stand ist reines Projekt-Setup (Build-Pipeline, Ordnerstruktur,
-> Storage-Grundgerüst). Es sind noch keine Features, keine UI und keine
-> Nährwertdaten eingebunden.
-
 ## Setup
 
 ```bash
@@ -73,9 +69,36 @@ public/
   icons/          PWA-Icons (aktuell Platzhalter)
 ```
 
+## Datenquellen (Rohdaten nicht im Repo)
+
+Die App nutzt Daten Dritter, die für dieses Repo konvertiert bzw. als
+Referenz verwendet, aber **nicht selbst veröffentlicht** werden (die
+Rohdaten gehören nicht diesem Projekt). Der Ordner `quellen/` ist deshalb
+in `.gitignore` und lokal nachzubauen:
+
+1. **Schweizer Nährwertdatenbank** (Basis für `public/data/food-database.json`)
+   - Quelle: [naehrwertdaten.ch](https://naehrwertdaten.ch/) (Bundesamt für
+     Lebensmittelsicherheit und Veterinärwesen BLV), Excel-Export
+     "Generische Lebensmittel" (in diesem Projekt verwendet: V 7.1)
+   - Ablegen unter `quellen/Schweizer_Nahrwertdatenbank.xlsx`, danach:
+     ```bash
+     npm run convert:food-db
+     ```
+     Details zur Spalten-Zuordnung: `scripts/convert-food-db.ts`.
+
+2. **DACH-Referenzwerte** (Basis für die Bedarfswerte in
+   `src/features/nutrient-requirements/data/referenceValues.ts`)
+   - Quelle: [DGE – Referenzwerte für die Nährstoffzufuhr](https://www.dge.de/wissenschaft/referenzwerte/)
+     (Deutsche Gesellschaft für Ernährung; dieselben Werte werden von der
+     SGE für die Schweiz übernommen, [sge-ssn.ch](https://www.sge-ssn.ch/))
+   - Konkret verwendete Unterseiten: `energie`, `protein`,
+     `fett-essenzielle-fettsaeuren`, `kohlenhydrate`, `ballaststoffe`,
+     `calcium`, `eisen`, `vitamin-c`
+   - Für die schriftliche Arbeit wurden lokale HTML-Snapshots dieser Seiten
+     archiviert (Stand siehe `source`-Angaben in `referenceValues.ts`) —
+     ebenfalls nicht im Repo, da fremder Seiteninhalt.
+
 ## Nächste Schritte
 
-- Schweizer Nährwertdatenbank als lokale JSON-Datei einbinden
-- UI-Komponenten für Bedarf/Aufnahme/Rezepte umsetzen
-- Chart.js für Visualisierungen integrieren
-- Deployment (Vercel/GitHub Pages)
+- Weitere Mikronährstoffe in den Referenzwerten ergänzen
+- Deployment (siehe `npm run build:nutribalance-subpath` für Unterordner-Hosting)
