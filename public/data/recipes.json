@@ -1,0 +1,109 @@
+[
+  {
+    "id": "overnight-oats-banane",
+    "name": "Overnight Oats mit Banane",
+    "servings": 1,
+    "ingredients": [
+      { "foodId": "198", "amountGrams": 50 },
+      { "foodId": "62", "amountGrams": 200 },
+      { "foodId": "381", "amountGrams": 100 },
+      { "foodId": "472", "amountGrams": 10 }
+    ],
+    "instructions": [
+      "Haferflocken mit Milch übergiessen und über Nacht im Kühlschrank quellen lassen.",
+      "Banane in Scheiben schneiden und mit Honig darauf verteilen."
+    ]
+  },
+  {
+    "id": "ruehrei-vollkornbrot",
+    "name": "Rührei mit Vollkornbrot",
+    "servings": 1,
+    "ingredients": [
+      { "foodId": "290", "amountGrams": 120 },
+      { "foodId": "14297", "amountGrams": 10 },
+      { "foodId": "821", "amountGrams": 60 }
+    ],
+    "instructions": [
+      "Eier in der Butter bei mittlerer Hitze unter Rühren stocken lassen.",
+      "Mit dem Vollkornbrot servieren."
+    ]
+  },
+  {
+    "id": "joghurt-honig-nuesse",
+    "name": "Naturjoghurt mit Honig und Nüssen",
+    "servings": 1,
+    "ingredients": [
+      { "foodId": "52", "amountGrams": 150 },
+      { "foodId": "472", "amountGrams": 10 },
+      { "foodId": "1170", "amountGrams": 20 }
+    ]
+  },
+  {
+    "id": "pouletbrust-reis-broccoli",
+    "name": "Pouletbrust mit Reis und Broccoli",
+    "servings": 1,
+    "ingredients": [
+      { "foodId": "22", "amountGrams": 150 },
+      { "foodId": "1067", "amountGrams": 180 },
+      { "foodId": "1005", "amountGrams": 150 },
+      { "foodId": "591", "amountGrams": 10 }
+    ],
+    "instructions": [
+      "Pouletbrust in Olivenöl braten, bis sie durchgegart ist.",
+      "Mit Reis und gedämpftem Broccoli anrichten."
+    ]
+  },
+  {
+    "id": "lachs-kartoffeln-spinat",
+    "name": "Lachs mit Kartoffeln und Spinat",
+    "servings": 1,
+    "ingredients": [
+      { "foodId": "13354", "amountGrams": 150 },
+      { "foodId": "1057", "amountGrams": 200 },
+      { "foodId": "1025", "amountGrams": 100 },
+      { "foodId": "591", "amountGrams": 10 }
+    ]
+  },
+  {
+    "id": "quinoa-bowl-avocado-tomate",
+    "name": "Quinoa-Bowl mit Avocado und Tomate",
+    "servings": 1,
+    "ingredients": [
+      { "foodId": "13396", "amountGrams": 150 },
+      { "foodId": "380", "amountGrams": 80 },
+      { "foodId": "348", "amountGrams": 100 },
+      { "foodId": "605", "amountGrams": 10 },
+      { "foodId": "591", "amountGrams": 10 }
+    ],
+    "instructions": [
+      "Quinoa mit gewürfelter Avocado und Tomate vermengen.",
+      "Mit Zitronensaft und Olivenöl abschmecken."
+    ]
+  },
+  {
+    "id": "magerquark-apfel-honig",
+    "name": "Magerquark mit Apfel und Honig",
+    "servings": 1,
+    "ingredients": [
+      { "foodId": "71", "amountGrams": 150 },
+      { "foodId": "378", "amountGrams": 100 },
+      { "foodId": "472", "amountGrams": 5 }
+    ]
+  },
+  {
+    "id": "gemuesepfanne-teigwaren",
+    "name": "Gemüsepfanne mit Teigwaren",
+    "servings": 2,
+    "ingredients": [
+      { "foodId": "367", "amountGrams": 150 },
+      { "foodId": "360", "amountGrams": 100 },
+      { "foodId": "368", "amountGrams": 50 },
+      { "foodId": "591", "amountGrams": 15 },
+      { "foodId": "1063", "amountGrams": 200 }
+    ],
+    "instructions": [
+      "Zucchetti, Peperoni und Zwiebel in Olivenöl anbraten.",
+      "Mit den gekochten Teigwaren vermengen."
+    ]
+  }
+]
