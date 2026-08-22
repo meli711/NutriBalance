@@ -1,6 +1,7 @@
 import type { Recipe } from './models/recipe.ts'
 
-const RECIPES_URL = '/data/recipes.json'
+// Siehe foodDatabaseService.ts: BASE_URL statt "/", für Unterordner-Deployments.
+const RECIPES_URL = `${import.meta.env.BASE_URL}data/recipes.json`
 
 let cache: Recipe[] | null = null
 let loadPromise: Promise<Recipe[]> | null = null

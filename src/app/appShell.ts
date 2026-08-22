@@ -20,7 +20,7 @@ export function renderAppShell(root: HTMLElement): HTMLElement {
       <main id="screen-content" class="app-content"></main>
       <footer class="app-footer">
         <div class="app-footer__mark">${renderBrandMark(16)}</div>
-        <p>Matura-Arbeit 2026 · Kantonsschule Zofingen</p>
+        <p>Matura-Arbeit 2026 · Kantonsschule Zofingen · Meliane Sterchi</p>
       </footer>
     </div>
   `

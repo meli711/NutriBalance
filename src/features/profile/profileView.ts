@@ -71,7 +71,7 @@ export function renderProfileView(options: ProfileViewOptions): void {
       <h1>Dein Nährstoffbedarf</h1>
       <figure class="profile-view__hero">
         <img
-          src="/images/header-balanced-meals.jpg"
+          src="${import.meta.env.BASE_URL}images/header-balanced-meals.jpg"
           alt="Ausgewogene Teller mit Lachs, Gemüse, Vollkorn und frischen Zutaten"
           width="1000"
           height="520"

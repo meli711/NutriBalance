@@ -1,6 +1,9 @@
 import type { FoodItem } from './models/food.ts'
 
-const DATABASE_URL = '/data/food-database.json'
+// `import.meta.env.BASE_URL` statt eines fest verdrahteten "/", damit ein
+// Deployment in einem Unterordner (z.B. via `vite build --base=/pfad/`)
+// funktioniert, nicht nur im Domain-Root.
+const DATABASE_URL = `${import.meta.env.BASE_URL}data/food-database.json`
 
 let cache: FoodItem[] | null = null
 let loadPromise: Promise<FoodItem[]> | null = null
