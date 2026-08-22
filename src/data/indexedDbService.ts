@@ -1,15 +1,23 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import type { Menu } from '../features/menu-builder/models/menu.ts'
+import type { LogEntry } from '../features/daily-log/models/logEntry.ts'
 
 interface NutriBalanceDB extends DBSchema {
   menus: {
     key: string
     value: Menu
   }
+  logEntries: {
+    key: string
+    value: LogEntry
+    indexes: { 'by-date': string }
+  }
 }
 
 const DB_NAME = 'nutribalance'
-const DB_VERSION = 1
+// v2: neuer Object Store `logEntries` (Instruktion 9) — `menus` (v1) bleibt
+// unverändert bestehen, siehe upgrade()-Migration unten.
+const DB_VERSION = 2
 
 let dbPromise: Promise<IDBPDatabase<NutriBalanceDB>> | null = null
 
@@ -19,6 +27,10 @@ function getDb(): Promise<IDBPDatabase<NutriBalanceDB>> {
       upgrade(db) {
         if (!db.objectStoreNames.contains('menus')) {
           db.createObjectStore('menus', { keyPath: 'id' })
+        }
+        if (!db.objectStoreNames.contains('logEntries')) {
+          const store = db.createObjectStore('logEntries', { keyPath: 'id' })
+          store.createIndex('by-date', 'date')
         }
       },
     })
@@ -44,4 +56,20 @@ export async function getMenuById(id: string): Promise<Menu | undefined> {
 export async function deleteMenu(id: string): Promise<void> {
   const db = await getDb()
   await db.delete('menus', id)
+}
+
+export async function addLogEntry(entry: LogEntry): Promise<void> {
+  const db = await getDb()
+  await db.put('logEntries', entry)
+}
+
+export async function removeLogEntry(id: string): Promise<void> {
+  const db = await getDb()
+  await db.delete('logEntries', id)
+}
+
+/** Nutzt den `by-date`-Index — lädt nur die Einträge des Tages, nicht den ganzen Store. */
+export async function getLogEntriesForDate(date: string): Promise<LogEntry[]> {
+  const db = await getDb()
+  return db.getAllFromIndex('logEntries', 'by-date', date)
 }

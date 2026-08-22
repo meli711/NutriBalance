@@ -11,6 +11,7 @@ export interface ProfileViewOptions {
   container: HTMLElement
   profile: UserProfile
   onEdit: () => void
+  onShowLog: () => void
   onShowRecipes: () => void
   onShowMenus: () => void
 }
@@ -28,7 +29,7 @@ function formatRequirementValue(requirement: NutrientRequirement): string {
 }
 
 export function renderProfileView(options: ProfileViewOptions): void {
-  const { container, profile, onEdit, onShowRecipes, onShowMenus } = options
+  const { container, profile, onEdit, onShowLog, onShowRecipes, onShowMenus } = options
   const genderLabel = profile.gender === 'male' ? 'Männlich' : 'Weiblich'
 
   let bodyHtml: string
@@ -83,12 +84,14 @@ export function renderProfileView(options: ProfileViewOptions): void {
       <div class="profile-view__actions">
         <button type="button" class="button-primary" data-action="recipes">Rezepte ansehen</button>
         <button type="button" class="button-primary" data-action="menus">Eigene Menüs</button>
+        <button type="button" class="button-secondary" data-action="log">Zurück zum Tages-Log</button>
         <button type="button" class="button-secondary" data-action="edit">Profil bearbeiten</button>
       </div>
     </section>
   `
 
   container.querySelector('[data-action="edit"]')?.addEventListener('click', onEdit)
+  container.querySelector('[data-action="log"]')?.addEventListener('click', onShowLog)
   container.querySelector('[data-action="recipes"]')?.addEventListener('click', onShowRecipes)
   container.querySelector('[data-action="menus"]')?.addEventListener('click', onShowMenus)
 }

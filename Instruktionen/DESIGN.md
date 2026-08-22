@@ -75,10 +75,10 @@ Prinzip "lieber ein Element gut durchdacht".
 
 ## Bilder — Herkunft & Entscheidung
 
-1. **Eigene Fotos**: Ordner `public/images/` ist vorbereitet — Meliane kann
+1. **Eigene Fotos**: Ordner `../public/images` ist vorbereitet — Meliane kann
    eigene Foodfotos dort ablegen (sinnvolle Dateinamen, siehe
-   `public/images/README.md`).
-2. **Ein verifiziertes Stockfoto**: `public/images/header-balanced-meals.jpg`,
+   `../public/images/README.md`).
+2. **Ein verifiziertes Stockfoto**: `../public/images/header-balanced-meals.jpg`,
    Foto von **Shayda Torabi** auf Unsplash
    (https://unsplash.com/photos/3iexvMShGfQ), Unsplash-Lizenz (kostenlos,
    keine Attribution nötig, aber als `<figcaption>` unter dem Bild trotzdem
