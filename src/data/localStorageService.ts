@@ -53,7 +53,7 @@ export function clearUserProfile(): void {
   localStorage.removeItem(STORAGE_KEYS.userProfile)
 }
 
-function isValidRequirementOverrides(value: unknown): value is RequirementOverrides {
+export function isValidRequirementOverrides(value: unknown): value is RequirementOverrides {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false
   return Object.values(value as Record<string, unknown>).every(
     (v) => typeof v === 'number' && Number.isFinite(v),

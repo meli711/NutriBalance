@@ -2,16 +2,28 @@
 
 ## Kontext
 Aufbauend auf:
-- `src/data/localStorageService.ts` — Profil
+- `src/data/localStorageService.ts` — Profil, manuelle Bedarfs-Anpassungen
+  (`requirementOverrides`, siehe `features/nutrient-requirements`)
 - `src/data/indexedDbService.ts` — `menus` (Instruktion 6),
   `logEntries` (Instruktion 9)
 - `src/features/profile/` — bestehende Profilseite
 
-Ziel: Sämtliche lokal gespeicherten Daten (Profil, eigene Menüs, Log-
-Einträge) sollen sich als eine Datei exportieren und wieder importieren
-lassen — als Schutz vor Datenverlust (z.B. Browser-Cache leeren, neues
-Gerät). Die bestehende Profilseite wird dafür um einen Abschnitt erweitert,
-**keine neue eigenständige Seite**.
+Ziel: Sämtliche lokal gespeicherten Daten (Profil, manuelle Bedarfs-
+Anpassungen, eigene Menüs, Log-Einträge) sollen sich als eine Datei
+exportieren und wieder importieren lassen — als Schutz vor Datenverlust
+(z.B. Browser-Cache leeren, neues Gerät). Die bestehende Profilseite wird
+dafür um einen Abschnitt erweitert, **keine neue eigenständige Seite**.
+
+> **Update nach Bugreport (2026-08-23):** Die ursprüngliche Umsetzung hat
+> `requirementOverrides` (z.B. ein manuell auf 2000 kcal statt dem
+> berechneten DACH-Wert korrigiertes Kalorienziel) beim Export/Import
+> vergessen — nur Profil, Menüs und Log-Einträge wurden gesichert. Nach
+> einem Restore fiel eine manuelle Korrektur dadurch stillschweigend auf den
+> berechneten Referenzwert zurück. Behoben durch Ergänzung von
+> `requirementOverrides` in `BackupData` (siehe Punkt 1). Die App war zu
+> diesem Zeitpunkt noch nicht produktiv im Einsatz (keine v1-Backups im
+> Feld, die vom fehlenden Feld betroffen wären), daher blieb
+> `schemaVersion` bei `1` statt erhöht zu werden.
 
 Zusätzlich: `navigator.storage.persist()` beim App-Start anfordern, um das
 Risiko eines automatischen Löschens durch den Browser bei Speicherdruck zu
@@ -28,6 +40,7 @@ interface BackupData {
   schemaVersion: number;   // aktuell 1 — für künftige Formatänderungen
   exportedAt: string;      // ISO-Timestamp
   profile: UserProfile | null;
+  requirementOverrides: RequirementOverrides;
   menus: Menu[];
   logEntries: LogEntry[];
 }
@@ -36,11 +49,14 @@ interface BackupData {
 ändert (z.B. neues Feld) — dann kann beim Import unterschieden werden,
 ob die Datei zum aktuellen Format passt oder eine Migration/Fehlermeldung
 nötig ist. Für jetzt reicht eine einfache Prüfung "Version bekannt? Ja/Nein".
+(`requirementOverrides` wurde vor dem ersten produktiven Einsatz ergänzt,
+ohne die Version zu erhöhen, siehe Update-Hinweis oben.)
 
 ### 2. Backup Service
 `src/features/backup/backupService.ts`:
 - `exportBackup(): Promise<BackupData>`
-  - liest Profil (`getUserProfile()`), alle Menüs (`getAllMenus()`), alle
+  - liest Profil (`getUserProfile()`), manuelle Bedarfs-Anpassungen
+    (`getRequirementOverrides()`), alle Menüs (`getAllMenus()`), alle
     Log-Einträge (bitte prüfen, ob es bereits eine Funktion gibt, die
     **alle** Einträge über alle Tage liefert — falls `indexedDbService`
     bisher nur `getLogEntriesForDate` anbietet, eine zusätzliche
@@ -50,7 +66,8 @@ nötig ist. Für jetzt reicht eine einfache Prüfung "Version bekannt? Ja/Nein".
   - Dateiname: `nutribalance-backup-<YYYY-MM-DD>.json`
 - `importBackup(data: BackupData): Promise<void>`
   - validiert `schemaVersion` (siehe Punkt 4)
-  - **ersetzt** vollständig: Profil überschreiben, bestehende Menüs und
+  - **ersetzt** vollständig: Profil überschreiben, Bedarfs-Anpassungen
+    überschreiben (`saveRequirementOverrides()`), bestehende Menüs und
     Log-Einträge löschen und durch die importierten ersetzen (kein Merge —
     bewusst einfach gehalten, siehe "Was nicht Teil ist")
 
@@ -74,8 +91,9 @@ Bestehende Profilseite (`src/features/profile/`) um einen neuen Abschnitt
   (`<input type="file" accept=".json">`)
   - Nach Dateiauswahl: JSON parsen, validieren (Punkt 4)
   - **Vor dem eigentlichen Import ein Bestätigungsdialog**, da destruktiv:
-    „Dadurch werden alle aktuell gespeicherten Daten (Profil, Menüs,
-    Log-Einträge) durch die Daten aus der Backup-Datei ersetzt. Fortfahren?"
+    „Dadurch werden alle aktuell gespeicherten Daten (Profil, Bedarfs-
+    Anpassungen, Menüs, Log-Einträge) durch die Daten aus der Backup-Datei
+    ersetzt. Fortfahren?"
   - Nach erfolgreichem Import: kurze Erfolgsmeldung, danach z.B. zurück zum
     Log-Screen (mit den neu importierten Daten)
 - Kurzer erklärender Text im Abschnitt, warum das sinnvoll ist (z.B. "Deine
@@ -89,7 +107,8 @@ Bestehende Profilseite (`src/features/profile/`) um einen neuen Abschnitt
   App-Version erstellt worden und kann nicht importiert werden"), **kein**
   Versuch, unbekannte Formate zu "erraten"
 - Grundstruktur prüfen (z.B. `menus` und `logEntries` sind Arrays,
-  `profile` ist entweder `null` oder hat die erwarteten Felder) — bei
+  `profile` ist entweder `null` oder hat die erwarteten Felder,
+  `requirementOverrides` ist ein Objekt aus Nährstoff-ID → Zahl) — bei
   Fehler abbrechen, **bevor** irgendetwas an den bestehenden Daten
   verändert wird (kein teilweiser Import, der den Zustand inkonsistent
   zurücklässt)
@@ -107,9 +126,12 @@ Bestehende Profilseite (`src/features/profile/`) um einen neuen Abschnitt
 
 ### 6. Tests
 - Unit-Test: Export → Import (Round-Trip) ergibt identischen Datenzustand
+  (inkl. `requirementOverrides`)
 - Unit-Test: Import mit falscher/fehlender `schemaVersion` wird sauber
   abgelehnt, ohne bestehende Daten zu verändern
 - Unit-Test: Import mit kaputtem JSON wird abgefangen, klare Fehlermeldung
+- Unit-Test: Import mit ungültigen `requirementOverrides` (z.B. falscher
+  Werttyp) wird sauber abgelehnt
 
 ---
 

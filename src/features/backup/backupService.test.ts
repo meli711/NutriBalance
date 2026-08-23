@@ -2,7 +2,12 @@ import 'fake-indexeddb/auto'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { exportBackup, importBackup, parseBackupJson, validateBackupData } from './backupService.ts'
-import { getUserProfile, saveUserProfile } from '../../data/localStorageService.ts'
+import {
+  getRequirementOverrides,
+  getUserProfile,
+  saveRequirementOverrides,
+  saveUserProfile,
+} from '../../data/localStorageService.ts'
 import { addLogEntry, getAllLogEntries, getAllMenus, saveMenu } from '../../data/indexedDbService.ts'
 import { BACKUP_SCHEMA_VERSION } from './models/backup.ts'
 import type { Menu } from '../menu-builder/models/menu.ts'
@@ -44,7 +49,9 @@ const logEntry: LogEntry = {
 }
 
 test('Export -> Import (Round-Trip) ergibt identischen Datenzustand', async () => {
+  const overrides = { energy: 2000 }
   saveUserProfile(profile)
+  saveRequirementOverrides(overrides)
   await saveMenu(menu)
   await addLogEntry(logEntry)
 
@@ -52,11 +59,13 @@ test('Export -> Import (Round-Trip) ergibt identischen Datenzustand', async () =
 
   // Zustand danach verändern, um sicherzustellen, dass der Import wirklich wiederherstellt.
   saveUserProfile({ age: 99, gender: 'male', heightCm: 200 })
+  saveRequirementOverrides({ energy: 2700 })
   await saveMenu({ ...menu, id: 'other-menu' })
 
   await importBackup(exported)
 
   assert.deepEqual(getUserProfile(), profile)
+  assert.deepEqual(getRequirementOverrides(), overrides)
   assert.deepEqual(await getAllMenus(), [menu])
   assert.deepEqual(await getAllLogEntries(), [logEntry])
 })
@@ -67,11 +76,13 @@ test('importBackup lehnt falsche schemaVersion ab, ohne bestehende Daten zu ver�
     schemaVersion: BACKUP_SCHEMA_VERSION,
     exportedAt: new Date(0).toISOString(),
     profile,
+    requirementOverrides: { energy: 2000 },
     menus: [menu],
     logEntries: [logEntry],
   })
   const before = {
     profile: getUserProfile(),
+    requirementOverrides: getRequirementOverrides(),
     menus: await getAllMenus(),
     logEntries: await getAllLogEntries(),
   }
@@ -81,12 +92,14 @@ test('importBackup lehnt falsche schemaVersion ab, ohne bestehende Daten zu ver�
       schemaVersion: BACKUP_SCHEMA_VERSION + 1,
       exportedAt: new Date(0).toISOString(),
       profile: { age: 1, gender: 'male', heightCm: 100 },
+      requirementOverrides: { energy: 2700 },
       menus: [],
       logEntries: [],
     }),
   )
 
   assert.deepEqual(getUserProfile(), before.profile)
+  assert.deepEqual(getRequirementOverrides(), before.requirementOverrides)
   assert.deepEqual(await getAllMenus(), before.menus)
   assert.deepEqual(await getAllLogEntries(), before.logEntries)
 })
@@ -95,11 +108,25 @@ test('validateBackupData lehnt fehlende/falsche schemaVersion mit klarer Fehlerm
   const result = validateBackupData({
     exportedAt: new Date(0).toISOString(),
     profile: null,
+    requirementOverrides: {},
     menus: [],
     logEntries: [],
   })
   assert.equal(result.ok, false)
   if (!result.ok) assert.match(result.error, /App-Version/)
+})
+
+test('validateBackupData lehnt ungültige requirementOverrides ab', () => {
+  const result = validateBackupData({
+    schemaVersion: BACKUP_SCHEMA_VERSION,
+    exportedAt: new Date(0).toISOString(),
+    profile: null,
+    requirementOverrides: { energy: 'viel' },
+    menus: [],
+    logEntries: [],
+  })
+  assert.equal(result.ok, false)
+  if (!result.ok) assert.match(result.error, /Bedarfs-Anpassungen/)
 })
 
 test('parseBackupJson fängt kaputtes JSON ab, statt abzustürzen', () => {
@@ -113,12 +140,14 @@ test('parseBackupJson akzeptiert ein valides Backup', () => {
     schemaVersion: BACKUP_SCHEMA_VERSION,
     exportedAt: new Date(0).toISOString(),
     profile: null,
+    requirementOverrides: { energy: 2000 },
     menus: [menu],
     logEntries: [logEntry],
   })
   const result = parseBackupJson(raw)
   assert.equal(result.ok, true)
   if (result.ok) {
+    assert.deepEqual(result.data.requirementOverrides, { energy: 2000 })
     assert.deepEqual(result.data.menus, [menu])
     assert.deepEqual(result.data.logEntries, [logEntry])
   }

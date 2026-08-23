@@ -1,7 +1,10 @@
 import {
   clearUserProfile,
+  getRequirementOverrides,
   getUserProfile,
+  isValidRequirementOverrides,
   isValidUserProfile,
+  saveRequirementOverrides,
   saveUserProfile,
 } from '../../data/localStorageService.ts'
 import {
@@ -72,6 +75,9 @@ export function validateBackupData(value: unknown): BackupValidationResult {
   if (v.profile !== null && !isValidUserProfile(v.profile)) {
     return { ok: false, error: 'Die Backup-Datei enthält ein ungültiges Profil.' }
   }
+  if (!isValidRequirementOverrides(v.requirementOverrides)) {
+    return { ok: false, error: 'Die Backup-Datei enthält ungültige Bedarfs-Anpassungen.' }
+  }
   if (!Array.isArray(v.menus) || !v.menus.every(isValidMenu)) {
     return { ok: false, error: 'Die Backup-Datei enthält ungültige Menü-Daten.' }
   }
@@ -85,6 +91,7 @@ export function validateBackupData(value: unknown): BackupValidationResult {
       schemaVersion: v.schemaVersion,
       exportedAt: v.exportedAt,
       profile: v.profile as UserProfile | null,
+      requirementOverrides: v.requirementOverrides,
       menus: v.menus,
       logEntries: v.logEntries,
     },
@@ -108,6 +115,7 @@ export async function exportBackup(): Promise<BackupData> {
     schemaVersion: BACKUP_SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
     profile: getUserProfile(),
+    requirementOverrides: getRequirementOverrides(),
     menus,
     logEntries,
   }
@@ -148,6 +156,7 @@ export async function importBackup(data: BackupData): Promise<void> {
 
   if (data.profile) saveUserProfile(data.profile)
   else clearUserProfile()
+  saveRequirementOverrides(data.requirementOverrides)
 
   await replaceAllMenus(data.menus)
   await replaceAllLogEntries(data.logEntries)
