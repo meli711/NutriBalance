@@ -5,7 +5,7 @@
  * "Rezepte ansehen"/"Eigene Menüs"/"Zurück zum Tages-Log" auf der
  * Bedarfs-Anzeige) — eine Stelle statt vier.
  */
-export type NavSection = 'log' | 'bedarf' | 'recipes' | 'menus'
+export type NavSection = 'log' | 'bedarf' | 'recipes' | 'menus' | 'profil'
 
 export interface AppNavOptions {
   container: HTMLElement
@@ -18,6 +18,7 @@ const NAV_ITEMS: { section: NavSection; label: string }[] = [
   { section: 'bedarf', label: 'Mein Bedarf' },
   { section: 'recipes', label: 'Rezepte' },
   { section: 'menus', label: 'Menüs' },
+  { section: 'profil', label: 'Profil' },
 ]
 
 export function renderAppNav(options: AppNavOptions): void {

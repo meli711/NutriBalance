@@ -398,6 +398,22 @@ textarea:focus-visible,
   gap: var(--space-sm);
 }
 
+/* Daten-Backup */
+
+.backup-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+.backup-section__hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
 /* Rezeptliste */
 
 .recipe-list__status {

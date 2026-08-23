@@ -5,6 +5,7 @@ import { getLocalDateString } from '../utils/date.ts'
 import { renderAppShell } from './appShell.ts'
 import { clearAppNav, renderAppNav } from './appNav.ts'
 import type { NavSection } from './appNav.ts'
+import { requestPersistentStorage } from './storagePersistence.ts'
 import { renderProfileForm } from '../features/profile/profileForm.ts'
 import { renderProfileView } from '../features/profile/profileView.ts'
 import { renderRecipeListView } from '../features/recipes/recipeListView.ts'
@@ -45,13 +46,29 @@ function navigateTo(profile: UserProfile, section: NavSection): void {
     case 'menus':
       showMenuList(profile, () => showDailyLog(profile, today))
       break
+    case 'profil':
+      showForm(profile)
+      break
+  }
+}
+
+// Backup-Import (Instruktion 10) kann Profil/Menüs/Log-Einträge ersetzt haben
+// — daher hier neu aus dem Storage lesen statt ein geschlossenes `profile` weiterzuverwenden.
+// Von beiden Backup-Abschnitten genutzt: `profileForm.ts` (Import ohne bestehendes Profil,
+// z.B. nach Browser-Cache leeren) und `profileView.ts` (Import mit bestehendem Profil).
+function handleDataImported(): void {
+  const updatedProfile = getUserProfile()
+  if (updatedProfile) {
+    showDailyLog(updatedProfile, getLocalDateString(new Date()))
+  } else {
+    showForm(null)
   }
 }
 
 function showForm(existingProfile: UserProfile | null): void {
   if (!app) return
   if (existingProfile) {
-    updateNav(existingProfile, 'bedarf')
+    updateNav(existingProfile, 'profil')
   } else if (navSlot) {
     clearAppNav(navSlot) // vor dem ersten Profil gibt es noch nichts zu navigieren
   }
@@ -63,6 +80,7 @@ function showForm(existingProfile: UserProfile | null): void {
     onSaved: existingProfile
       ? showView
       : (profile) => showDailyLog(profile, getLocalDateString(new Date())),
+    onDataImported: handleDataImported,
   })
 }
 
@@ -153,6 +171,8 @@ function showAddLogEntry(profile: UserProfile, date: string): void {
     onCancel: () => showDailyLog(profile, date),
   })
 }
+
+void requestPersistentStorage() // best-effort, blockiert den Start nicht (siehe storagePersistence.ts)
 
 const profile = getUserProfile()
 if (profile) {

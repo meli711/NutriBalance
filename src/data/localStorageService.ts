@@ -12,7 +12,7 @@ function isValidGender(value: unknown): value is Gender {
   return value === 'male' || value === 'female'
 }
 
-function isValidUserProfile(value: unknown): value is UserProfile {
+export function isValidUserProfile(value: unknown): value is UserProfile {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Record<string, unknown>
   return (

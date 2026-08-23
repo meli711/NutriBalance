@@ -1,10 +1,13 @@
 import type { Gender, UserProfile } from '../../data/models/userProfile.ts'
 import { saveUserProfile } from '../../data/localStorageService.ts'
+import { renderBackupSection } from '../backup/backupSectionView.ts'
 
 export interface ProfileFormOptions {
   container: HTMLElement
   existingProfile: UserProfile | null
   onSaved: (profile: UserProfile) => void
+  /** Aufgerufen kurz nach erfolgreichem Backup-Import (Instruktion 10). */
+  onDataImported: () => void
 }
 
 export const AGE_MIN = 10
@@ -34,7 +37,7 @@ export function validateProfileInput(
 }
 
 export function renderProfileForm(options: ProfileFormOptions): void {
-  const { container, existingProfile, onSaved } = options
+  const { container, existingProfile, onSaved, onDataImported } = options
 
   container.innerHTML = `
     <form class="profile-form" novalidate>
@@ -127,4 +130,10 @@ export function renderProfileForm(options: ProfileFormOptions): void {
     saveUserProfile(profile)
     onSaved(profile)
   })
+
+  // Backup-Abschnitt (Instruktion 10) gehört ins Profil — sowohl beim
+  // Bearbeiten eines bestehenden Profils (`profil`-Nav) als auch ohne
+  // Profil (z.B. nach Browser-Cache leeren/neues Gerät, wo es sonst keinen
+  // Weg zurück zu den eigenen Daten gäbe).
+  renderBackupSection({ container, onImported: onDataImported })
 }

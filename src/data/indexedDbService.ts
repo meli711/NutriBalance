@@ -73,3 +73,27 @@ export async function getLogEntriesForDate(date: string): Promise<LogEntry[]> {
   const db = await getDb()
   return db.getAllFromIndex('logEntries', 'by-date', date)
 }
+
+/** Alle Log-Einträge über alle Tage hinweg — für das Backup (Instruktion 10). */
+export async function getAllLogEntries(): Promise<LogEntry[]> {
+  const db = await getDb()
+  return db.getAll('logEntries')
+}
+
+/** Ersetzt den kompletten `menus`-Store atomar durch `menus` — für den Backup-Import. */
+export async function replaceAllMenus(menus: Menu[]): Promise<void> {
+  const db = await getDb()
+  const tx = db.transaction('menus', 'readwrite')
+  await tx.store.clear()
+  await Promise.all(menus.map((menu) => tx.store.put(menu)))
+  await tx.done
+}
+
+/** Ersetzt den kompletten `logEntries`-Store atomar durch `entries` — für den Backup-Import. */
+export async function replaceAllLogEntries(entries: LogEntry[]): Promise<void> {
+  const db = await getDb()
+  const tx = db.transaction('logEntries', 'readwrite')
+  await tx.store.clear()
+  await Promise.all(entries.map((entry) => tx.store.put(entry)))
+  await tx.done
+}
