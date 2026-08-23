@@ -1,5 +1,6 @@
 import type { UserProfile } from '../../data/models/userProfile.ts'
 import { saveMenu } from '../../data/indexedDbService.ts'
+import { getRequirementOverrides } from '../../data/localStorageService.ts'
 import { getRequirementsForProfile } from '../nutrient-requirements/requirementService.ts'
 import type { NutrientRequirement } from '../nutrient-requirements/models/requirement.ts'
 import { calculateNutrition } from '../recipes/nutritionCalculator.ts'
@@ -25,7 +26,7 @@ interface BuilderIngredient extends RecipeIngredient {
 /** Siehe Instruktion 2/3: für nicht abgedeckte Altersgruppen (<15 Jahre) gibt es keine DACH-Referenzwerte. */
 function getRequirementsSafely(profile: UserProfile): NutrientRequirement[] {
   try {
-    return getRequirementsForProfile(profile)
+    return getRequirementsForProfile(profile, getRequirementOverrides())
   } catch {
     return []
   }

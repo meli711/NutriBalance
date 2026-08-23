@@ -349,6 +349,49 @@ textarea:focus-visible,
   font-weight: 600;
 }
 
+.requirements-table__row--overridden {
+  background-color: var(--chart-color-requirement-fill);
+}
+
+.requirements-table__input {
+  width: 6rem;
+  min-height: 44px;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background-color: #ffffff;
+  color: var(--color-text);
+}
+
+.requirements-table__badge {
+  margin-inline-start: var(--space-xs);
+  padding: 0.125rem 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: var(--color-accent);
+  border-radius: var(--radius);
+}
+
+.requirements-table__hint {
+  margin: var(--space-xs) 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.requirements-table__reset {
+  display: block;
+  margin-top: var(--space-xs);
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .profile-view__actions {
   display: flex;
   flex-direction: column;

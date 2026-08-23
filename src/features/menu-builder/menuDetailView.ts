@@ -2,6 +2,7 @@ import { getFoodById } from '../../data/foodDatabaseService.ts'
 import type { FoodItem } from '../../data/models/food.ts'
 import type { UserProfile } from '../../data/models/userProfile.ts'
 import { deleteMenu, getMenuById } from '../../data/indexedDbService.ts'
+import { getRequirementOverrides } from '../../data/localStorageService.ts'
 import { getRequirementsForProfile } from '../nutrient-requirements/requirementService.ts'
 import type { NutrientRequirement } from '../nutrient-requirements/models/requirement.ts'
 import { calculateNutrition } from '../recipes/nutritionCalculator.ts'
@@ -29,7 +30,7 @@ function destroyActiveSummary(): void {
 
 function getRequirementsSafely(profile: UserProfile): NutrientRequirement[] {
   try {
-    return getRequirementsForProfile(profile)
+    return getRequirementsForProfile(profile, getRequirementOverrides())
   } catch {
     return []
   }

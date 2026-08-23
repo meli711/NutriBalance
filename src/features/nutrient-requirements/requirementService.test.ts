@@ -73,3 +73,30 @@ test('getRequirementsForProfile unterscheidet nach Geschlecht bei gleichem Alter
   assert.equal(femaleEnergy?.recommended, 2100)
   assert.equal(maleEnergy?.recommended, 2700)
 })
+
+test('getRequirementsForProfile wendet manuelle Overrides auf den empfohlenen Wert an', () => {
+  const profile: UserProfile = { age: 30, heightCm: 165, gender: 'female' }
+
+  const requirements = getRequirementsForProfile(profile, { energy: 1800, protein: 70 })
+
+  const energy = requirements.find((r) => r.nutrientId === 'energy')
+  assert.equal(energy?.recommended, 1800)
+  assert.equal(energy?.isOverridden, true)
+
+  const protein = requirements.find((r) => r.nutrientId === 'protein')
+  assert.equal(protein?.recommended, 70)
+  assert.equal(protein?.isOverridden, true)
+
+  const calcium = requirements.find((r) => r.nutrientId === 'calcium')
+  assert.equal(calcium?.isOverridden, undefined)
+})
+
+test('getRequirementsForProfile ignoriert Overrides für Nährstoffe ohne recommended-Wert', () => {
+  const profile: UserProfile = { age: 30, heightCm: 165, gender: 'female' }
+
+  const requirements = getRequirementsForProfile(profile, { fiber: 999 })
+  const fiber = requirements.find((r) => r.nutrientId === 'fiber')
+
+  assert.equal(fiber?.recommended, undefined)
+  assert.equal(fiber?.isOverridden, undefined)
+})

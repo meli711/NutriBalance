@@ -1,6 +1,7 @@
 import { getFoodById } from '../../data/foodDatabaseService.ts'
 import type { FoodItem } from '../../data/models/food.ts'
 import type { UserProfile } from '../../data/models/userProfile.ts'
+import { getRequirementOverrides } from '../../data/localStorageService.ts'
 import { getRequirementsForProfile } from '../nutrient-requirements/requirementService.ts'
 import type { NutrientRequirement } from '../nutrient-requirements/models/requirement.ts'
 import { getRecipeById } from './recipeService.ts'
@@ -29,7 +30,7 @@ function destroyActiveSummary(): void {
 /** Siehe Instruktion 2/3: für nicht abgedeckte Altersgruppen (<15 Jahre) gibt es keine DACH-Referenzwerte. */
 function getRequirementsSafely(profile: UserProfile): NutrientRequirement[] {
   try {
-    return getRequirementsForProfile(profile)
+    return getRequirementsForProfile(profile, getRequirementOverrides())
   } catch {
     return []
   }

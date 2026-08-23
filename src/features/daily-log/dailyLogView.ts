@@ -1,6 +1,7 @@
 import type { UserProfile } from '../../data/models/userProfile.ts'
 import { getFoodById } from '../../data/foodDatabaseService.ts'
 import { getLogEntriesForDate, getMenuById, removeLogEntry } from '../../data/indexedDbService.ts'
+import { getRequirementOverrides } from '../../data/localStorageService.ts'
 import { getRecipeById } from '../recipes/recipeService.ts'
 import { getRequirementsForProfile } from '../nutrient-requirements/requirementService.ts'
 import type { NutrientRequirement } from '../nutrient-requirements/models/requirement.ts'
@@ -33,7 +34,7 @@ function destroyActiveSummary(): void {
 
 function getRequirementsSafely(profile: UserProfile): NutrientRequirement[] {
   try {
-    return getRequirementsForProfile(profile)
+    return getRequirementsForProfile(profile, getRequirementOverrides())
   } catch {
     return []
   }

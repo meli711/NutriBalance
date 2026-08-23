@@ -35,4 +35,11 @@ export interface NutrientRequirement {
   perKgBodyWeight?: number
   /** Kurzbeleg der Quelle für die schriftliche Arbeit (URL + Abrufdatum). */
   source: string
+  /**
+   * `true`, wenn `recommended` nicht der berechnete DACH-Wert ist, sondern
+   * manuell überschrieben wurde (siehe requirementService.ts). Der berechnete
+   * Wert bleibt der Ausgangspunkt — die Anpassung ist eine bewusste
+   * Abweichung, kein Ersatz der Referenzwerte.
+   */
+  isOverridden?: boolean
 }

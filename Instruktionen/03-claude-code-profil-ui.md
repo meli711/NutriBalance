@@ -51,6 +51,20 @@ kein Framework)
 - Zeigt die berechneten Werte als einfache Liste/Tabelle an (Nährstoff, Wert,
   Einheit) — noch **kein** Chart, das kommt in einer späteren Instruktion
 - Klar erkennbarer Button/Link "Profil bearbeiten"
+- **Werte manuell anpassbar**: Der berechnete Wert ist ein Ausgangspunkt, kein
+  Zwang. Wer z.B. weniger Kalorien verbrauchen oder mehr Protein zu sich
+  nehmen möchte als der DACH-Richtwert vorgibt, kann den Zielwert direkt in
+  der Tabelle überschreiben (Zahlenfeld statt reinem Text, nur bei
+  Nährstoffen mit festem `recommended`-Wert wie Energie/Protein/Calcium/
+  Eisen/Vitamin C — reine Bereichs-Richtwerte ohne Zielwert, z.B.
+  Ballaststoffe "≥ 30g", bleiben unverändert). Angepasste Werte werden
+  separat in `localStorage` gespeichert (`getRequirementOverrides()` /
+  `saveRequirementOverrides()`), überschreiben nur `recommended` (nicht die
+  DACH-Quelle selbst) und lassen sich pro Nährstoff wieder auf den
+  berechneten Wert zurücksetzen. Da `getRequirementsForProfile()` die
+  zentrale Stelle ist, an der alle Screens (Menü-Builder, Tages-Log,
+  Rezept-Detail) den Bedarf abfragen, wirkt sich eine Anpassung dort überall
+  konsistent aus.
 
 ### 5. App-Einstiegspunkt anpassen (`src/app/`)
 - Beim Start prüfen: Ist ein Profil gespeichert?

@@ -2,7 +2,11 @@ import type { Gender, UserProfile } from './models/userProfile.ts'
 
 const STORAGE_KEYS = {
   userProfile: 'nutribalance:userProfile',
+  requirementOverrides: 'nutribalance:requirementOverrides',
 } as const
+
+/** Manuelle Anpassungen einzelner Bedarfswerte, nach Nährstoff-ID (siehe requirementService.ts). */
+export type RequirementOverrides = Record<string, number>
 
 function isValidGender(value: unknown): value is Gender {
   return value === 'male' || value === 'female'
@@ -47,4 +51,33 @@ export function saveUserProfile(profile: UserProfile): void {
 
 export function clearUserProfile(): void {
   localStorage.removeItem(STORAGE_KEYS.userProfile)
+}
+
+function isValidRequirementOverrides(value: unknown): value is RequirementOverrides {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  return Object.values(value as Record<string, unknown>).every(
+    (v) => typeof v === 'number' && Number.isFinite(v),
+  )
+}
+
+/**
+ * Reine Parsing-Logik, analog zu `parseStoredProfile`: beschädigte/fremde
+ * Daten führen zu einem leeren Objekt (= keine Anpassungen) statt einem Fehler.
+ */
+export function parseStoredRequirementOverrides(raw: string | null): RequirementOverrides {
+  if (!raw) return {}
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    return isValidRequirementOverrides(parsed) ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
+export function getRequirementOverrides(): RequirementOverrides {
+  return parseStoredRequirementOverrides(localStorage.getItem(STORAGE_KEYS.requirementOverrides))
+}
+
+export function saveRequirementOverrides(overrides: RequirementOverrides): void {
+  localStorage.setItem(STORAGE_KEYS.requirementOverrides, JSON.stringify(overrides))
 }
