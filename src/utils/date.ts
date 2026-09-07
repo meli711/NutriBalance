@@ -23,6 +23,27 @@ export function addDaysToDateString(dateStr: string, deltaDays: number): string 
   return getLocalDateString(date)
 }
 
+/**
+ * Die `days` lokalen Datums-Strings, die auf `endDateStr` enden — aufsteigend
+ * sortiert, `endDateStr` als letztes Element (z.B. für die X-Achse des
+ * Verlauf-Charts, Instruktion 11). Baut auf `addDaysToDateString` auf, keine
+ * eigene Datumsarithmetik.
+ */
+export function getDateRange(endDateStr: string, days: number): string[] {
+  const result: string[] = []
+  for (let offset = days - 1; offset >= 0; offset--) {
+    result.push(addDaysToDateString(endDateStr, -offset))
+  }
+  return result
+}
+
+/** Kompakte Achsenbeschriftung, z.B. "Mo 1.9." (Wochentag-Kürzel + Tag.Monat.). */
+export function formatShortDateLabel(dateStr: string): string {
+  const date = parseLocalDateString(dateStr)
+  const weekday = date.toLocaleDateString('de-CH', { weekday: 'short' }).replace('.', '')
+  return `${weekday} ${date.getDate()}.${date.getMonth() + 1}.`
+}
+
 export function isFutureDateString(dateStr: string): boolean {
   return dateStr > getLocalDateString(new Date())
 }

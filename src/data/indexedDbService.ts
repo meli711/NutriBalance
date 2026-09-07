@@ -80,6 +80,20 @@ export async function getAllLogEntries(): Promise<LogEntry[]> {
   return db.getAll('logEntries')
 }
 
+/**
+ * Alle Log-Einträge im Datumsbereich `startDate`..`endDate` (beide inklusive,
+ * `YYYY-MM-DD`) — für die Wochen-/Monatsübersicht (Instruktion 11). Nutzt den
+ * `by-date`-Index mit einer einzigen `IDBKeyRange.bound`-Abfrage, statt pro
+ * Tag einzeln oder den ganzen Store zu laden.
+ */
+export async function getLogEntriesInRange(
+  startDate: string,
+  endDate: string,
+): Promise<LogEntry[]> {
+  const db = await getDb()
+  return db.getAllFromIndex('logEntries', 'by-date', IDBKeyRange.bound(startDate, endDate))
+}
+
 /** Ersetzt den kompletten `menus`-Store atomar durch `menus` — für den Backup-Import. */
 export async function replaceAllMenus(menus: Menu[]): Promise<void> {
   const db = await getDb()

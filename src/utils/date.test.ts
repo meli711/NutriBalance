@@ -3,6 +3,8 @@ import assert from 'node:assert/strict'
 import {
   addDaysToDateString,
   formatDateLabel,
+  formatShortDateLabel,
+  getDateRange,
   getLocalDateString,
   isFutureDateString,
 } from './date.ts'
@@ -52,4 +54,30 @@ test('formatDateLabel markiert das heutige Datum als "Heute"', () => {
 
   assert.match(formatDateLabel(today), /^Heute,/)
   assert.doesNotMatch(formatDateLabel(yesterday), /^Heute,/)
+})
+
+test('getDateRange liefert aufsteigende lokale Datums-Strings, endet auf endDateStr', () => {
+  assert.deepEqual(getDateRange('2026-09-07', 7), [
+    '2026-09-01',
+    '2026-09-02',
+    '2026-09-03',
+    '2026-09-04',
+    '2026-09-05',
+    '2026-09-06',
+    '2026-09-07',
+  ])
+})
+
+test('getDateRange rechnet über eine Monatsgrenze hinweg korrekt', () => {
+  const range = getDateRange('2026-03-02', 4)
+  assert.deepEqual(range, ['2026-02-27', '2026-02-28', '2026-03-01', '2026-03-02'])
+  assert.equal(range.length, 4)
+  assert.equal(range[range.length - 1], '2026-03-02')
+})
+
+test('formatShortDateLabel: Wochentag-Kürzel + Tag.Monat., lokal (kein Mitternachts-Kippen)', () => {
+  // 2026-09-07 ist ein Montag.
+  assert.match(formatShortDateLabel('2026-09-07'), /^Mo 7\.9\.$/)
+  // 2026-01-05 ist ein Montag, einstellige Werte ohne führende Null.
+  assert.match(formatShortDateLabel('2026-01-05'), /^Mo 5\.1\.$/)
 })

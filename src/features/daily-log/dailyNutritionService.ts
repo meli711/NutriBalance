@@ -81,7 +81,13 @@ export function sumDailyNutrition(entries: LogEntry[], context: DailyLogContext)
   return sumNutrientValues(perEntry)
 }
 
-async function buildContext(entries: LogEntry[]): Promise<DailyLogContext> {
+/**
+ * Lädt alle Referenzdaten (Zutaten/Rezepte/Menüs), die zur Berechnung der
+ * übergebenen Log-Einträge gebraucht werden. Exportiert, damit die
+ * Wochen-/Monatsübersicht (Instruktion 11) den Kontext **einmal** für alle
+ * Einträge eines Zeitraums bauen kann, statt pro Tag neu.
+ */
+export async function buildDailyLogContext(entries: LogEntry[]): Promise<DailyLogContext> {
   const recipeIds = [...new Set(entries.filter((e) => e.type === 'recipe').map((e) => e.recipeId))]
   const menuIds = [...new Set(entries.filter((e) => e.type === 'menu').map((e) => e.menuId))]
 
@@ -128,6 +134,6 @@ export async function calculateDailyNutrition(date: string): Promise<NutrientVal
   const entries = await getLogEntriesForDate(date)
   if (entries.length === 0) return []
 
-  const context = await buildContext(entries)
+  const context = await buildDailyLogContext(entries)
   return sumDailyNutrition(entries, context)
 }

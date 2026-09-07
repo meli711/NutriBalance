@@ -15,6 +15,7 @@ import { renderMenuBuilderView } from '../features/menu-builder/menuBuilderView.
 import { renderMenuDetailView } from '../features/menu-builder/menuDetailView.ts'
 import { renderDailyLogView } from '../features/daily-log/dailyLogView.ts'
 import { renderAddLogEntryView } from '../features/daily-log/addLogEntryView.ts'
+import { renderHistoryView } from '../features/history/historyView.ts'
 
 const shellRoot = document.querySelector<HTMLDivElement>('#app')
 const shell = shellRoot ? renderAppShell(shellRoot) : null
@@ -36,6 +37,9 @@ function navigateTo(profile: UserProfile, section: NavSection): void {
   switch (section) {
     case 'log':
       showDailyLog(profile, today)
+      break
+    case 'verlauf':
+      showHistory(profile)
       break
     case 'bedarf':
       showView(profile)
@@ -91,6 +95,16 @@ function showView(profile: UserProfile): void {
     container: app,
     profile,
     onEdit: () => showForm(profile),
+  })
+}
+
+function showHistory(profile: UserProfile): void {
+  if (!app) return
+  updateNav(profile, 'verlauf')
+  renderHistoryView({
+    container: app,
+    profile,
+    onOpenLog: () => showDailyLog(profile, getLocalDateString(new Date())),
   })
 }
 

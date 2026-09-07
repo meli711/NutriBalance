@@ -721,3 +721,72 @@ textarea:focus-visible,
   text-align: center;
   font-weight: 600;
 }
+
+/* Verlauf (Wochen-/Monatsübersicht) */
+
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.history__intro {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.history__nutrients {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.history__chip {
+  min-height: 44px;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+.history__chip.is-active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.history__chip:disabled {
+  cursor: not-allowed;
+}
+
+.history-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.history-chart__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.history-chart__caption {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.history-chart__caption span {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.history-chart__canvas {
+  position: relative;
+  height: min(240px, 60vw);
+}

@@ -1,6 +1,11 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { parseStoredProfile, parseStoredRequirementOverrides } from './localStorageService.ts'
+import {
+  DEFAULT_HISTORY_SETTINGS,
+  parseStoredHistorySettings,
+  parseStoredProfile,
+  parseStoredRequirementOverrides,
+} from './localStorageService.ts'
 
 test('parseStoredProfile gibt null zurück, wenn nichts gespeichert ist', () => {
   assert.equal(parseStoredProfile(null), null)
@@ -42,4 +47,38 @@ test('parseStoredRequirementOverrides gibt leeres Objekt zurück bei kaputtem/fa
 test('parseStoredRequirementOverrides akzeptiert gültige Overrides', () => {
   const raw = JSON.stringify({ energy: 1800, protein: 70 })
   assert.deepEqual(parseStoredRequirementOverrides(raw), { energy: 1800, protein: 70 })
+})
+
+test('parseStoredHistorySettings gibt den Default zurück, wenn nichts gespeichert ist', () => {
+  assert.deepEqual(parseStoredHistorySettings(null), DEFAULT_HISTORY_SETTINGS)
+})
+
+test('parseStoredHistorySettings gibt den Default zurück bei kaputtem/falschem JSON', () => {
+  assert.deepEqual(parseStoredHistorySettings('{nicht valide'), DEFAULT_HISTORY_SETTINGS)
+  assert.deepEqual(parseStoredHistorySettings(JSON.stringify([1, 2, 3])), DEFAULT_HISTORY_SETTINGS)
+  assert.deepEqual(parseStoredHistorySettings('42'), DEFAULT_HISTORY_SETTINGS)
+})
+
+test('parseStoredHistorySettings filtert unbekannte Nährstoff-IDs heraus', () => {
+  const raw = JSON.stringify({ nutrientIds: ['protein', 'unicorn', 'iron'], period: 'month' })
+  assert.deepEqual(parseStoredHistorySettings(raw), {
+    nutrientIds: ['protein', 'iron'],
+    period: 'month',
+  })
+})
+
+test('parseStoredHistorySettings fällt auf den Default zurück, wenn keine gültige ID übrig bleibt', () => {
+  const raw = JSON.stringify({ nutrientIds: ['unicorn', 42], period: 'week' })
+  assert.deepEqual(parseStoredHistorySettings(raw), {
+    nutrientIds: DEFAULT_HISTORY_SETTINGS.nutrientIds,
+    period: 'week',
+  })
+})
+
+test('parseStoredHistorySettings ersetzt ein ungültiges period durch den Default', () => {
+  const raw = JSON.stringify({ nutrientIds: ['protein'], period: 'year' })
+  assert.deepEqual(parseStoredHistorySettings(raw), {
+    nutrientIds: ['protein'],
+    period: DEFAULT_HISTORY_SETTINGS.period,
+  })
 })

@@ -1,8 +1,10 @@
 import type { Gender, UserProfile } from './models/userProfile.ts'
+import { NUTRIENT_LABELS } from '../utils/nutrientLabels.ts'
 
 const STORAGE_KEYS = {
   userProfile: 'nutribalance:userProfile',
   requirementOverrides: 'nutribalance:requirementOverrides',
+  historySettings: 'nutribalance:historySettings',
 } as const
 
 /** Manuelle Anpassungen einzelner Bedarfswerte, nach Nährstoff-ID (siehe requirementService.ts). */
@@ -80,4 +82,59 @@ export function getRequirementOverrides(): RequirementOverrides {
 
 export function saveRequirementOverrides(overrides: RequirementOverrides): void {
   localStorage.setItem(STORAGE_KEYS.requirementOverrides, JSON.stringify(overrides))
+}
+
+/** Einstellungen der Verlauf-Seite (Instruktion 11), persistent pro Gerät. */
+export interface HistorySettings {
+  /** Welche Nährstoffe im Chart dargestellt werden (mind. einer). */
+  nutrientIds: string[]
+  /** Zeitraum: `'week'` = 7 Tage, `'month'` = 30 Tage, jeweils bis heute. */
+  period: 'week' | 'month'
+}
+
+export const DEFAULT_HISTORY_SETTINGS: HistorySettings = {
+  nutrientIds: ['protein'],
+  period: 'week',
+}
+
+/**
+ * Reine Parsing-Logik, analog zu `parseStoredProfile`: beschädigte/fremde
+ * Daten führen zum Default statt zu einem Fehler. Unbekannte Nährstoff-IDs
+ * (nicht in `NUTRIENT_LABELS`) werden herausgefiltert; bleibt danach nichts
+ * übrig, greift der Default.
+ */
+export function parseStoredHistorySettings(raw: string | null): HistorySettings {
+  if (!raw) return { ...DEFAULT_HISTORY_SETTINGS }
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return { ...DEFAULT_HISTORY_SETTINGS }
+    }
+    const candidate = parsed as Record<string, unknown>
+
+    const nutrientIds = Array.isArray(candidate.nutrientIds)
+      ? candidate.nutrientIds.filter(
+          (id): id is string => typeof id === 'string' && id in NUTRIENT_LABELS,
+        )
+      : []
+
+    return {
+      nutrientIds:
+        nutrientIds.length > 0 ? nutrientIds : [...DEFAULT_HISTORY_SETTINGS.nutrientIds],
+      period:
+        candidate.period === 'week' || candidate.period === 'month'
+          ? candidate.period
+          : DEFAULT_HISTORY_SETTINGS.period,
+    }
+  } catch {
+    return { ...DEFAULT_HISTORY_SETTINGS }
+  }
+}
+
+export function getHistorySettings(): HistorySettings {
+  return parseStoredHistorySettings(localStorage.getItem(STORAGE_KEYS.historySettings))
+}
+
+export function saveHistorySettings(settings: HistorySettings): void {
+  localStorage.setItem(STORAGE_KEYS.historySettings, JSON.stringify(settings))
 }
