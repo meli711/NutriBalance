@@ -104,6 +104,30 @@ in `.gitignore` und lokal nachzubauen:
      archiviert (Stand siehe `source`-Angaben in `referenceValues.ts`) —
      ebenfalls nicht im Repo, da fremder Seiteninhalt.
 
+## Instruktionen (Entwicklungsverlauf)
+
+Die App wurde schrittweise mit Claude Code umgesetzt. Jeder Schritt ist als
+Auftrag in `Instruktionen/` dokumentiert (Kontext, Aufgaben, Abgrenzung) und
+entspricht grob einem Commit `Instruktion N: …`.
+
+| # | Thema | Datei |
+|---|-------|-------|
+| 1 | Projekt-Setup: Vite + TypeScript (strict) + PWA-Grundgerüst | [`01-claude-code-setup-instruktion.md`](Instruktionen/01-claude-code-setup-instruktion.md) |
+| 2 | Schweizer Nährwertdatenbank einbinden + Feature-Modul "Nährstoffbedarf" (DACH-Referenzwerte) | [`02-claude-code-datenbank-bedarf.md`](Instruktionen/02-claude-code-datenbank-bedarf.md) |
+| 3 | UI für die Profil-Eingabe (Alter, Grösse, Geschlecht …) + Anzeige des berechneten Bedarfs | [`03-claude-code-profil-ui.md`](Instruktionen/03-claude-code-profil-ui.md) |
+| 4 | Aufnahme-Feature: Rezepte mit Zutaten, Nährstoffberechnung pro Portion | [`04-claude-code-rezepte.md`](Instruktionen/04-claude-code-rezepte.md) |
+| 5 | Charts: Bedarf vs. Aufnahme als Radar- und Balkendiagramm (Chart.js) | [`05-claude-code-charts.md`](Instruktionen/05-claude-code-charts.md) |
+| 6 | Menü-Builder: eigene Menüs aus Zutaten zusammenstellen, Ablage in IndexedDB | [`06-claude-code-menu-builder.md`](Instruktionen/06-claude-code-menu-builder.md) |
+| 7 | Look & Feel: Branding, Design-Pass, Bildsprache (Detail-Plan in `DESIGN.md`) | [`07-claude-code-look-and-feel.md`](Instruktionen/07-claude-code-look-and-feel.md) |
+| 8 | JSON-Export eigener Menüs, Merge zurück in `recipes.json` | [`08-claude-code-menu-export.md`](Instruktionen/08-claude-code-menu-export.md) |
+| 9 | Tages-Log: Rezepte / Menüs / einzelne Zutaten pro Tag erfassen, neuer Startbildschirm | [`09-claude-code-tages-log.md`](Instruktionen/09-claude-code-tages-log.md) |
+| 10 | Daten-Backup (Export/Import als eine Datei) auf der Profilseite, Storage-Persistenz | [`10-claude-code-backup.md`](Instruktionen/10-claude-code-backup.md) |
+| 11 | Verlauf: Wochen-/Monatsübersicht der Aufnahme pro Nährstoff mit Bedarfs-Linie | [`11-claude-code-verlauf.md`](Instruktionen/11-claude-code-verlauf.md) |
+| 12 | Eigene Markenprodukte in `quellen/Meliane-Produkte.json` in die Lebensmitteldatenbank mischen; JSON ins PWA-Precache | [`12-claude-code-eigene-produkte.md`](Instruktionen/12-claude-code-eigene-produkte.md) |
+
+Ergänzend: [`DESIGN.md`](Instruktionen/DESIGN.md) — Design-Plan zu Instruktion 7
+(Farbpalette, Typografie, Bildsprache, konkrete UI-Anpassungen).
+
 ## Nächste Schritte
 
 - Weitere Mikronährstoffe in den Referenzwerten ergänzen
