@@ -35,6 +35,16 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // Die Nährwert-/Rezeptdaten liegen als JSON in `public/data/` und
+        // werden zur Laufzeit per `fetch` geladen. Ohne diesen Eintrag nimmt
+        // Workbox JSON NICHT ins Precache-Manifest auf (Default-`globPatterns`
+        // kennt nur js/css/html/Bilder). Folge: Nach einem Deployment mit
+        // geänderter `food-database.json` bleibt bei bestehenden Clients der
+        // alte Datenstand im Cache/Service-Worker, bis der SW zufällig neu
+        // gebaut wird. Mit JSON im Manifest bekommt jede Datenänderung einen
+        // neuen Revision-Hash → neuer Service Worker → `autoUpdate` zieht die
+        // Daten nach und lädt die Seite neu.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,json,woff,woff2}'],
         // Google Fonts auch offline verfügbar machen (Fraunces/Work Sans,
         // siehe DESIGN.md) — Standard-Rezept für vite-plugin-pwa.
         runtimeCaching: [

@@ -85,6 +85,12 @@ in `.gitignore` und lokal nachzubauen:
      npm run convert:food-db
      ```
      Details zur Spalten-Zuordnung: `scripts/convert-food-db.ts`.
+   - Eigene Markenprodukte, die es in der generischen BLV-Datenbank nicht
+     gibt, stehen in `quellen/Meliane-Produkte.json` (JSON-Array von
+     `FoodItem`-Objekten, Werte pro 100 g). Diese Datei _ist_ im Repo (im
+     Gegensatz zu den Rohdaten Dritter) und wird von `convert:food-db` in die
+     `food-database.json` gemischt: gleiche `id` überschreibt den generischen
+     Eintrag, neue `id` wird angehängt.
 
 2. **DACH-Referenzwerte** (Basis für die Bedarfswerte in
    `src/features/nutrient-requirements/data/referenceValues.ts`)

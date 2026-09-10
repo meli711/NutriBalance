@@ -28,7 +28,7 @@
  * die die Quelle nicht liefert.
  */
 
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import * as XLSX from 'xlsx'
@@ -45,6 +45,18 @@ const SOURCE_FILE = resolve(PROJECT_ROOT, 'quellen/Schweizer_Nahrwertdatenbank.x
 const SHEET_NAME = 'Generische Lebensmittel'
 const HEADER_ROW_INDEX = 2 // Zeile 1 = Titel, Zeile 2 = leer, Zeile 3 = Spaltenüberschriften
 const OUTPUT_FILE = resolve(PROJECT_ROOT, 'public/data/food-database.json')
+
+/**
+ * Eigene Produkte (Markenprodukte, die Meliane erfasst hat), die es in der
+ * generischen BLV-Datenbank nicht gibt. Anders als `quellen/` sonst ist diese
+ * Datei _unsere_ Daten und im Repo eingecheckt (siehe `.gitignore`-Ausnahme),
+ * damit `npm run convert:food-db` die `food-database.json` auf jedem Clone
+ * reproduziert. Format: JSON-Array von `FoodItem`-Objekten (gleiche Struktur
+ * wie ein Eintrag in der Ausgabedatei), Werte pro 100 g. Einträge mit einer
+ * `id`, die auch aus der Excel kommt, überschreiben den generischen Eintrag;
+ * alle übrigen werden angehängt.
+ */
+const CUSTOM_PRODUCTS_FILE = resolve(PROJECT_ROOT, 'quellen/Meliane-Produkte.json')
 
 // Spaltenindizes der Basis-Felder
 const COL = {
@@ -169,6 +181,60 @@ function toFoodItem(row: SourceRow): FoodItem {
   }
 }
 
+/**
+ * Prüft grob, dass ein Objekt aus `Meliane-Produkte.json` die Pflichtfelder
+ * eines `FoodItem` hat. Kein vollständiges Schema — nur so viel, dass ein
+ * Tippfehler in der Quelldatei hier auffällt und nicht erst in der App.
+ */
+function assertFoodItem(item: unknown, index: number): asserts item is FoodItem {
+  const where = `Meliane-Produkte.json[${index}]`
+  if (item == null || typeof item !== 'object') {
+    throw new Error(`${where}: kein Objekt`)
+  }
+  const record = item as Record<string, unknown>
+  if (typeof record.id !== 'string' || record.id.trim() === '') {
+    throw new Error(`${where}: "id" fehlt oder ist leer`)
+  }
+  const name = record.name as { de?: unknown } | undefined
+  if (!name || typeof name.de !== 'string' || name.de.trim() === '') {
+    throw new Error(`${where}: "name.de" fehlt`)
+  }
+  if (typeof record.category !== 'string') {
+    throw new Error(`${where}: "category" fehlt`)
+  }
+  if (record.vitamins == null || record.minerals == null) {
+    throw new Error(`${where}: "vitamins"/"minerals" fehlen`)
+  }
+}
+
+/**
+ * Mischt die eigenen Produkte aus `Meliane-Produkte.json` in die aus der Excel
+ * erzeugte Liste: gleiche `id` ersetzt den generischen Eintrag an Ort und
+ * Stelle, neue `id` wird angehängt. Fehlt die Datei, bleibt `foods`
+ * unverändert.
+ */
+function mergeCustomProducts(foods: FoodItem[]): number {
+  if (!existsSync(CUSTOM_PRODUCTS_FILE)) return 0
+
+  const parsed: unknown = JSON.parse(readFileSync(CUSTOM_PRODUCTS_FILE, 'utf-8'))
+  if (!Array.isArray(parsed)) {
+    throw new Error(`${CUSTOM_PRODUCTS_FILE}: erwartet ein JSON-Array von FoodItem-Objekten`)
+  }
+
+  const indexById = new Map(foods.map((food, i) => [food.id, i]))
+  parsed.forEach((item, i) => {
+    assertFoodItem(item, i)
+    const existing = indexById.get(item.id)
+    if (existing != null) {
+      foods[existing] = item
+    } else {
+      indexById.set(item.id, foods.length)
+      foods.push(item)
+    }
+  })
+  return parsed.length
+}
+
 function main(): void {
   const buffer = readFileSync(SOURCE_FILE)
   const workbook = XLSX.read(buffer, { type: 'buffer' })
@@ -187,11 +253,16 @@ function main(): void {
   const foods: FoodItem[] = dataRows
     .filter((row) => row[COL.id] != null && row[COL.name] != null)
     .map(toFoodItem)
+  const generischCount = foods.length
+
+  const customCount = mergeCustomProducts(foods)
 
   mkdirSync(dirname(OUTPUT_FILE), { recursive: true })
   writeFileSync(OUTPUT_FILE, JSON.stringify(foods))
 
-  console.log(`${foods.length} Lebensmittel konvertiert → ${OUTPUT_FILE}`)
+  console.log(
+    `${generischCount} generische + ${customCount} eigene → ${foods.length} Lebensmittel → ${OUTPUT_FILE}`,
+  )
 }
 
 main()

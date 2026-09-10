@@ -16,7 +16,11 @@ dev-dist
 # Rohdaten Dritter (Schweizer Nährwertdatenbank, DGE-Referenzwerte) — nicht
 # unsere eigenen Daten, daher lokal statt im öffentlichen Repo. Herkunft und
 # Download-Links siehe README.md.
-quellen/
+quellen/*
+# Ausnahme: unsere eigenen Produktdaten (Markenprodukte, die Meliane erfasst
+# hat) gehören ins Repo, damit `npm run convert:food-db` die food-database.json
+# auf jedem Clone reproduzieren kann.
+!quellen/Meliane-Produkte.json
 
 # Editor directories and files
 .vscode/*

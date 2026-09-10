@@ -1,0 +1,260 @@
+[
+  {
+    "id": "custom-high-protein-milch-drink",
+    "name": {
+      "de": "High Protein Milch Drink (20 g Protein pro Portion)"
+    },
+    "synonyms": ["High Protein Drink", "Proteindrink", "Milchdrink High Protein", "Eiweissdrink"],
+    "category": "Milch und Milchprodukte/Milch- und Joghurtgetränke",
+    "energyKcal": 57,
+    "protein": 6.0,
+    "fat": 1.5,
+    "saturatedFat": 1.0,
+    "carbohydrates": 6.0,
+    "sugar": 6.0,
+    "fiber": 0,
+    "water": 86,
+    "alcohol": 0,
+    "vitamins": {
+      "aRetinolEquivalent": {
+        "value": null,
+        "unit": "µg"
+      },
+      "aRetinolActivityEquivalent": {
+        "value": null,
+        "unit": "µg"
+      },
+      "retinol": {
+        "value": null,
+        "unit": "µg"
+      },
+      "betaCaroteneActivity": {
+        "value": null,
+        "unit": "µg"
+      },
+      "betaCarotene": {
+        "value": null,
+        "unit": "µg"
+      },
+      "b1Thiamin": {
+        "value": null,
+        "unit": "mg"
+      },
+      "b2Riboflavin": {
+        "value": null,
+        "unit": "mg"
+      },
+      "b6Pyridoxin": {
+        "value": null,
+        "unit": "mg"
+      },
+      "b12Cobalamin": {
+        "value": null,
+        "unit": "µg"
+      },
+      "niacinEquivalent": {
+        "value": null,
+        "unit": "mg"
+      },
+      "niacin": {
+        "value": null,
+        "unit": "mg"
+      },
+      "folate": {
+        "value": null,
+        "unit": "µg"
+      },
+      "pantothenicAcid": {
+        "value": null,
+        "unit": "mg"
+      },
+      "c": {
+        "value": null,
+        "unit": "mg"
+      },
+      "d": {
+        "value": null,
+        "unit": "µg"
+      },
+      "e": {
+        "value": null,
+        "unit": "mg"
+      }
+    },
+    "minerals": {
+      "potassium": {
+        "value": null,
+        "unit": "mg"
+      },
+      "sodium": {
+        "value": 80,
+        "unit": "mg"
+      },
+      "chloride": {
+        "value": null,
+        "unit": "mg"
+      },
+      "calcium": {
+        "value": 240,
+        "unit": "mg"
+      },
+      "magnesium": {
+        "value": null,
+        "unit": "mg"
+      },
+      "phosphorus": {
+        "value": null,
+        "unit": "mg"
+      },
+      "iron": {
+        "value": null,
+        "unit": "mg"
+      },
+      "iodine": {
+        "value": null,
+        "unit": "µg"
+      },
+      "zinc": {
+        "value": null,
+        "unit": "mg"
+      },
+      "selenium": {
+        "value": null,
+        "unit": "µg"
+      },
+      "salt": {
+        "value": 0.2,
+        "unit": "g"
+      }
+    }
+  },
+  {
+    "id": "custom-skyr-nature",
+    "name": {
+      "de": "Skyr, nature"
+    },
+    "synonyms": ["Skyr", "Skyr nature", "isländischer Joghurt"],
+    "category": "Milch und Milchprodukte/Joghurt und Sauermilch",
+    "energyKcal": 64,
+    "protein": 10.5,
+    "fat": 0.2,
+    "saturatedFat": 0.1,
+    "carbohydrates": 4.0,
+    "sugar": 4.0,
+    "fiber": 0,
+    "water": 84,
+    "alcohol": 0,
+    "vitamins": {
+      "aRetinolEquivalent": {
+        "value": null,
+        "unit": "µg"
+      },
+      "aRetinolActivityEquivalent": {
+        "value": null,
+        "unit": "µg"
+      },
+      "retinol": {
+        "value": null,
+        "unit": "µg"
+      },
+      "betaCaroteneActivity": {
+        "value": null,
+        "unit": "µg"
+      },
+      "betaCarotene": {
+        "value": null,
+        "unit": "µg"
+      },
+      "b1Thiamin": {
+        "value": null,
+        "unit": "mg"
+      },
+      "b2Riboflavin": {
+        "value": null,
+        "unit": "mg"
+      },
+      "b6Pyridoxin": {
+        "value": null,
+        "unit": "mg"
+      },
+      "b12Cobalamin": {
+        "value": null,
+        "unit": "µg"
+      },
+      "niacinEquivalent": {
+        "value": null,
+        "unit": "mg"
+      },
+      "niacin": {
+        "value": null,
+        "unit": "mg"
+      },
+      "folate": {
+        "value": null,
+        "unit": "µg"
+      },
+      "pantothenicAcid": {
+        "value": null,
+        "unit": "mg"
+      },
+      "c": {
+        "value": null,
+        "unit": "mg"
+      },
+      "d": {
+        "value": null,
+        "unit": "µg"
+      },
+      "e": {
+        "value": null,
+        "unit": "mg"
+      }
+    },
+    "minerals": {
+      "potassium": {
+        "value": null,
+        "unit": "mg"
+      },
+      "sodium": {
+        "value": 40,
+        "unit": "mg"
+      },
+      "chloride": {
+        "value": null,
+        "unit": "mg"
+      },
+      "calcium": {
+        "value": 150,
+        "unit": "mg"
+      },
+      "magnesium": {
+        "value": null,
+        "unit": "mg"
+      },
+      "phosphorus": {
+        "value": null,
+        "unit": "mg"
+      },
+      "iron": {
+        "value": null,
+        "unit": "mg"
+      },
+      "iodine": {
+        "value": null,
+        "unit": "µg"
+      },
+      "zinc": {
+        "value": null,
+        "unit": "mg"
+      },
+      "selenium": {
+        "value": null,
+        "unit": "µg"
+      },
+      "salt": {
+        "value": 0.1,
+        "unit": "g"
+      }
+    }
+  }
+]
