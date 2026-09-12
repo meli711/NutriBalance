@@ -256,5 +256,134 @@
         "unit": "g"
       }
     }
+  },
+  {
+    "id": "custom-ei-ganzes",
+    "name": {
+      "de": "Ei (Durchschnittlich ist 1 Ei=55g)"
+    },
+    "synonyms": ["Ei", "Hühnerei", "Eier"],
+    "category": "Eier und Eiprodukte/Eier",
+    "energyKcal": 155,
+    "protein": 13.0,
+    "fat": 11.0,
+    "saturatedFat": 3.3,
+    "carbohydrates": 1.1,
+    "sugar": 1.1,
+    "fiber": 0,
+    "water": 75,
+    "alcohol": 0,
+    "vitamins": {
+      "aRetinolEquivalent": {
+        "value": null,
+        "unit": "µg"
+      },
+      "aRetinolActivityEquivalent": {
+        "value": null,
+        "unit": "µg"
+      },
+      "retinol": {
+        "value": null,
+        "unit": "µg"
+      },
+      "betaCaroteneActivity": {
+        "value": null,
+        "unit": "µg"
+      },
+      "betaCarotene": {
+        "value": null,
+        "unit": "µg"
+      },
+      "b1Thiamin": {
+        "value": null,
+        "unit": "mg"
+      },
+      "b2Riboflavin": {
+        "value": null,
+        "unit": "mg"
+      },
+      "b6Pyridoxin": {
+        "value": null,
+        "unit": "mg"
+      },
+      "b12Cobalamin": {
+        "value": null,
+        "unit": "µg"
+      },
+      "niacinEquivalent": {
+        "value": null,
+        "unit": "mg"
+      },
+      "niacin": {
+        "value": null,
+        "unit": "mg"
+      },
+      "folate": {
+        "value": null,
+        "unit": "µg"
+      },
+      "pantothenicAcid": {
+        "value": null,
+        "unit": "mg"
+      },
+      "c": {
+        "value": null,
+        "unit": "mg"
+      },
+      "d": {
+        "value": null,
+        "unit": "µg"
+      },
+      "e": {
+        "value": null,
+        "unit": "mg"
+      }
+    },
+    "minerals": {
+      "potassium": {
+        "value": null,
+        "unit": "mg"
+      },
+      "sodium": {
+        "value": 140,
+        "unit": "mg"
+      },
+      "chloride": {
+        "value": null,
+        "unit": "mg"
+      },
+      "calcium": {
+        "value": 50,
+        "unit": "mg"
+      },
+      "magnesium": {
+        "value": null,
+        "unit": "mg"
+      },
+      "phosphorus": {
+        "value": null,
+        "unit": "mg"
+      },
+      "iron": {
+        "value": null,
+        "unit": "mg"
+      },
+      "iodine": {
+        "value": null,
+        "unit": "µg"
+      },
+      "zinc": {
+        "value": null,
+        "unit": "mg"
+      },
+      "selenium": {
+        "value": null,
+        "unit": "µg"
+      },
+      "salt": {
+        "value": 0.35,
+        "unit": "g"
+      }
+    }
   }
 ]

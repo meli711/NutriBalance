@@ -38,15 +38,38 @@ export async function getFoodById(id: string): Promise<FoodItem | undefined> {
   return foods.find((food) => food.id === id)
 }
 
-export async function searchFoodsByName(query: string): Promise<FoodItem[]> {
+/**
+ * Je kleiner die Zahl, desto besser der Treffer. -1 bedeutet: kein Treffer.
+ * Ein exakter Treffer auf Name oder Synonym (z.B. Synonym "Ei" bei der Suche
+ * nach "Ei") wird höher gewichtet als ein reiner Teilstring-Treffer (z.B.
+ * "Reis", "Weizen"), damit häufig gebrauchte Zutaten wie "Ei, ganzes" bei
+ * der Suche nach "Ei" als erster Treffer erscheinen.
+ */
+function matchRank(food: FoodItem, normalizedQuery: string): number {
+  const nameLower = food.name.de.toLowerCase()
+  const synonymsLower = food.synonyms?.map((synonym) => synonym.toLowerCase()) ?? []
+
+  if (nameLower === normalizedQuery) return 0
+  if (synonymsLower.includes(normalizedQuery)) return 1
+  if (nameLower.startsWith(normalizedQuery)) return 2
+  if (synonymsLower.some((synonym) => synonym.startsWith(normalizedQuery))) return 3
+  if (nameLower.includes(normalizedQuery)) return 4
+  if (synonymsLower.some((synonym) => synonym.includes(normalizedQuery))) return 5
+  return -1
+}
+
+export function rankFoodsByQuery(foods: FoodItem[], query: string): FoodItem[] {
   const normalizedQuery = query.trim().toLowerCase()
   if (!normalizedQuery) return []
 
+  return foods
+    .map((food) => ({ food, rank: matchRank(food, normalizedQuery) }))
+    .filter((entry) => entry.rank !== -1)
+    .sort((a, b) => a.rank - b.rank || a.food.name.de.localeCompare(b.food.name.de, 'de'))
+    .map((entry) => entry.food)
+}
+
+export async function searchFoodsByName(query: string): Promise<FoodItem[]> {
   const foods = await loadDatabase()
-  return foods.filter((food) => {
-    if (food.name.de.toLowerCase().includes(normalizedQuery)) return true
-    return (
-      food.synonyms?.some((synonym) => synonym.toLowerCase().includes(normalizedQuery)) ?? false
-    )
-  })
+  return rankFoodsByQuery(foods, query)
 }

@@ -87,7 +87,7 @@ in `.gitignore` und lokal nachzubauen:
      ```
      Details zur Spalten-Zuordnung: `scripts/convert-food-db.ts`.
    - Eigene Markenprodukte, die es in der generischen BLV-Datenbank nicht
-     gibt, stehen in `quellen/Meliane-Produkte.json` (JSON-Array von
+     gibt, stehen in `quellen/eigene-produkte.json` (JSON-Array von
      `FoodItem`-Objekten, Werte pro 100 g). Diese Datei _ist_ im Repo (im
      Gegensatz zu den Rohdaten Dritter) und wird von `convert:food-db` in die
      `food-database.json` gemischt: gleiche `id` überschreibt den generischen
@@ -124,7 +124,7 @@ entspricht grob einem Commit `Instruktion N: …`.
 | 9 | Tages-Log: Rezepte / Menüs / einzelne Zutaten pro Tag erfassen, neuer Startbildschirm | [`09-claude-code-tages-log.md`](Instruktionen/09-claude-code-tages-log.md) |
 | 10 | Daten-Backup (Export/Import als eine Datei) auf der Profilseite, Storage-Persistenz | [`10-claude-code-backup.md`](Instruktionen/10-claude-code-backup.md) |
 | 11 | Verlauf: Wochen-/Monatsübersicht der Aufnahme pro Nährstoff mit Bedarfs-Linie | [`11-claude-code-verlauf.md`](Instruktionen/11-claude-code-verlauf.md) |
-| 12 | Eigene Markenprodukte in `quellen/Meliane-Produkte.json` in die Lebensmitteldatenbank mischen; JSON ins PWA-Precache | [`12-claude-code-eigene-produkte.md`](Instruktionen/12-claude-code-eigene-produkte.md) |
+| 12 | Eigene Markenprodukte in `quellen/eigene-produkte.json` in die Lebensmitteldatenbank mischen; JSON ins PWA-Precache | [`12-claude-code-eigene-produkte.md`](Instruktionen/12-claude-code-eigene-produkte.md) |
 
 Ergänzend: [`DESIGN.md`](Instruktionen/DESIGN.md) — Design-Plan zu Instruktion 7
 (Farbpalette, Typografie, Bildsprache, konkrete UI-Anpassungen).

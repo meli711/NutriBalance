@@ -32,7 +32,7 @@ mitbehoben.
 ## Aufgaben
 
 ### 1. Quelldatei für eigene Produkte
-- Neue Datei `quellen/Meliane-Produkte.json`: ein JSON-Array von
+- Neue Datei `quellen/eigene-produkte.json`: ein JSON-Array von
   `FoodItem`-Objekten (dieselbe Struktur wie ein Eintrag in der
   Ausgabedatei), Werte pro 100 g.
 - Die `id` bewusst mit Präfix `custom-` vergeben (z.B.
@@ -45,14 +45,14 @@ mitbehoben.
 
 ### 2. `.gitignore`: Ausnahme für die eigene Quelldatei
 - `quellen/` bleibt ignoriert (Rohdaten Dritter), aber
-  `quellen/Meliane-Produkte.json` wird **eingecheckt** — das sind _unsere_
+  `quellen/eigene-produkte.json` wird **eingecheckt** — das sind _unsere_
   Daten, und nur so kann `npm run convert:food-db` die
   `food-database.json` auf jedem Clone reproduzieren.
-- Umsetzung über `quellen/*` + `!quellen/Meliane-Produkte.json` mit einem
+- Umsetzung über `quellen/*` + `!quellen/eigene-produkte.json` mit einem
   kurzen Kommentar, warum diese eine Datei die Ausnahme ist.
 
 ### 3. `convert-food-db.ts`: eigene Produkte einmischen
-- Pfadkonstante `CUSTOM_PRODUCTS_FILE` (→ `quellen/Meliane-Produkte.json`)
+- Pfadkonstante `CUSTOM_PRODUCTS_FILE` (→ `quellen/eigene-produkte.json`)
   mit Doc-Kommentar zur Herkunft/`.gitignore`-Ausnahme.
 - `mergeCustomProducts(foods: FoodItem[]): number`:
   - Datei fehlt (`existsSync` → false) → `foods` unverändert lassen,
@@ -70,7 +70,7 @@ mitbehoben.
   Pflichtfeldprüfung (`id` nicht leer, `name.de` vorhanden, `category`
   vorhanden, `vitamins`/`minerals` vorhanden), kein vollständiges Schema.
   Zweck: ein Tippfehler in der Quelldatei fällt hier auf, nicht erst in
-  der App. Fehlermeldung nennt die Position (`Meliane-Produkte.json[<i>]`).
+  der App. Fehlermeldung nennt die Position (`eigene-produkte.json[<i>]`).
 - In `main()` nach dem Erzeugen der generischen Liste aufrufen; die
   Abschluss-Logzeile so anpassen, dass generische und eigene Anzahl
   getrennt sichtbar sind (z.B.
@@ -98,7 +98,7 @@ mitbehoben.
 ### 6. `README.md`
 - Im Abschnitt "Datenquellen" bei der Schweizer Nährwertdatenbank einen
   Punkt ergänzen: eigene Markenprodukte stehen in
-  `quellen/Meliane-Produkte.json`, diese Datei _ist_ im Repo (anders als
+  `quellen/eigene-produkte.json`, diese Datei _ist_ im Repo (anders als
   die Rohdaten Dritter) und wird von `convert:food-db` in die
   `food-database.json` gemischt (gleiche `id` überschreibt, neue `id`
   wird angehängt).
@@ -112,7 +112,7 @@ mitbehoben.
   `public/data/food-database.json`, ihr ist egal, ob ein Eintrag generisch
   oder eigen ist.
 - Kein vollständiger Schema-/Wertebereich-Validator für
-  `Meliane-Produkte.json` — nur die grobe Pflichtfeldprüfung aus Punkt 3.
+  `eigene-produkte.json` — nur die grobe Pflichtfeldprüfung aus Punkt 3.
 - Keine automatische Anreicherung fehlender Vitamin-/Mineralstoffwerte
   (bleiben `null`).
 - Keine Änderung an der Spalten-Zuordnung/Logik für die generischen
@@ -123,14 +123,14 @@ mitbehoben.
 ## Nach Abschluss
 Bitte zeigen:
 - `npm run convert:food-db` einmal **mit** und einmal **ohne**
-  `quellen/Meliane-Produkte.json` (Datei kurz wegschieben) — im zweiten
+  `quellen/eigene-produkte.json` (Datei kurz wegschieben) — im zweiten
   Fall läuft die Konvertierung normal durch, nur ohne die eigenen
   Einträge.
 - In der erzeugten `food-database.json` die zwei `custom-…`-Einträge
   zeigen; einen Fall mit kollidierender `id` (eigener Eintrag ersetzt den
   generischen an gleicher Stelle) kurz demonstrieren oder beschreiben.
-- Einen absichtlichen Tippfehler in `Meliane-Produkte.json` (z.B. `id`
-  entfernt) → `convert:food-db` bricht mit `Meliane-Produkte.json[<i>]: …`
+- Einen absichtlichen Tippfehler in `eigene-produkte.json` (z.B. `id`
+  entfernt) → `convert:food-db` bricht mit `eigene-produkte.json[<i>]: …`
   ab, ohne eine halbfertige Ausgabedatei zu schreiben.
 - Bestätigen, dass `npm run build` `dist/data/*.json` jetzt mit
   Revision-Hash ins `sw`-Precache-Manifest aufnimmt.

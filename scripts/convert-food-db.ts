@@ -56,7 +56,7 @@ const OUTPUT_FILE = resolve(PROJECT_ROOT, 'public/data/food-database.json')
  * `id`, die auch aus der Excel kommt, überschreiben den generischen Eintrag;
  * alle übrigen werden angehängt.
  */
-const CUSTOM_PRODUCTS_FILE = resolve(PROJECT_ROOT, 'quellen/Meliane-Produkte.json')
+const CUSTOM_PRODUCTS_FILE = resolve(PROJECT_ROOT, 'quellen/eigene-produkte.json')
 
 // Spaltenindizes der Basis-Felder
 const COL = {
@@ -182,12 +182,12 @@ function toFoodItem(row: SourceRow): FoodItem {
 }
 
 /**
- * Prüft grob, dass ein Objekt aus `Meliane-Produkte.json` die Pflichtfelder
+ * Prüft grob, dass ein Objekt aus `eigene-produkte.json` die Pflichtfelder
  * eines `FoodItem` hat. Kein vollständiges Schema — nur so viel, dass ein
  * Tippfehler in der Quelldatei hier auffällt und nicht erst in der App.
  */
 function assertFoodItem(item: unknown, index: number): asserts item is FoodItem {
-  const where = `Meliane-Produkte.json[${index}]`
+  const where = `eigene-produkte.json[${index}]`
   if (item == null || typeof item !== 'object') {
     throw new Error(`${where}: kein Objekt`)
   }
@@ -208,7 +208,7 @@ function assertFoodItem(item: unknown, index: number): asserts item is FoodItem 
 }
 
 /**
- * Mischt die eigenen Produkte aus `Meliane-Produkte.json` in die aus der Excel
+ * Mischt die eigenen Produkte aus `eigene-produkte.json` in die aus der Excel
  * erzeugte Liste: gleiche `id` ersetzt den generischen Eintrag an Ort und
  * Stelle, neue `id` wird angehängt. Fehlt die Datei, bleibt `foods`
  * unverändert.

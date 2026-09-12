@@ -20,7 +20,7 @@ quellen/*
 # Ausnahme: unsere eigenen Produktdaten (Markenprodukte, die Meliane erfasst
 # hat) gehören ins Repo, damit `npm run convert:food-db` die food-database.json
 # auf jedem Clone reproduzieren kann.
-!quellen/Meliane-Produkte.json
+!quellen/eigene-produkte.json
 
 # Editor directories and files
 .vscode/*
