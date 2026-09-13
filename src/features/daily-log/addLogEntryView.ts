@@ -25,7 +25,7 @@ export function renderAddLogEntryView(options: AddLogEntryViewOptions): void {
       <h1>Eintrag hinzufügen</h1>
 
       <div class="nutrient-chart__toggle" role="group" aria-label="Art des Eintrags wählen">
-        ${(['recipe', 'menu', 'food'] as Tab[])
+        ${(['food', 'menu', 'recipe'] as Tab[])
           .map(
             (tab, index) => `
               <button
@@ -172,5 +172,5 @@ export function renderAddLogEntryView(options: AddLogEntryViewOptions): void {
 
   container.querySelector('[data-action="cancel"]')?.addEventListener('click', onCancel)
 
-  activateTab('recipe')
+  activateTab('food')
 }
