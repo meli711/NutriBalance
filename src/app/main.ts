@@ -16,6 +16,9 @@ import { renderMenuDetailView } from '../features/menu-builder/menuDetailView.ts
 import { renderDailyLogView } from '../features/daily-log/dailyLogView.ts'
 import { renderAddLogEntryView } from '../features/daily-log/addLogEntryView.ts'
 import { renderHistoryView } from '../features/history/historyView.ts'
+import { renderIngredientsPage } from '../features/ingredients/ingredientsPageView.ts'
+import type { IngredientsTab } from '../features/ingredients/ingredientsPageView.ts'
+import { renderFoodDetailView } from '../features/ingredients/foodDetailView.ts'
 
 const shellRoot = document.querySelector<HTMLDivElement>('#app')
 const shell = shellRoot ? renderAppShell(shellRoot) : null
@@ -49,6 +52,9 @@ function navigateTo(profile: UserProfile, section: NavSection): void {
       break
     case 'menus':
       showMenuList(profile, () => showDailyLog(profile, today))
+      break
+    case 'zutaten':
+      showIngredients(profile)
       break
     case 'profil':
       showForm(profile)
@@ -160,6 +166,29 @@ function showMenuDetail(profile: UserProfile, menuId: string, onBackToList: () =
     profile,
     onBack: () => showMenuList(profile, onBackToList),
     onDeleted: () => showMenuList(profile, onBackToList),
+  })
+}
+
+function showIngredients(profile: UserProfile, initialTab: IngredientsTab = 'database'): void {
+  if (!app) return
+  const today = getLocalDateString(new Date())
+  updateNav(profile, 'zutaten')
+  renderIngredientsPage({
+    container: app,
+    initialTab,
+    onSelectFood: (foodId, tab) => showIngredientDetail(profile, foodId, tab),
+    onBack: () => showDailyLog(profile, today),
+  })
+}
+
+function showIngredientDetail(profile: UserProfile, foodId: string, fromTab: IngredientsTab): void {
+  if (!app) return
+  updateNav(profile, 'zutaten')
+  void renderFoodDetailView({
+    container: app,
+    foodId,
+    profile,
+    onBack: () => showIngredients(profile, fromTab),
   })
 }
 

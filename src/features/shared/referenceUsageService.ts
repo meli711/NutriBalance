@@ -8,7 +8,7 @@ import { getAllLogEntries, getAllMenus } from '../../data/indexedDbService.ts'
  * Instruktion 9) — aber die betroffene Stelle zeigt danach unvollständige
  * Daten. Damit das nicht versehentlich passiert, bekommt die löschende
  * Person hier vorher die Anzahl betroffener Stellen zu sehen (siehe
- * `customFoodsSectionView.ts`, `menuListView.ts`, `menuDetailView.ts`).
+ * `foodDetailView.ts`, `menuListView.ts`, `menuDetailView.ts`).
  */
 export interface FoodUsage {
   /** Anzahl Tages-Log-Einträge, die diese Zutat direkt geloggt haben (`type: 'food'`). */

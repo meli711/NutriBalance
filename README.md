@@ -94,11 +94,11 @@ in `.gitignore` und lokal nachzubauen:
      `food-database.json` gemischt: gleiche `id` überschreibt den generischen
      Eintrag, neue `id` wird angehängt.
    - Daneben lassen sich weitere eigene Zutaten **direkt in der App**
-     erfassen (Profilseite, Abschnitt "Eigene Zutaten", Instruktion 13) —
-     ohne Build-Schritt, nur im `localStorage` dieses Geräts (ID-Präfix
-     `custom-local-`, um Überschneidungen mit `eigene-produkte.json`
-     auszuschliessen). Beide Wege fliessen zur Laufzeit über
-     `foodDatabaseService.ts` in dieselbe Suche ein.
+     erfassen (Nav-Reiter "Zutaten" → Tab "Eigene Zutaten", Instruktion 13,
+     UI-Ort seit Instruktion 14) — ohne Build-Schritt, nur im `localStorage`
+     dieses Geräts (ID-Präfix `custom-local-`, um Überschneidungen mit
+     `eigene-produkte.json` auszuschliessen). Beide Wege fliessen zur
+     Laufzeit über `foodDatabaseService.ts` in dieselbe Suche ein.
 
 2. **DACH-Referenzwerte** (Basis für die Bedarfswerte in
    `src/features/nutrient-requirements/data/referenceValues.ts`)
@@ -133,6 +133,7 @@ entspricht grob einem Commit `Instruktion N: …`.
 | 11 | Verlauf: Wochen-/Monatsübersicht der Aufnahme pro Nährstoff mit Bedarfs-Linie | [`11-claude-code-verlauf.md`](Instruktionen/11-claude-code-verlauf.md) |
 | 12 | Eigene Markenprodukte in `quellen/eigene-produkte.json` in die Lebensmitteldatenbank mischen; JSON ins PWA-Precache | [`12-claude-code-eigene-produkte.md`](Instruktionen/12-claude-code-eigene-produkte.md) |
 | 13 | Eigene Zutaten direkt in der App erfassen/bearbeiten/löschen (nur `localStorage`), Einbindung in Suche + Daten-Backup | [`13-claude-code-eigene-zutaten.md`](Instruktionen/13-claude-code-eigene-zutaten.md) |
+| 14 | Neuer Nav-Reiter "Zutaten": Datenbank durchsuchen inkl. Nährwerte + Chart, eigene Zutaten von der Profilseite hierher umgezogen, Nav-Reihenfolge neu sortiert | [`14-claude-code-zutaten-seite.md`](Instruktionen/14-claude-code-zutaten-seite.md) |
 
 Ergänzend: [`DESIGN.md`](Instruktionen/DESIGN.md) — Design-Plan zu Instruktion 7
 (Farbpalette, Typografie, Bildsprache, konkrete UI-Anpassungen).

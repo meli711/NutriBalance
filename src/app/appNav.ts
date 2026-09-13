@@ -5,7 +5,7 @@
  * "Rezepte ansehen"/"Eigene Menüs"/"Zurück zum Tages-Log" auf der
  * Bedarfs-Anzeige) — eine Stelle statt vier.
  */
-export type NavSection = 'log' | 'verlauf' | 'bedarf' | 'recipes' | 'menus' | 'profil'
+export type NavSection = 'log' | 'verlauf' | 'bedarf' | 'zutaten' | 'recipes' | 'menus' | 'profil'
 
 export interface AppNavOptions {
   container: HTMLElement
@@ -13,13 +13,18 @@ export interface AppNavOptions {
   onNavigate: (section: NavSection) => void
 }
 
+// Reihenfolge Instruktion 14: Profil vorne (Einstieg für neue/wiederkehrende
+// Nutzer), danach Bedarf → Log → Verlauf (Ablauf "was brauche ich" → "was
+// habe ich gegessen" → "wie war der Verlauf"), dann Zutaten/Menüs/Rezepte
+// als Nachschlage-/Verwaltungsseiten.
 const NAV_ITEMS: { section: NavSection; label: string }[] = [
+  { section: 'profil', label: 'Profil' },
+  { section: 'bedarf', label: 'Mein Bedarf' },
   { section: 'log', label: 'Log' },
   { section: 'verlauf', label: 'Verlauf' },
-  { section: 'bedarf', label: 'Mein Bedarf' },
-  { section: 'recipes', label: 'Rezepte' },
+  { section: 'zutaten', label: 'Zutaten' },
   { section: 'menus', label: 'Menüs' },
-  { section: 'profil', label: 'Profil' },
+  { section: 'recipes', label: 'Rezepte' },
 ]
 
 export function renderAppNav(options: AppNavOptions): void {

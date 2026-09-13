@@ -1,7 +1,6 @@
 import type { Gender, UserProfile } from '../../data/models/userProfile.ts'
 import { saveUserProfile } from '../../data/localStorageService.ts'
 import { renderBackupSection } from '../backup/backupSectionView.ts'
-import { renderCustomFoodsSection } from '../custom-foods/customFoodsSectionView.ts'
 
 export interface ProfileFormOptions {
   container: HTMLElement
@@ -131,10 +130,6 @@ export function renderProfileForm(options: ProfileFormOptions): void {
     saveUserProfile(profile)
     onSaved(profile)
   })
-
-  // Eigene Zutaten (Instruktion 13) vor dem Backup-Abschnitt, damit neu
-  // erfasste Zutaten im direkt darunter sichtbaren Daten-Backup miterwähnt sind.
-  renderCustomFoodsSection({ container })
 
   // Backup-Abschnitt (Instruktion 10) gehört ins Profil — sowohl beim
   // Bearbeiten eines bestehenden Profils (`profil`-Nav) als auch ohne

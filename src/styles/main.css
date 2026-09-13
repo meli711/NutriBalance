@@ -414,57 +414,7 @@ textarea:focus-visible,
   color: var(--color-text-muted);
 }
 
-/* Eigene Zutaten */
-
-.custom-foods-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  padding-top: var(--space-lg);
-  border-top: 1px solid var(--color-border);
-}
-
-.custom-foods__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.custom-foods__item {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-}
-
-.custom-foods__item-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.custom-foods__item-name {
-  font-weight: 600;
-}
-
-.custom-foods__item-meta {
-  color: var(--color-text-muted);
-  font-size: 0.8125rem;
-}
-
-.custom-foods__item-actions {
-  display: flex;
-  gap: var(--space-sm);
-  flex-shrink: 0;
-}
+/* Eigene Zutaten (Formular, Instruktion 13) */
 
 .custom-food-form__hint {
   color: var(--color-text-muted);
