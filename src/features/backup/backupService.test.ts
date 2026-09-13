@@ -9,6 +9,7 @@ import {
   saveUserProfile,
 } from '../../data/localStorageService.ts'
 import { addLogEntry, getAllLogEntries, getAllMenus, saveMenu } from '../../data/indexedDbService.ts'
+import { createCustomFood, getCustomFoods, saveCustomFoods } from '../../data/customFoodService.ts'
 import { BACKUP_SCHEMA_VERSION } from './models/backup.ts'
 import type { Menu } from '../menu-builder/models/menu.ts'
 import type { LogEntry } from '../daily-log/models/logEntry.ts'
@@ -47,6 +48,17 @@ const logEntry: LogEntry = {
   foodId: '198',
   amountGrams: 100,
 }
+const customFood = createCustomFood({
+  name: 'Skyr Natur',
+  category: '',
+  energyKcal: 63,
+  protein: 11,
+  fat: 0.2,
+  saturatedFat: 0.1,
+  carbohydrates: 4,
+  sugar: 4,
+  fiber: 0,
+})
 
 test('Export -> Import (Round-Trip) ergibt identischen Datenzustand', async () => {
   const overrides = { energy: 2000 }
@@ -54,6 +66,7 @@ test('Export -> Import (Round-Trip) ergibt identischen Datenzustand', async () =
   saveRequirementOverrides(overrides)
   await saveMenu(menu)
   await addLogEntry(logEntry)
+  saveCustomFoods([customFood])
 
   const exported = await exportBackup()
 
@@ -61,6 +74,7 @@ test('Export -> Import (Round-Trip) ergibt identischen Datenzustand', async () =
   saveUserProfile({ age: 99, gender: 'male', heightCm: 200 })
   saveRequirementOverrides({ energy: 2700 })
   await saveMenu({ ...menu, id: 'other-menu' })
+  saveCustomFoods([])
 
   await importBackup(exported)
 
@@ -68,6 +82,7 @@ test('Export -> Import (Round-Trip) ergibt identischen Datenzustand', async () =
   assert.deepEqual(getRequirementOverrides(), overrides)
   assert.deepEqual(await getAllMenus(), [menu])
   assert.deepEqual(await getAllLogEntries(), [logEntry])
+  assert.deepEqual(getCustomFoods(), [customFood])
 })
 
 test('importBackup lehnt falsche schemaVersion ab, ohne bestehende Daten zu verÃ¤ndern', async () => {
@@ -79,12 +94,14 @@ test('importBackup lehnt falsche schemaVersion ab, ohne bestehende Daten zu verÃ
     requirementOverrides: { energy: 2000 },
     menus: [menu],
     logEntries: [logEntry],
+    customFoods: [customFood],
   })
   const before = {
     profile: getUserProfile(),
     requirementOverrides: getRequirementOverrides(),
     menus: await getAllMenus(),
     logEntries: await getAllLogEntries(),
+    customFoods: getCustomFoods(),
   }
 
   await assert.rejects(() =>
@@ -95,6 +112,7 @@ test('importBackup lehnt falsche schemaVersion ab, ohne bestehende Daten zu verÃ
       requirementOverrides: { energy: 2700 },
       menus: [],
       logEntries: [],
+      customFoods: [],
     }),
   )
 
@@ -102,6 +120,34 @@ test('importBackup lehnt falsche schemaVersion ab, ohne bestehende Daten zu verÃ
   assert.deepEqual(getRequirementOverrides(), before.requirementOverrides)
   assert.deepEqual(await getAllMenus(), before.menus)
   assert.deepEqual(await getAllLogEntries(), before.logEntries)
+  assert.deepEqual(getCustomFoods(), before.customFoods)
+})
+
+test('validateBackupData lehnt ein v1-Backup (ohne customFoods) ab, statt es zu migrieren', () => {
+  const result = validateBackupData({
+    schemaVersion: 1,
+    exportedAt: new Date(0).toISOString(),
+    profile: null,
+    requirementOverrides: {},
+    menus: [],
+    logEntries: [],
+  })
+  assert.equal(result.ok, false)
+  if (!result.ok) assert.match(result.error, /App-Version/)
+})
+
+test('validateBackupData lehnt ungÃ¼ltige customFoods ab', () => {
+  const result = validateBackupData({
+    schemaVersion: BACKUP_SCHEMA_VERSION,
+    exportedAt: new Date(0).toISOString(),
+    profile: null,
+    requirementOverrides: {},
+    menus: [],
+    logEntries: [],
+    customFoods: [{ id: 'broken' }],
+  })
+  assert.equal(result.ok, false)
+  if (!result.ok) assert.match(result.error, /eigene Zutaten/)
 })
 
 test('validateBackupData lehnt fehlende/falsche schemaVersion mit klarer Fehlermeldung ab', () => {
@@ -111,6 +157,7 @@ test('validateBackupData lehnt fehlende/falsche schemaVersion mit klarer Fehlerm
     requirementOverrides: {},
     menus: [],
     logEntries: [],
+    customFoods: [],
   })
   assert.equal(result.ok, false)
   if (!result.ok) assert.match(result.error, /App-Version/)
@@ -124,6 +171,7 @@ test('validateBackupData lehnt ungÃ¼ltige requirementOverrides ab', () => {
     requirementOverrides: { energy: 'viel' },
     menus: [],
     logEntries: [],
+    customFoods: [],
   })
   assert.equal(result.ok, false)
   if (!result.ok) assert.match(result.error, /Bedarfs-Anpassungen/)
@@ -143,6 +191,7 @@ test('parseBackupJson akzeptiert ein valides Backup', () => {
     requirementOverrides: { energy: 2000 },
     menus: [menu],
     logEntries: [logEntry],
+    customFoods: [customFood],
   })
   const result = parseBackupJson(raw)
   assert.equal(result.ok, true)
@@ -150,5 +199,6 @@ test('parseBackupJson akzeptiert ein valides Backup', () => {
     assert.deepEqual(result.data.requirementOverrides, { energy: 2000 })
     assert.deepEqual(result.data.menus, [menu])
     assert.deepEqual(result.data.logEntries, [logEntry])
+    assert.deepEqual(result.data.customFoods, [customFood])
   }
 })

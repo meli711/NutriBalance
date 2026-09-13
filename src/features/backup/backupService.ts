@@ -13,7 +13,13 @@ import {
   replaceAllLogEntries,
   replaceAllMenus,
 } from '../../data/indexedDbService.ts'
+import {
+  getCustomFoods,
+  isValidCustomFoodItem,
+  saveCustomFoods,
+} from '../../data/customFoodService.ts'
 import type { UserProfile } from '../../data/models/userProfile.ts'
+import type { FoodItem } from '../../data/models/food.ts'
 import type { Menu } from '../menu-builder/models/menu.ts'
 import type { LogEntry } from '../daily-log/models/logEntry.ts'
 import { BACKUP_SCHEMA_VERSION } from './models/backup.ts'
@@ -84,6 +90,9 @@ export function validateBackupData(value: unknown): BackupValidationResult {
   if (!Array.isArray(v.logEntries) || !v.logEntries.every(isValidLogEntry)) {
     return { ok: false, error: 'Die Backup-Datei enthält ungültige Log-Einträge.' }
   }
+  if (!Array.isArray(v.customFoods) || !v.customFoods.every(isValidCustomFoodItem)) {
+    return { ok: false, error: 'Die Backup-Datei enthält ungültige eigene Zutaten.' }
+  }
 
   return {
     ok: true,
@@ -94,6 +103,7 @@ export function validateBackupData(value: unknown): BackupValidationResult {
       requirementOverrides: v.requirementOverrides,
       menus: v.menus,
       logEntries: v.logEntries,
+      customFoods: v.customFoods as FoodItem[],
     },
   }
 }
@@ -118,6 +128,7 @@ export async function exportBackup(): Promise<BackupData> {
     requirementOverrides: getRequirementOverrides(),
     menus,
     logEntries,
+    customFoods: getCustomFoods(),
   }
 }
 
@@ -157,6 +168,7 @@ export async function importBackup(data: BackupData): Promise<void> {
   if (data.profile) saveUserProfile(data.profile)
   else clearUserProfile()
   saveRequirementOverrides(data.requirementOverrides)
+  saveCustomFoods(data.customFoods)
 
   await replaceAllMenus(data.menus)
   await replaceAllLogEntries(data.logEntries)

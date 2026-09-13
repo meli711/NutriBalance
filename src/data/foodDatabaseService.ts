@@ -1,4 +1,5 @@
 import type { FoodItem } from './models/food.ts'
+import { getCustomFoods } from './customFoodService.ts'
 
 // `import.meta.env.BASE_URL` statt eines fest verdrahteten "/", damit ein
 // Deployment in einem Unterordner (z.B. via `vite build --base=/pfad/`)
@@ -29,12 +30,42 @@ async function loadDatabase(): Promise<FoodItem[]> {
   return loadPromise
 }
 
+/**
+ * Mischt eigene Zutaten (Instruktion 13) in die generische Datenbank ein —
+ * analog zu `mergeCustomProducts` in `scripts/convert-food-db.ts`, nur zur
+ * Laufzeit statt beim Build: gleiche `id` ersetzt den generischen Eintrag an
+ * Ort und Stelle, neue `id` wird angehängt. Reine Funktion (kein
+ * `localStorage`-Zugriff), damit sie ohne Browser-Umgebung testbar ist —
+ * siehe `getAllFoods` für die Verdrahtung mit `getCustomFoods()`.
+ */
+export function mergeFoods(generic: FoodItem[], custom: FoodItem[]): FoodItem[] {
+  if (custom.length === 0) return generic
+
+  const merged = [...generic]
+  const indexById = new Map(merged.map((food, index) => [food.id, index]))
+
+  for (const customFood of custom) {
+    const existingIndex = indexById.get(customFood.id)
+    if (existingIndex !== undefined) merged[existingIndex] = customFood
+    else {
+      indexById.set(customFood.id, merged.length)
+      merged.push(customFood)
+    }
+  }
+  return merged
+}
+
+/**
+ * `getCustomFoods()` liest bei jedem Aufruf frisch aus dem `localStorage`
+ * (im Gegensatz zur gecachten generischen Liste), damit Änderungen ohne
+ * Reload sofort in Suche/Log/Menü-Builder sichtbar sind.
+ */
 export async function getAllFoods(): Promise<FoodItem[]> {
-  return loadDatabase()
+  return mergeFoods(await loadDatabase(), getCustomFoods())
 }
 
 export async function getFoodById(id: string): Promise<FoodItem | undefined> {
-  const foods = await loadDatabase()
+  const foods = await getAllFoods()
   return foods.find((food) => food.id === id)
 }
 
@@ -70,6 +101,6 @@ export function rankFoodsByQuery(foods: FoodItem[], query: string): FoodItem[] {
 }
 
 export async function searchFoodsByName(query: string): Promise<FoodItem[]> {
-  const foods = await loadDatabase()
+  const foods = await getAllFoods()
   return rankFoodsByQuery(foods, query)
 }

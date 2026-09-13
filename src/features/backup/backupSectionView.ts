@@ -9,8 +9,8 @@ export interface BackupSectionOptions {
 }
 
 const CONFIRM_IMPORT_MESSAGE =
-  'Dadurch werden alle aktuell gespeicherten Daten (Profil, Bedarfs-Anpassungen, Menüs, ' +
-  'Log-Einträge) durch die Daten aus der Backup-Datei ersetzt. Fortfahren?'
+  'Dadurch werden alle aktuell gespeicherten Daten (Profil, Bedarfs-Anpassungen, eigene ' +
+  'Zutaten, Menüs, Log-Einträge) durch die Daten aus der Backup-Datei ersetzt. Fortfahren?'
 
 function setStatus(el: HTMLParagraphElement, message: string, isError: boolean): void {
   el.textContent = message

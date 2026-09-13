@@ -53,8 +53,9 @@ npm run format
   macOS, iPad/iPhone ("Zum Home-Bildschirm hinzufügen") und Desktop-Browsern
   ohne App-Store.
 - **`localStorage`** für einfache Key-Value-Daten (Alter, Grösse, Geschlecht,
-  ausgewählte Nährstoffe), **`IndexedDB`** (via `idb`) für strukturierte,
-  grössere Daten (z. B. Rezepte, Verlauf). Kein Cookie-basierter Storage.
+  ausgewählte Nährstoffe, eigene Zutaten – siehe Instruktion 13),
+  **`IndexedDB`** (via `idb`) für strukturierte, grössere Daten (z. B.
+  Rezepte, Verlauf). Kein Cookie-basierter Storage.
 - **Chart.js** ist als spätere Dependency vorgesehen (noch nicht integriert).
 
 ## Projektstruktur
@@ -92,6 +93,12 @@ in `.gitignore` und lokal nachzubauen:
      Gegensatz zu den Rohdaten Dritter) und wird von `convert:food-db` in die
      `food-database.json` gemischt: gleiche `id` überschreibt den generischen
      Eintrag, neue `id` wird angehängt.
+   - Daneben lassen sich weitere eigene Zutaten **direkt in der App**
+     erfassen (Profilseite, Abschnitt "Eigene Zutaten", Instruktion 13) —
+     ohne Build-Schritt, nur im `localStorage` dieses Geräts (ID-Präfix
+     `custom-local-`, um Überschneidungen mit `eigene-produkte.json`
+     auszuschliessen). Beide Wege fliessen zur Laufzeit über
+     `foodDatabaseService.ts` in dieselbe Suche ein.
 
 2. **DACH-Referenzwerte** (Basis für die Bedarfswerte in
    `src/features/nutrient-requirements/data/referenceValues.ts`)
@@ -125,6 +132,7 @@ entspricht grob einem Commit `Instruktion N: …`.
 | 10 | Daten-Backup (Export/Import als eine Datei) auf der Profilseite, Storage-Persistenz | [`10-claude-code-backup.md`](Instruktionen/10-claude-code-backup.md) |
 | 11 | Verlauf: Wochen-/Monatsübersicht der Aufnahme pro Nährstoff mit Bedarfs-Linie | [`11-claude-code-verlauf.md`](Instruktionen/11-claude-code-verlauf.md) |
 | 12 | Eigene Markenprodukte in `quellen/eigene-produkte.json` in die Lebensmitteldatenbank mischen; JSON ins PWA-Precache | [`12-claude-code-eigene-produkte.md`](Instruktionen/12-claude-code-eigene-produkte.md) |
+| 13 | Eigene Zutaten direkt in der App erfassen/bearbeiten/löschen (nur `localStorage`), Einbindung in Suche + Daten-Backup | [`13-claude-code-eigene-zutaten.md`](Instruktionen/13-claude-code-eigene-zutaten.md) |
 
 Ergänzend: [`DESIGN.md`](Instruktionen/DESIGN.md) — Design-Plan zu Instruktion 7
 (Farbpalette, Typografie, Bildsprache, konkrete UI-Anpassungen).
