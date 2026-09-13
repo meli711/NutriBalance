@@ -85,23 +85,36 @@ interface IncludedNutrient {
   intakeValue: number
   targetValue: number
   percentage: number
+  /**
+   * `true`, wenn `value`/`percentage` eine Unterschätzung sind, weil für
+   * mindestens eine Zutat kein Datenbankwert vorlag (siehe
+   * `NutrientAmount.incomplete`). Anders als früher wird das NICHT mehr aus
+   * dem Chart ausgeschlossen, sondern wie in der Nährwerttabelle
+   * (`nutritionSummaryView.ts`) mit einem "*" markiert — sonst verschwinden
+   * bei eigenen Zutaten (die nie Mikronährstoffe liefern) fast immer
+   * Calcium/Eisen/Vitamin C aus dem Chart, obwohl ihr Wert aus den übrigen,
+   * bekannten Zutaten meist noch aussagekräftig ist.
+   */
+  incomplete: boolean
 }
 
 interface ExcludedNutrient {
   nutrientId: string
-  reason: 'incomplete' | 'no-comparison'
+  reason: 'no-comparison'
 }
 
 const EXCLUSION_REASON_LABELS: Record<ExcludedNutrient['reason'], string> = {
-  incomplete: 'fehlender Datenbankwert bei mindestens einer Zutat',
   'no-comparison': 'kein vergleichbarer Referenzwert für dieses Profil',
 }
 
 /**
  * Wählt aus `nutrientIds` diejenigen aus, die sich sauber darstellen lassen.
- * Nährstoffe mit `incomplete: true` (Instruktion 4) oder ohne vergleichbaren
- * Referenzwert (Instruktion 4, `dailyRequirementPercentage.ts`) werden NICHT
- * als 0%/0 dargestellt, sondern ausgeschlossen und separat aufgeführt.
+ * Nur Nährstoffe ganz ohne vergleichbaren Referenzwert (Instruktion 4,
+ * `dailyRequirementPercentage.ts`) werden ausgeschlossen und separat
+ * aufgeführt — Nährstoffe mit `incomplete: true` (fehlender Datenbankwert bei
+ * mindestens einer Zutat) werden mit ihrem tatsächlich berechneten
+ * (Unterschätzungs-)Wert dargestellt, markiert mit "*" (siehe `incomplete`
+ * oben), genau wie in der Nährwerttabelle.
  */
 function selectIncludedNutrients(
   nutrientIds: string[],
@@ -119,11 +132,6 @@ function selectIncludedNutrients(
   for (const nutrientId of nutrientIds) {
     const amount = intakeById.get(nutrientId)
     if (!amount) continue // wird für diese Aufnahme gar nicht berechnet
-
-    if (amount.incomplete) {
-      excluded.push({ nutrientId, reason: 'incomplete' })
-      continue
-    }
 
     const requirement = requirementsById.get(nutrientId)
     const percentage = percentages.get(nutrientId) ?? null
@@ -143,6 +151,7 @@ function selectIncludedNutrients(
       intakeValue: amount.value,
       targetValue: target,
       percentage,
+      incomplete: amount.incomplete,
     })
   }
 
@@ -169,6 +178,15 @@ function buildExclusionNote(excluded: ExcludedNutrient[]): string {
   return `<p class="chart-note">Nicht dargestellt: ${parts.join('; ')}.</p>`
 }
 
+function buildIncompleteNote(included: IncludedNutrient[]): string {
+  if (!included.some((n) => n.incomplete)) return ''
+  return `<p class="chart-note">* Für mindestens eine Zutat fehlt in der Datenbank ein Wert für diesen Nährstoff — die Angabe ist eine Unterschätzung.</p>`
+}
+
+function chartLabel(nutrient: IncludedNutrient): string {
+  return nutrient.incomplete ? `${nutrient.label} *` : nutrient.label
+}
+
 export function renderNutrientComparisonChart(
   options: NutrientComparisonChartOptions,
 ): NutrientComparisonChartHandle {
@@ -177,12 +195,16 @@ export function renderNutrientComparisonChart(
 
   if (included.length === 0) {
     container.innerHTML = `<p class="chart-note">Für dieses Rezept/Profil lässt sich aktuell kein Chart darstellen (${
-      excluded.length > 0
-        ? 'keine vergleichbaren Referenzwerte oder fehlende Datenbankwerte'
-        : 'keine passenden Nährstoffe'
+      excluded.length > 0 ? 'keine vergleichbaren Referenzwerte für dieses Profil' : 'keine passenden Nährstoffe'
     }).</p>`
     return { destroy() {} }
   }
+
+  // Ein Radar mit nur 1-2 Achsen entartet zu einer Linie/einem Punkt statt
+  // einer sinnvollen Fläche (z.B. bei eigenen Zutaten, die nur Makros liefern
+  // und denen zusätzlich noch ein Makro-Wert fehlt) — dann direkt auf die
+  // Balken-Ansicht ausweichen statt einen kaputt wirkenden Radar zu zeigen.
+  const canShowRadar = included.length >= 3
 
   const intakeColor = readCssColor('--chart-color-intake', '#009688')
   const intakeFill = readCssColor('--chart-color-intake-fill', 'rgba(0, 150, 136, 0.2)')
@@ -191,80 +213,100 @@ export function renderNutrientComparisonChart(
   const gridColor = readCssColor('--color-border', '#e0e0e0')
   const textColor = readCssColor('--color-text-muted', '#5f5f5f')
 
+  const radarNote = canShowRadar
+    ? ''
+    : `<p class="chart-note">Zu wenige vergleichbare Nährstoffe (${included.length}) für eine sinnvolle Radar-Ansicht — es wird die Balken-Ansicht angezeigt.</p>`
+
   container.innerHTML = `
     <div class="nutrient-chart">
-      <div class="nutrient-chart__toggle" role="group" aria-label="Chart-Ansicht wählen">
+      ${
+        canShowRadar
+          ? `<div class="nutrient-chart__toggle" role="group" aria-label="Chart-Ansicht wählen">
         <button type="button" class="nutrient-chart__toggle-btn is-active" data-view="radar" aria-pressed="true">Radar (%)</button>
         <button type="button" class="nutrient-chart__toggle-btn" data-view="bars" aria-pressed="false">Balken (absolut)</button>
-      </div>
-      <div class="nutrient-chart__view" data-view-panel="radar">
+      </div>`
+          : ''
+      }
+      <div class="nutrient-chart__view" data-view-panel="radar" ${canShowRadar ? '' : 'hidden'}>
         <canvas></canvas>
       </div>
-      <div class="nutrient-chart__view nutrient-chart__bars" data-view-panel="bars" hidden></div>
+      <div class="nutrient-chart__view nutrient-chart__bars" data-view-panel="bars" ${canShowRadar ? 'hidden' : ''}></div>
+      ${radarNote}
       ${buildExclusionNote(excluded)}
+      ${buildIncompleteNote(included)}
     </div>
   `
 
   const isNarrow = window.matchMedia('(max-width: 480px)').matches
   const pointLabelFontSize = isNarrow ? 10 : 12
 
-  const radarCanvas = container.querySelector('canvas')
-  if (!radarCanvas) return { destroy() {} }
+  let radarChart: Chart | null = null
 
-  const suggestedMax = Math.max(120, ...included.map((n) => n.percentage))
+  if (canShowRadar) {
+    const radarCanvas = container.querySelector('canvas')
+    if (!radarCanvas) return { destroy() {} }
 
-  const radarChart = new Chart(radarCanvas, {
-    type: 'radar',
-    data: {
-      labels: included.map((n) => n.label),
-      datasets: [
-        {
-          label: 'Bedarf (100%)',
-          data: included.map(() => 100),
-          borderColor: requirementColor,
-          backgroundColor: requirementFill,
-          borderDash: [6, 4],
-          pointRadius: 0,
-          fill: true,
+    const suggestedMax = Math.max(120, ...included.map((n) => n.percentage))
+
+    radarChart = new Chart(radarCanvas, {
+      type: 'radar',
+      data: {
+        labels: included.map((n) => chartLabel(n)),
+        datasets: [
+          {
+            label: 'Bedarf (100%)',
+            data: included.map(() => 100),
+            borderColor: requirementColor,
+            backgroundColor: requirementFill,
+            borderDash: [6, 4],
+            pointRadius: 0,
+            fill: true,
+          },
+          {
+            label: 'Aufnahme',
+            data: included.map((n) => Math.round(n.percentage * 10) / 10),
+            borderColor: intakeColor,
+            backgroundColor: intakeFill,
+            pointBackgroundColor: intakeColor,
+            pointRadius: 4,
+            fill: true,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          r: {
+            beginAtZero: true,
+            suggestedMax,
+            grid: { color: gridColor },
+            angleLines: { color: gridColor },
+            pointLabels: { color: textColor, font: { size: pointLabelFontSize } },
+            ticks: {
+              color: textColor,
+              backdropColor: 'transparent',
+              // Feste Anzahl statt automatischer Schrittweite: sonst
+              // erzeugt ein hoher `suggestedMax` (z.B. wenn wegen
+              // fehlender Werte nur noch wenige, dafür stärker
+              // ausschlagende Nährstoffe übrig bleiben) zu viele Ringe,
+              // deren Beschriftungen sich Richtung erster Achse überlappen.
+              count: 5,
+              callback: (value) => `${Math.round(Number(value))}%`,
+            },
+          },
         },
-        {
-          label: 'Aufnahme',
-          data: included.map((n) => Math.round(n.percentage * 10) / 10),
-          borderColor: intakeColor,
-          backgroundColor: intakeFill,
-          pointBackgroundColor: intakeColor,
-          pointRadius: 4,
-          fill: true,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        r: {
-          beginAtZero: true,
-          suggestedMax,
-          grid: { color: gridColor },
-          angleLines: { color: gridColor },
-          pointLabels: { color: textColor, font: { size: pointLabelFontSize } },
-          ticks: {
-            color: textColor,
-            backdropColor: 'transparent',
-            callback: (value) => `${value}%`,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: textColor } },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${ctx.formattedValue}%`,
+            },
           },
         },
       },
-      plugins: {
-        legend: { position: 'bottom', labels: { color: textColor } },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${ctx.formattedValue}%`,
-          },
-        },
-      },
-    },
-  })
+    })
+  }
 
   let barCharts: Chart[] = []
   const barsPanel = container.querySelector<HTMLDivElement>('[data-view-panel="bars"]')
@@ -276,7 +318,7 @@ export function renderNutrientComparisonChart(
       .map(
         (n) => `
           <div class="nutrient-chart__bar-item">
-            <p class="nutrient-chart__bar-caption">${n.label} <span>(${n.unit})</span></p>
+            <p class="nutrient-chart__bar-caption">${chartLabel(n)} <span>(${n.unit})</span></p>
             <div class="nutrient-chart__bar-canvas"><canvas></canvas></div>
           </div>`,
       )
@@ -313,6 +355,12 @@ export function renderNutrientComparisonChart(
     })
   }
 
+  if (!canShowRadar) {
+    // Keine Umschalt-Buttons in diesem Fall (siehe Markup oben) — Balken sind
+    // die einzige Ansicht und müssen direkt aufgebaut werden.
+    ensureBarCharts()
+  }
+
   const toggleButtons = container.querySelectorAll<HTMLButtonElement>('.nutrient-chart__toggle-btn')
   const radarPanel = container.querySelector<HTMLDivElement>('[data-view-panel="radar"]')
 
@@ -336,7 +384,7 @@ export function renderNutrientComparisonChart(
 
   return {
     destroy() {
-      radarChart.destroy()
+      radarChart?.destroy()
       barCharts.forEach((chart) => chart.destroy())
       barCharts = []
     },
