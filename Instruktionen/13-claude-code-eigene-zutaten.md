@@ -30,6 +30,16 @@ im `localStorage` dieses Geräts, ohne Build-Schritt. Erfasste Zutaten sollen
 Menü-Builder, Rezepte), und Teil des bestehenden Daten-Backups sein, damit sie
 nicht verloren gehen.
 
+> **Update nach Rückfrage:** Auf die Frage, was beim Löschen einer noch
+> verwendeten eigenen Zutat/eines noch geloggten Menüs passiert, stellte sich
+> heraus: die App zeigt in dem Fall zwar sauber "Entfernte Zutat"/"Unbekannte
+> Zutat" statt abzustürzen (bestehendes Verhalten aus Instruktion 9), aber
+> **ohne Vorwarnung** — man löscht versehentlich etwas, das noch gebraucht
+> wird, und merkt es erst später an unvollständigen Log-/Menü-Anzeigen.
+> Deshalb ergänzt: eine Zähl-Abfrage vor dem Löschen (Punkt 6), die bei
+> tatsächlicher Verwendung eine verschärfte Bestätigung mit Anzahl
+> betroffener Stellen zeigt statt der bisherigen einfachen Rückfrage.
+
 ---
 
 ## Aufgaben
@@ -119,6 +129,33 @@ nicht verloren gehen.
   `customFoods` erweitert; ein v1-Backup (ohne `customFoods`) wird
   abgelehnt statt migriert; ungültige `customFoods` werden abgelehnt.
 
+### 6. Warnhinweis vor dem Löschen (Update)
+- `src/features/shared/referenceUsageService.ts` (neu, da von
+  Menü-Builder **und** eigenen Zutaten gebraucht):
+  - `countFoodUsage(foodId)` → `{ logEntries, menus }`: Anzahl Tages-Log-
+    Einträge vom Typ `food` mit dieser `foodId`, plus Anzahl Menüs, die
+    diese `foodId` als Zutat enthalten (`getAllLogEntries()`/`getAllMenus()`
+    aus `indexedDbService.ts`).
+  - `countMenuUsage(menuId)` → Anzahl Tages-Log-Einträge vom Typ `menu` mit
+    dieser `menuId`.
+  - `buildFoodDeleteConfirmMessage(name, usage)` /
+    `buildMenuDeleteConfirmMessage(name, logEntryCount)` — reine
+    Text-Bausteine (ohne IndexedDB-Zugriff, daher isoliert testbar): bei
+    keiner Verwendung die bisherige einfache Rückfrage
+    (`"…" wirklich löschen?`), sonst eine Warnung mit den betroffenen
+    Stellen und dem Satz **"Nur löschen, wenn du weisst, was du machst!"**.
+  - Bewusst nur eine **Zählung**, keine Auflistung der einzelnen Log-
+    Einträge/Menüs (siehe "Was nicht Teil ist") — das würde den
+    Bestätigungsdialog sprengen.
+- Verdrahtet an den drei bestehenden Lösch-Stellen:
+  `customFoodsSectionView.ts` (Löschen einer eigenen Zutat),
+  `menuListView.ts` und `menuDetailView.ts` (Löschen eines Menüs) — jeweils
+  wird vor `window.confirm(...)` erst gezählt, dann die passende Nachricht
+  gebaut.
+- `src/features/shared/referenceUsageService.test.ts`: `countFoodUsage`/
+  `countMenuUsage` gegen `fake-indexeddb`, sowie die reinen
+  Text-Bausteine ohne/mit Verwendung (inkl. Prüfung auf den Warnsatz).
+
 ---
 
 ## Was NICHT Teil dieses Auftrags ist
@@ -130,10 +167,21 @@ nicht verloren gehen.
   `customFoods` wird beim Import klar abgelehnt (siehe bestehendes
   "kein Raten unbekannter Formate" aus Instruktion 10), nicht automatisch
   nachgerüstet.
-- Keine Prüfung, ob eine gelöschte eigene Zutat noch in bestehenden Menüs/
-  Rezepten/Log-Einträgen referenziert wird — Verbraucher zeigen in diesem
-  Fall bereits heute "Unbekannte Zutat (…)" bzw. überspringen den Eintrag
-  (bestehendes Verhalten bei jeder gelöschten Referenz, siehe
+- Kein Verhindern/Blockieren des Löschens bei bestehender Verwendung — nur
+  eine Warnung mit Anzahl betroffener Stellen (Punkt 6). Löschen bleibt
+  danach möglich (die löschende Person trägt die Verantwortung, siehe
+  Warnsatz), es gibt keine "harte" Referenz-Integrität wie in einer
+  relationalen Datenbank.
+- Keine Auflistung/kein Sprung zu den einzelnen betroffenen Log-Einträgen/
+  Menüs — nur eine Zahl in der Warnung (siehe Punkt 6).
+- Keine rückwirkende Reparatur bereits verwaister Referenzen (z.B. ein vor
+  dieser Instruktion gelöschter generischer Datenbank-Eintrag) — betrifft
+  nur den Moment des Löschens selbst.
+- Keine Prüfung für Rezepte: Rezepte kommen aus der statischen
+  `recipes.json` und sind in der App nicht löschbar (kein "Rezept
+  löschen"), daher hier nicht relevant. Verbraucher zeigen bei fehlenden
+  Referenzen weiterhin "Unbekannte/Entfernte Zutat" bzw. überspringen den
+  Eintrag (bestehendes Verhalten aus Instruktion 9, siehe
   `menuDetailView.ts`/`recipeDetailView.ts`/`dailyNutritionService.ts`).
 - Kein Abgleich/Zusammenführen mit den Build-Zeit-Markenprodukten aus
   Instruktion 12 (`quellen/eigene-produkte.json`) — beide Wege bleiben
@@ -157,4 +205,10 @@ Bitte zeigen:
 - Ein absichtlich manipuliertes Backup mit `schemaVersion: 1` (kein
   `customFoods`-Feld) importieren → klare Fehlermeldung, kein
   teilweiser Import.
+- Eine eigene Zutat erfassen, in einem Menü verwenden und in einem
+  Log-Eintrag loggen, dann versuchen zu löschen → verschärfte
+  Bestätigung mit Anzahl betroffener Stellen und dem Satz "Nur löschen,
+  wenn du weisst, was du machst!" statt der einfachen Rückfrage. Gleiches
+  für ein geloggtes Menü zeigen (Löschen aus der Menü-Liste **und** aus
+  der Menü-Detailansicht).
 - `npm test` grün.

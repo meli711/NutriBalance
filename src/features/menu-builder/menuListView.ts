@@ -1,4 +1,5 @@
 import { deleteMenu, getAllMenus } from '../../data/indexedDbService.ts'
+import { buildMenuDeleteConfirmMessage, countMenuUsage } from '../shared/referenceUsageService.ts'
 import type { Menu } from './models/menu.ts'
 
 export interface MenuListViewOptions {
@@ -72,7 +73,14 @@ export async function renderMenuListView(options: MenuListViewOptions): Promise<
         event.stopPropagation()
         const menuId = button.dataset.deleteId
         if (!menuId) return
-        if (!window.confirm('Dieses Menü wirklich löschen?')) return
+        const menu = menus.find((m) => m.id === menuId)
+        if (!menu) return
+
+        // Vor dem Löschen prüfen, ob das Menü noch geloggt ist — danach
+        // zeigt der betroffene Tag nur noch "Entferntes Menü" an, siehe
+        // `referenceUsageService.ts`.
+        const usageCount = await countMenuUsage(menuId)
+        if (!window.confirm(buildMenuDeleteConfirmMessage(menu.name, usageCount))) return
         await deleteMenu(menuId)
         await renderList()
       })

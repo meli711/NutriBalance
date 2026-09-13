@@ -2,6 +2,7 @@ import { getFoodById } from '../../data/foodDatabaseService.ts'
 import type { FoodItem } from '../../data/models/food.ts'
 import type { UserProfile } from '../../data/models/userProfile.ts'
 import { deleteMenu, getMenuById } from '../../data/indexedDbService.ts'
+import { buildMenuDeleteConfirmMessage, countMenuUsage } from '../shared/referenceUsageService.ts'
 import { getRequirementOverrides } from '../../data/localStorageService.ts'
 import { getRequirementsForProfile } from '../nutrient-requirements/requirementService.ts'
 import type { NutrientRequirement } from '../nutrient-requirements/models/requirement.ts'
@@ -200,7 +201,8 @@ export async function renderMenuDetailView(options: MenuDetailViewOptions): Prom
 
   container.querySelector('[data-action="back"]')?.addEventListener('click', handleBack)
   container.querySelector('[data-action="delete"]')?.addEventListener('click', async () => {
-    if (!window.confirm('Dieses Menü wirklich löschen?')) return
+    const usageCount = await countMenuUsage(menuId)
+    if (!window.confirm(buildMenuDeleteConfirmMessage(menu.name, usageCount))) return
     await deleteMenu(menuId)
     destroyActiveSummary()
     onDeleted()

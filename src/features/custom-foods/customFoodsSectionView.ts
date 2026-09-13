@@ -8,6 +8,7 @@ import {
 } from '../../data/customFoodService.ts'
 import { renderCustomFoodForm } from './customFoodForm.ts'
 import { formatNumber } from '../../utils/formatNumber.ts'
+import { buildFoodDeleteConfirmMessage, countFoodUsage } from '../shared/referenceUsageService.ts'
 
 export interface CustomFoodsSectionOptions {
   /** Element, in das der Abschnitt angehängt wird (nicht ersetzt). */
@@ -99,9 +100,16 @@ export function renderCustomFoodsSection(options: CustomFoodsSectionOptions): vo
         if (!id) return
         const food = foods.find((f) => f.id === id)
         if (!food) return
-        if (!window.confirm(`"${food.name.de}" wirklich löschen?`)) return
-        deleteCustomFood(id)
-        render()
+
+        // Vor dem Löschen prüfen, ob die Zutat noch in Log-Einträgen/Menüs
+        // verwendet wird — nach dem Löschen zeigen diese Stellen die Zutat
+        // nur noch als "unbekannt"/"unvollständig" an (siehe
+        // `referenceUsageService.ts`), daher die verschärfte Warnung.
+        void countFoodUsage(id).then((usage) => {
+          if (!window.confirm(buildFoodDeleteConfirmMessage(food.name.de, usage))) return
+          deleteCustomFood(id)
+          render()
+        })
       })
     })
   }
