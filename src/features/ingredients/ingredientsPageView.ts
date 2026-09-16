@@ -29,7 +29,7 @@ export function renderIngredientsPage(options: IngredientsPageOptions): void {
 
   container.innerHTML = `
     <section class="recipe-list">
-      <h1>Zutaten</h1>
+      <h1 class="type-heading-food">Zutaten</h1>
 
       <div class="nutrient-chart__toggle" role="group" aria-label="Ansicht wählen">
         ${(['database', 'own'] as IngredientsTab[])

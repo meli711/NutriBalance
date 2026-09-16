@@ -19,6 +19,16 @@
 
   --color-error: #a13d2c;
 
+  /* Typ-Farben (Instruktion 16) — unterscheiden Zutat/Menü/Rezept im
+     Tages-Log und auf den jeweiligen Listen-/Detail-Screens. Bewusst
+     eigene Hex-Werte statt Primär/Akzent/Support, die für
+     "Aufnahme"/"Bedarf"/Warnhinweise reserviert bleiben (siehe
+     DESIGN.md) — nur als schmaler Akzent (Rand/Punkt/Überschrift)
+     eingesetzt, nie als Fläche. */
+  --color-type-food: #5c6827;
+  --color-type-menu: #3d5a8a;
+  --color-type-recipe: #6a4f8a;
+
   /* Chart-Farben: gesättigtere Varianten von Primary/Accent — die gedeckten
      UI-Töne fallen für dünne Chart-Linien/Punkte unter die Sättigungs-
      Wahrnehmbarkeitsgrenze (mit dem dataviz-Skill-Validator geprüft:
@@ -746,6 +756,60 @@ textarea:focus-visible,
 
 .daily-log__entry-label {
   flex: 1;
+}
+
+/* Typ-Farbe pro Log-Zeile (Instruktion 16) — schmaler linker Rand + kleiner
+   Punkt, gesteuert über `data-entry-type` statt drei separaten Klassen pro
+   Zeile. Gilt nur für Log-Zeilen, nicht für `.menu-builder__ingredient-row`
+   im Menü-Builder (dort immer Zutaten, keine Typ-Unterscheidung nötig). */
+.daily-log__entry-row {
+  border-left-width: 4px;
+}
+
+.daily-log__entry-row[data-entry-type='food'] {
+  border-left-color: var(--color-type-food);
+}
+
+.daily-log__entry-row[data-entry-type='menu'] {
+  border-left-color: var(--color-type-menu);
+}
+
+.daily-log__entry-row[data-entry-type='recipe'] {
+  border-left-color: var(--color-type-recipe);
+}
+
+.daily-log__type-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.daily-log__entry-row[data-entry-type='food'] .daily-log__type-dot {
+  background-color: var(--color-type-food);
+}
+
+.daily-log__entry-row[data-entry-type='menu'] .daily-log__type-dot {
+  background-color: var(--color-type-menu);
+}
+
+.daily-log__entry-row[data-entry-type='recipe'] .daily-log__type-dot {
+  background-color: var(--color-type-recipe);
+}
+
+/* Typ-Farbe auf Listen-/Detail-Screens (Instruktion 16) — ersetzt die
+   generische Primär-Farbe der `<h1>` auf den Zutaten-/Menü-/
+   Rezept-Screens. */
+.type-heading-food {
+  color: var(--color-type-food);
+}
+
+.type-heading-menu {
+  color: var(--color-type-menu);
+}
+
+.type-heading-recipe {
+  color: var(--color-type-recipe);
 }
 
 /* Verlauf (Wochen-/Monatsübersicht) */

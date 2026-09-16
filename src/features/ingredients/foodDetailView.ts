@@ -80,7 +80,7 @@ export async function renderFoodDetailView(options: FoodDetailViewOptions): Prom
 
     container.innerHTML = `
       <section class="recipe-detail">
-        <h1>${current.name.de}</h1>
+        <h1 class="type-heading-food">${current.name.de}</h1>
         <p class="recipe-detail__meta">${current.category || 'Keine Kategorie'}</p>
         ${
           current.synonyms && current.synonyms.length > 0
@@ -131,7 +131,7 @@ export async function renderFoodDetailView(options: FoodDetailViewOptions): Prom
 
   function renderEdit(current: FoodItem): void {
     destroyActiveSummary()
-    container.innerHTML = `<section class="recipe-detail"><h1>${current.name.de}</h1></section>`
+    container.innerHTML = `<section class="recipe-detail"><h1 class="type-heading-food">${current.name.de}</h1></section>`
     const section = container.querySelector('section')!
     const formContainer = document.createElement('div')
     section.appendChild(formContainer)

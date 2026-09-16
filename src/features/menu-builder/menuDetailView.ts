@@ -167,7 +167,7 @@ export async function renderMenuDetailView(options: MenuDetailViewOptions): Prom
 
   container.innerHTML = `
     <section class="recipe-detail">
-      <h1>${menu.name}</h1>
+      <h1 class="type-heading-menu">${menu.name}</h1>
       <p class="recipe-detail__meta">Erstellt am ${formatDate(menu.createdAt)}</p>
       ${menu.description ? `<p class="recipe-detail__meta">${menu.description}</p>` : ''}
 

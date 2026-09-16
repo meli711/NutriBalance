@@ -115,8 +115,9 @@ export async function renderDailyLogView(options: DailyLogViewOptions): Promise<
           : ''
 
       return `
-        <li class="menu-builder__ingredient-row">
+        <li class="menu-builder__ingredient-row daily-log__entry-row" data-entry-type="${entry.type}">
           ${servingsInput}${quantityInput}
+          <span class="daily-log__type-dot" aria-hidden="true"></span>
           <span class="daily-log__entry-label">${missing ? `<em>${label}</em>` : label}</span>
           <button type="button" class="menu-list__delete" data-remove-entry-id="${entry.id}" aria-label="Eintrag entfernen">✕</button>
         </li>`

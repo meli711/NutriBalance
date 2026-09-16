@@ -13,7 +13,7 @@ export async function renderRecipeListView(options: RecipeListViewOptions): Prom
 
   container.innerHTML = `
     <section class="recipe-list">
-      <h1>Rezepte</h1>
+      <h1 class="type-heading-recipe">Rezepte</h1>
       <p class="recipe-list__status">Lade Rezepte…</p>
     </section>
   `
@@ -45,7 +45,7 @@ export async function renderRecipeListView(options: RecipeListViewOptions): Prom
 
   container.innerHTML = `
     <section class="recipe-list">
-      <h1>Rezepte</h1>
+      <h1 class="type-heading-recipe">Rezepte</h1>
       <ul class="recipe-list__items">${items}</ul>
       <button type="button" class="button-secondary" data-action="back">Zurück</button>
     </section>

@@ -82,7 +82,7 @@ export async function renderRecipeDetailView(options: RecipeDetailViewOptions): 
 
   container.innerHTML = `
     <section class="recipe-detail">
-      <h1>${recipe.name}</h1>
+      <h1 class="type-heading-recipe">${recipe.name}</h1>
       <p class="recipe-detail__meta">${recipe.servings} Portion${recipe.servings === 1 ? '' : 'en'}</p>
 
       <h2>Zutaten</h2>

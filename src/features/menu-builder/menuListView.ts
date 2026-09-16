@@ -24,7 +24,7 @@ export async function renderMenuListView(options: MenuListViewOptions): Promise<
     } catch {
       container.innerHTML = `
         <section class="recipe-list">
-          <h1>Eigene Menüs</h1>
+          <h1 class="type-heading-menu">Eigene Menüs</h1>
           <p class="field-error" role="alert">Menüs konnten nicht geladen werden.</p>
           <button type="button" class="button-secondary" data-action="back">Zurück</button>
         </section>
@@ -50,7 +50,7 @@ export async function renderMenuListView(options: MenuListViewOptions): Promise<
 
     container.innerHTML = `
       <section class="recipe-list">
-        <h1>Eigene Menüs</h1>
+        <h1 class="type-heading-menu">Eigene Menüs</h1>
         ${
           menus.length === 0
             ? '<p class="recipe-list__status">Noch keine Menüs gespeichert.</p>'
@@ -92,7 +92,7 @@ export async function renderMenuListView(options: MenuListViewOptions): Promise<
 
   container.innerHTML = `
     <section class="recipe-list">
-      <h1>Eigene Menüs</h1>
+      <h1 class="type-heading-menu">Eigene Menüs</h1>
       <p class="recipe-list__status">Lade Menüs…</p>
     </section>
   `
