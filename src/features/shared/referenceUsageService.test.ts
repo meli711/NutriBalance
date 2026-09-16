@@ -29,6 +29,7 @@ test('countFoodUsage zählt Log-Einträge (type food) und Menüs mit dieser Zuta
     type: 'food',
     foodId,
     amountGrams: 100,
+    factor: 1,
   }
   await addLogEntry(logEntry)
   await saveMenu(makeMenu({ id: 'usage-menu-1', ingredients: [{ foodId, amountGrams: 50 }] }))
@@ -47,12 +48,19 @@ test('countFoodUsage gibt 0/0 zurück für eine unbenutzte Zutat', async () => {
 
 test('countMenuUsage zählt nur Log-Einträge vom Typ menu mit passender menuId', async () => {
   const menuId = 'usage-menu-logged'
-  const menuEntry: LogEntry = { id: 'usage-log-menu-1', date: '2026-01-01', type: 'menu', menuId }
+  const menuEntry: LogEntry = {
+    id: 'usage-log-menu-1',
+    date: '2026-01-01',
+    type: 'menu',
+    menuId,
+    factor: 1,
+  }
   const otherEntry: LogEntry = {
     id: 'usage-log-menu-2',
     date: '2026-01-02',
     type: 'menu',
     menuId: 'other-menu',
+    factor: 1,
   }
   await addLogEntry(menuEntry)
   await addLogEntry(otherEntry)

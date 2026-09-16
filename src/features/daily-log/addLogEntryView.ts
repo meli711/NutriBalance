@@ -88,20 +88,16 @@ export function renderAddLogEntryView(options: AddLogEntryViewOptions): void {
         const recipeId = button.dataset.recipeId
         if (!recipeId) return
 
-        const raw = window.prompt('Wie viele Portionen hast du gegessen?', '1')
-        if (raw === null) return
-        const servings = Number(raw.trim().replace(',', '.'))
-        if (!Number.isFinite(servings) || servings <= 0) {
-          window.alert('Bitte eine Zahl grösser als 0 eingeben.')
-          return
-        }
-
+        // Direkt mit Default-Werten hinzufügen (kein Prompt-Popup) —
+        // Portionen/Faktor lassen sich danach im Log direkt anpassen
+        // (Instruktion 15).
         void addLogEntry({
           id: crypto.randomUUID(),
           date,
           type: 'recipe',
           recipeId,
-          servings,
+          servings: 1,
+          factor: 1,
         }).then(onAdded)
       })
     })
@@ -141,7 +137,13 @@ export function renderAddLogEntryView(options: AddLogEntryViewOptions): void {
       button.addEventListener('click', () => {
         const menuId = button.dataset.menuId
         if (!menuId) return
-        void addLogEntry({ id: crypto.randomUUID(), date, type: 'menu', menuId }).then(onAdded)
+        void addLogEntry({
+          id: crypto.randomUUID(),
+          date,
+          type: 'menu',
+          menuId,
+          factor: 1,
+        }).then(onAdded)
       })
     })
   }
@@ -158,6 +160,7 @@ export function renderAddLogEntryView(options: AddLogEntryViewOptions): void {
           type: 'food',
           foodId: food.id,
           amountGrams,
+          factor: 1,
         }).then(onAdded)
       },
     })

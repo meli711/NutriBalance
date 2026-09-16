@@ -114,11 +114,11 @@ function find(values: ReturnType<typeof sumDailyNutrition>, nutrientId: string) 
 test('sumDailyNutrition summiert Rezept + Zutat + Menü an einem Tag korrekt', () => {
   const entries: LogEntry[] = [
     // Rezept X: 1 Portion = 100g von A. 2x gegessen → alles verdoppelt.
-    { id: 'e1', date: '2026-08-22', type: 'recipe', recipeId: 'recipe-x', servings: 2 },
+    { id: 'e1', date: '2026-08-22', type: 'recipe', recipeId: 'recipe-x', servings: 2, factor: 1 },
     // Zutat: 50g von B direkt geloggt.
-    { id: 'e2', date: '2026-08-22', type: 'food', foodId: 'B', amountGrams: 50 },
+    { id: 'e2', date: '2026-08-22', type: 'food', foodId: 'B', amountGrams: 50, factor: 1 },
     // Menü Y: 50g von A (kein Multiplikator).
-    { id: 'e3', date: '2026-08-22', type: 'menu', menuId: 'menu-y' },
+    { id: 'e3', date: '2026-08-22', type: 'menu', menuId: 'menu-y', factor: 1 },
   ]
 
   const total = sumDailyNutrition(entries, CONTEXT)
@@ -145,10 +145,24 @@ test('sumDailyNutrition summiert Rezept + Zutat + Menü an einem Tag korrekt', (
 
 test('sumDailyNutrition ignoriert Einträge mit nicht mehr existierendem Rezept/Menü/Zutat statt abzustürzen', () => {
   const entries: LogEntry[] = [
-    { id: 'e1', date: '2026-08-22', type: 'recipe', recipeId: 'does-not-exist', servings: 1 },
-    { id: 'e2', date: '2026-08-22', type: 'menu', menuId: 'does-not-exist' },
-    { id: 'e3', date: '2026-08-22', type: 'food', foodId: 'does-not-exist', amountGrams: 100 },
-    { id: 'e4', date: '2026-08-22', type: 'food', foodId: 'A', amountGrams: 100 },
+    {
+      id: 'e1',
+      date: '2026-08-22',
+      type: 'recipe',
+      recipeId: 'does-not-exist',
+      servings: 1,
+      factor: 1,
+    },
+    { id: 'e2', date: '2026-08-22', type: 'menu', menuId: 'does-not-exist', factor: 1 },
+    {
+      id: 'e3',
+      date: '2026-08-22',
+      type: 'food',
+      foodId: 'does-not-exist',
+      amountGrams: 100,
+      factor: 1,
+    },
+    { id: 'e4', date: '2026-08-22', type: 'food', foodId: 'A', amountGrams: 100, factor: 1 },
   ]
 
   const total = sumDailyNutrition(entries, CONTEXT)
@@ -160,4 +174,35 @@ test('sumDailyNutrition ignoriert Einträge mit nicht mehr existierendem Rezept/
 
 test('sumDailyNutrition liefert ein leeres Array für einen Tag ohne Einträge', () => {
   assert.deepEqual(sumDailyNutrition([], CONTEXT), [])
+})
+
+test('factor multipliziert das Ergebnis eines Eintrags zusätzlich, unabhängig von amountGrams/servings/Menü (Instruktion 15)', () => {
+  const entries: LogEntry[] = [
+    // Menü Y: 50g von A, 2x an diesem Tag ("zweiter Milchkaffee").
+    { id: 'e1', date: '2026-08-22', type: 'menu', menuId: 'menu-y', factor: 2 },
+  ]
+
+  const total = sumDailyNutrition(entries, CONTEXT)
+
+  // Energie ohne Faktor wäre 100 (200/100*50) — mit factor: 2 verdoppelt.
+  assert.equal(find(total, 'energy').value, 200)
+})
+
+test('factor und servings multiplizieren sich bei Rezepten unabhängig voneinander (Instruktion 15)', () => {
+  const entries: LogEntry[] = [
+    // Rezept X: 1 Portion = 100g von A (Energie 200). 1.5 Portionen, 2x an diesem Tag.
+    {
+      id: 'e1',
+      date: '2026-08-22',
+      type: 'recipe',
+      recipeId: 'recipe-x',
+      servings: 1.5,
+      factor: 2,
+    },
+  ]
+
+  const total = sumDailyNutrition(entries, CONTEXT)
+
+  // 200 * 1.5 (Portionen) * 2 (Faktor) = 600
+  assert.equal(find(total, 'energy').value, 600)
 })

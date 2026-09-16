@@ -17,6 +17,11 @@ interface NutriBalanceDB extends DBSchema {
 const DB_NAME = 'nutribalance'
 // v2: neuer Object Store `logEntries` (Instruktion 9) — `menus` (v1) bleibt
 // unverändert bestehen, siehe upgrade()-Migration unten.
+// Instruktion 15 fügt `LogEntry.factor` hinzu, ohne die Version zu erhöhen:
+// IndexedDB validiert gespeicherte Objekte nicht gegen ein Schema, ein neues
+// optionales Feld erfordert keine upgrade()-Änderung. Alte, bereits
+// gespeicherte Einträge ohne `factor` werden beim Lesen über
+// `normalizeLogEntry` defensiv ergänzt (siehe unten).
 const DB_VERSION = 2
 
 let dbPromise: Promise<IDBPDatabase<NutriBalanceDB>> | null = null
@@ -63,21 +68,44 @@ export async function addLogEntry(entry: LogEntry): Promise<void> {
   await db.put('logEntries', entry)
 }
 
+/**
+ * Aktualisiert einen bestehenden Log-Eintrag (z.B. geänderter `factor`,
+ * Instruktion 15). Funktional identisch zu `addLogEntry` — `db.put` ist
+ * bereits ein Upsert über `keyPath: 'id'` — aber als eigener Name an den
+ * Aufrufstellen klarer als "ändern" statt "neu hinzufügen".
+ */
+export const updateLogEntry = addLogEntry
+
 export async function removeLogEntry(id: string): Promise<void> {
   const db = await getDb()
   await db.delete('logEntries', id)
 }
 
+/**
+ * Ergänzt `factor` defensiv auf `1`, falls der Eintrag vor Instruktion 15
+ * gespeichert wurde und das Feld daher zur Laufzeit fehlt (auch wenn der Typ
+ * es als Pflichtfeld deklariert). Zentral an dieser Stelle, damit sich keine
+ * andere Stelle im Code um alte Datensätze kümmern muss.
+ */
+function normalizeLogEntry(entry: LogEntry): LogEntry {
+  // Cast, weil `factor` im Typ Pflicht ist, bei alten Datensätzen zur
+  // Laufzeit aber fehlen kann — siehe Kommentar auf `LogEntryBase.factor`.
+  const factor = (entry as { factor?: number }).factor
+  return factor === undefined ? { ...entry, factor: 1 } : entry
+}
+
 /** Nutzt den `by-date`-Index — lädt nur die Einträge des Tages, nicht den ganzen Store. */
 export async function getLogEntriesForDate(date: string): Promise<LogEntry[]> {
   const db = await getDb()
-  return db.getAllFromIndex('logEntries', 'by-date', date)
+  const entries = await db.getAllFromIndex('logEntries', 'by-date', date)
+  return entries.map(normalizeLogEntry)
 }
 
 /** Alle Log-Einträge über alle Tage hinweg — für das Backup (Instruktion 10). */
 export async function getAllLogEntries(): Promise<LogEntry[]> {
   const db = await getDb()
-  return db.getAll('logEntries')
+  const entries = await db.getAll('logEntries')
+  return entries.map(normalizeLogEntry)
 }
 
 /**
@@ -91,7 +119,12 @@ export async function getLogEntriesInRange(
   endDate: string,
 ): Promise<LogEntry[]> {
   const db = await getDb()
-  return db.getAllFromIndex('logEntries', 'by-date', IDBKeyRange.bound(startDate, endDate))
+  const entries = await db.getAllFromIndex(
+    'logEntries',
+    'by-date',
+    IDBKeyRange.bound(startDate, endDate),
+  )
+  return entries.map(normalizeLogEntry)
 }
 
 /** Ersetzt den kompletten `menus`-Store atomar durch `menus` — für den Backup-Import. */

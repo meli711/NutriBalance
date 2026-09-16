@@ -43,6 +43,11 @@ function isValidLogEntry(value: unknown): value is LogEntry {
   if (!value || typeof value !== 'object') return false
   const v = value as Record<string, unknown>
   if (typeof v.id !== 'string' || typeof v.date !== 'string') return false
+  // `factor` ist optional: Backups von vor Instruktion 15 haben das Feld
+  // noch nicht, werden aber weiterhin akzeptiert (`normalizeLogEntry` in
+  // `indexedDbService.ts` ergänzt es beim nächsten Lesen auf 1). Ist es
+  // vorhanden, muss es eine Zahl sein.
+  if (v.factor !== undefined && typeof v.factor !== 'number') return false
 
   switch (v.type) {
     case 'food':

@@ -11,7 +11,12 @@ import type { RequirementOverrides } from '../../../data/localStorageService.ts'
  * betroffen wären. Mit Instruktion 13 (`customFoods`) auf 2 erhöht, da die
  * App inzwischen im Einsatz ist und bestehende v1-Backups sonst
  * stillschweigend ohne eigene Zutaten importiert würden — siehe
- * `validateBackupData`, das v1-Dateien bewusst ablehnt statt sie zu migrieren.) */
+ * `validateBackupData`, das v1-Dateien bewusst ablehnt statt sie zu migrieren.
+ * Mit Instruktion 15 um `LogEntry.factor` ergänzt, ebenfalls ohne die
+ * Version zu erhöhen: anders als bei `customFoods` geht beim Fehlen von
+ * `factor` in einem alten Backup nichts verloren — `normalizeLogEntry`
+ * (`indexedDbService.ts`) ergänzt es beim nächsten Lesen auf 1, fachlich
+ * exakt das korrekte Verhalten für einen Alt-Eintrag.) */
 export const BACKUP_SCHEMA_VERSION = 2
 
 export interface BackupData {

@@ -1,8 +1,17 @@
 import 'fake-indexeddb/auto'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { deleteMenu, getAllMenus, getMenuById, saveMenu } from './indexedDbService.ts'
+import {
+  addLogEntry,
+  deleteMenu,
+  getAllLogEntries,
+  getAllMenus,
+  getLogEntriesForDate,
+  getMenuById,
+  saveMenu,
+} from './indexedDbService.ts'
 import type { Menu } from '../features/menu-builder/models/menu.ts'
+import type { LogEntry } from '../features/daily-log/models/logEntry.ts'
 
 function makeMenu(overrides: Partial<Menu> & { id: string }): Menu {
   return {
@@ -46,4 +55,23 @@ test('deleteMenu entfernt ein Menü dauerhaft', async () => {
 
   await deleteMenu('to-delete')
   assert.equal(await getMenuById('to-delete'), undefined)
+})
+
+test('getLogEntriesForDate/getAllLogEntries ergänzen `factor: 1` bei Alt-Einträgen ohne dieses Feld (Instruktion 15)', async () => {
+  // Simuliert einen vor Instruktion 15 gespeicherten Log-Eintrag: das Feld
+  // `factor` fehlt zur Laufzeit, auch wenn der Typ es als Pflicht deklariert.
+  const legacyEntry = {
+    id: 'legacy-entry-1',
+    date: '2026-01-01',
+    type: 'food',
+    foodId: '198',
+    amountGrams: 100,
+  } as unknown as LogEntry
+  await addLogEntry(legacyEntry)
+
+  const byDate = await getLogEntriesForDate('2026-01-01')
+  const all = await getAllLogEntries()
+
+  assert.equal(byDate.find((e) => e.id === 'legacy-entry-1')?.factor, 1)
+  assert.equal(all.find((e) => e.id === 'legacy-entry-1')?.factor, 1)
 })

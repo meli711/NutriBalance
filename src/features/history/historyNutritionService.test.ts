@@ -85,9 +85,9 @@ function value(values: ReturnType<typeof sumNutritionByDate>, date: string, nutr
 test('sumNutritionByDate summiert pro Tag getrennt und deckt den ganzen dates-Bereich ab', () => {
   const dates = ['2026-09-01', '2026-09-02', '2026-09-03']
   const entries: LogEntry[] = [
-    { id: 'e1', date: '2026-09-01', type: 'food', foodId: 'A', amountGrams: 100 },
-    { id: 'e2', date: '2026-09-01', type: 'food', foodId: 'A', amountGrams: 50 },
-    { id: 'e3', date: '2026-09-03', type: 'food', foodId: 'A', amountGrams: 200 },
+    { id: 'e1', date: '2026-09-01', type: 'food', foodId: 'A', amountGrams: 100, factor: 1 },
+    { id: 'e2', date: '2026-09-01', type: 'food', foodId: 'A', amountGrams: 50, factor: 1 },
+    { id: 'e3', date: '2026-09-03', type: 'food', foodId: 'A', amountGrams: 200, factor: 1 },
   ]
 
   const result = sumNutritionByDate(dates, entries, CONTEXT)
@@ -105,7 +105,7 @@ test('sumNutritionByDate summiert pro Tag getrennt und deckt den ganzen dates-Be
 test('sumNutritionByDate liefert [] für Tage ohne Log-Eintrag', () => {
   const dates = ['2026-09-01', '2026-09-02']
   const entries: LogEntry[] = [
-    { id: 'e1', date: '2026-09-01', type: 'food', foodId: 'A', amountGrams: 100 },
+    { id: 'e1', date: '2026-09-01', type: 'food', foodId: 'A', amountGrams: 100, factor: 1 },
   ]
 
   const result = sumNutritionByDate(dates, entries, CONTEXT)
@@ -117,8 +117,8 @@ test('sumNutritionByDate liefert [] für Tage ohne Log-Eintrag', () => {
 test('sumNutritionByDate ignoriert Einträge ausserhalb des dates-Arrays', () => {
   const dates = ['2026-09-02']
   const entries: LogEntry[] = [
-    { id: 'e1', date: '2026-09-01', type: 'food', foodId: 'A', amountGrams: 100 },
-    { id: 'e2', date: '2026-09-02', type: 'food', foodId: 'A', amountGrams: 100 },
+    { id: 'e1', date: '2026-09-01', type: 'food', foodId: 'A', amountGrams: 100, factor: 1 },
+    { id: 'e2', date: '2026-09-02', type: 'food', foodId: 'A', amountGrams: 100, factor: 1 },
   ]
 
   const result = sumNutritionByDate(dates, entries, CONTEXT)
@@ -131,9 +131,9 @@ test('sumNutritionByDate reicht das incomplete-Flag pro Tag weiter', () => {
   const dates = ['2026-09-01', '2026-09-02']
   const entries: LogEntry[] = [
     // B hat keinen Protein-Wert → Tag 1 Protein incomplete
-    { id: 'e1', date: '2026-09-01', type: 'food', foodId: 'B', amountGrams: 100 },
+    { id: 'e1', date: '2026-09-01', type: 'food', foodId: 'B', amountGrams: 100, factor: 1 },
     // A ist vollständig → Tag 2 Protein vollständig
-    { id: 'e2', date: '2026-09-02', type: 'food', foodId: 'A', amountGrams: 100 },
+    { id: 'e2', date: '2026-09-02', type: 'food', foodId: 'A', amountGrams: 100, factor: 1 },
   ]
 
   const result = sumNutritionByDate(dates, entries, CONTEXT)

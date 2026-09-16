@@ -1,6 +1,11 @@
 import type { UserProfile } from '../../data/models/userProfile.ts'
 import { getFoodById } from '../../data/foodDatabaseService.ts'
-import { getLogEntriesForDate, getMenuById, removeLogEntry } from '../../data/indexedDbService.ts'
+import {
+  getLogEntriesForDate,
+  getMenuById,
+  removeLogEntry,
+  updateLogEntry,
+} from '../../data/indexedDbService.ts'
 import { getRequirementOverrides } from '../../data/localStorageService.ts'
 import { getRecipeById } from '../recipes/recipeService.ts'
 import { getRequirementsForProfile } from '../nutrient-requirements/requirementService.ts'
@@ -57,11 +62,7 @@ async function resolveEntry(entry: LogEntry): Promise<ResolvedEntry> {
   if (entry.type === 'recipe') {
     const recipe = await getRecipeById(entry.recipeId)
     return recipe
-      ? {
-          entry,
-          label: `${recipe.name} — ${formatNumber(entry.servings)} Portion${entry.servings === 1 ? '' : 'en'}`,
-          missing: false,
-        }
+      ? { entry, label: recipe.name, missing: false }
       : { entry, label: 'Entferntes Rezept', missing: true }
   }
   const menu = await getMenuById(entry.menuId)
@@ -85,13 +86,41 @@ export async function renderDailyLogView(options: DailyLogViewOptions): Promise<
   const isToday = date === getLocalDateString(new Date())
 
   const entryRows = resolved
-    .map(
-      ({ entry, label, missing }) => `
+    .map(({ entry, label, missing }) => {
+      // Genau ein Zahlenfeld pro Zeile: bei `recipe` die Portionen (decken
+      // "wie viel/wie oft" hier bereits vollständig ab), sonst der Faktor.
+      const quantityInput =
+        missing || entry.type === 'recipe'
+          ? ''
+          : `<input
+              type="number"
+              class="daily-log__qty-input"
+              data-factor-input-id="${entry.id}"
+              value="${entry.factor}"
+              min="0"
+              step="1"
+              aria-label="Faktor (wie oft dieser Eintrag heute vorkommt)"
+            />`
+      const servingsInput =
+        !missing && entry.type === 'recipe'
+          ? `<input
+              type="number"
+              class="daily-log__qty-input"
+              data-servings-input-id="${entry.id}"
+              value="${entry.servings}"
+              min="0"
+              step="1"
+              aria-label="Portionen"
+            />`
+          : ''
+
+      return `
         <li class="menu-builder__ingredient-row">
-          <span>${missing ? `<em>${label}</em>` : label}</span>
+          ${servingsInput}${quantityInput}
+          <span class="daily-log__entry-label">${missing ? `<em>${label}</em>` : label}</span>
           <button type="button" class="menu-list__delete" data-remove-entry-id="${entry.id}" aria-label="Eintrag entfernen">✕</button>
-        </li>`,
-    )
+        </li>`
+    })
     .join('')
 
   const bodyHtml =
@@ -167,6 +196,50 @@ export async function renderDailyLogView(options: DailyLogViewOptions): Promise<
         destroyActiveSummary()
         // Neu rendern (auch für den Fall "letzter Eintrag entfernt" → sauber
         // zurück zum leeren Zustand, siehe Instruktion 9, Edge Cases).
+        await renderDailyLogView(options)
+      })()
+    })
+  })
+
+  container.querySelectorAll<HTMLInputElement>('[data-factor-input-id]').forEach((input) => {
+    input.addEventListener('change', () => {
+      void (async () => {
+        const id = input.dataset.factorInputId
+        if (!id) return
+        const current = resolved.find((r) => r.entry.id === id)?.entry
+        if (!current) return
+
+        const factor = Number(input.value)
+        if (!Number.isFinite(factor) || factor <= 0) {
+          window.alert('Bitte eine Zahl grösser als 0 eingeben.')
+          input.value = String(current.factor)
+          return
+        }
+
+        await updateLogEntry({ ...current, factor })
+        destroyActiveSummary()
+        await renderDailyLogView(options)
+      })()
+    })
+  })
+
+  container.querySelectorAll<HTMLInputElement>('[data-servings-input-id]').forEach((input) => {
+    input.addEventListener('change', () => {
+      void (async () => {
+        const id = input.dataset.servingsInputId
+        if (!id) return
+        const current = resolved.find((r) => r.entry.id === id)?.entry
+        if (!current || current.type !== 'recipe') return
+
+        const servings = Number(input.value)
+        if (!Number.isFinite(servings) || servings <= 0) {
+          window.alert('Bitte eine Zahl grösser als 0 eingeben.')
+          input.value = String(current.servings)
+          return
+        }
+
+        await updateLogEntry({ ...current, servings })
+        destroyActiveSummary()
         await renderDailyLogView(options)
       })()
     })

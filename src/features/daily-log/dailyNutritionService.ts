@@ -37,12 +37,22 @@ function sumNutrientValues(all: NutrientValues[]): NutrientValues {
   return [...byId.values()]
 }
 
+/** Multipliziert alle Nährwerte mit `factor`, `incomplete`-Flags bleiben unverändert (Instruktion 15). */
+function applyFactor(values: NutrientValues, factor: number): NutrientValues {
+  if (factor === 1) return values
+  return values.map((amount) => ({ ...amount, value: amount.value * factor }))
+}
+
 /**
- * Berechnet die Nährwerte eines einzelnen Log-Eintrags. `null` bedeutet: die
+ * Berechnet die Nährwerte eines einzelnen Log-Eintrags — für **ein**
+ * Vorkommen (vor Anwendung von `factor`, siehe unten). `null` bedeutet: die
  * referenzierte Zutat/das Rezept/Menü existiert nicht (mehr) — der Eintrag
  * wird dann übersprungen statt abzustürzen (Instruktion 9, Edge Cases).
  */
-function calculateEntryNutrition(entry: LogEntry, context: DailyLogContext): NutrientValues | null {
+function calculateSingleOccurrence(
+  entry: LogEntry,
+  context: DailyLogContext,
+): NutrientValues | null {
   switch (entry.type) {
     case 'food': {
       const food = context.foodsById.get(entry.foodId)
@@ -64,6 +74,17 @@ function calculateEntryNutrition(entry: LogEntry, context: DailyLogContext): Nut
       return calculateNutrition(menu.ingredients, context.foodsById)
     }
   }
+}
+
+/**
+ * Berechnet die Nährwerte eines einzelnen Log-Eintrags inkl. `factor` — "wie
+ * oft dieser Eintrag an diesem Tag vorkommt" (Instruktion 15), unabhängig
+ * von `amountGrams`/`servings` ("wie viel pro Vorkommen").
+ */
+function calculateEntryNutrition(entry: LogEntry, context: DailyLogContext): NutrientValues | null {
+  const single = calculateSingleOccurrence(entry, context)
+  if (!single) return null
+  return applyFactor(single, entry.factor)
 }
 
 /**

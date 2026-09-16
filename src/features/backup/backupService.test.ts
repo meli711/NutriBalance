@@ -47,6 +47,7 @@ const logEntry: LogEntry = {
   type: 'food',
   foodId: '198',
   amountGrams: 100,
+  factor: 1,
 }
 const customFood = createCustomFood({
   name: 'Skyr Natur',
@@ -134,6 +135,35 @@ test('validateBackupData lehnt ein v1-Backup (ohne customFoods) ab, statt es zu 
   })
   assert.equal(result.ok, false)
   if (!result.ok) assert.match(result.error, /App-Version/)
+})
+
+test('validateBackupData akzeptiert Log-Einträge ohne `factor` (Backup von vor Instruktion 15)', () => {
+  const entryWithoutFactor: Record<string, unknown> = { ...logEntry }
+  delete entryWithoutFactor.factor
+  const result = validateBackupData({
+    schemaVersion: BACKUP_SCHEMA_VERSION,
+    exportedAt: new Date(0).toISOString(),
+    profile: null,
+    requirementOverrides: {},
+    menus: [],
+    logEntries: [entryWithoutFactor],
+    customFoods: [],
+  })
+  assert.equal(result.ok, true)
+})
+
+test('validateBackupData lehnt Log-Einträge mit ungültigem `factor` ab', () => {
+  const result = validateBackupData({
+    schemaVersion: BACKUP_SCHEMA_VERSION,
+    exportedAt: new Date(0).toISOString(),
+    profile: null,
+    requirementOverrides: {},
+    menus: [],
+    logEntries: [{ ...logEntry, factor: 'zwei' }],
+    customFoods: [],
+  })
+  assert.equal(result.ok, false)
+  if (!result.ok) assert.match(result.error, /Log-Einträge/)
 })
 
 test('validateBackupData lehnt ungültige customFoods ab', () => {
