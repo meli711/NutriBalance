@@ -85,11 +85,8 @@ function showForm(existingProfile: UserProfile | null): void {
   renderProfileForm({
     container: app,
     existingProfile,
-    // Bearbeiten eines bestehenden Profils → zurück zur Bedarfs-Anzeige.
-    // Erstmaliges Ausfüllen → direkt ins heutige Tages-Log (Instruktion 9).
-    onSaved: existingProfile
-      ? showView
-      : (profile) => showDailyLog(profile, getLocalDateString(new Date())),
+    // Bearbeiten eines bestehenden Profils sowie erstmaliges Ausfüllen → zurück zur Bedarfs-Anzeige.
+    onSaved: showView,
     onDataImported: handleDataImported,
   })
 }
