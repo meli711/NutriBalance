@@ -73,6 +73,42 @@ export function calculateNutrition(
   })
 }
 
+export interface NovaSummary {
+  /** Höchste (am stärksten verarbeitete) bekannte Nova-Gruppe unter den Zutaten, oder `null`, wenn keine Zutat eine Angabe hat. */
+  group: 1 | 2 | 3 | 4 | null
+  /** `true`, wenn für mindestens eine Zutat keine Nova-Gruppe hinterlegt ist (oder die Zutat selbst fehlt). */
+  incomplete: boolean
+}
+
+/**
+ * Nova-Klassifikation einer Zutatenliste (Instruktion 17) — bewusst
+ * unabhängig von `amountGrams`/Portionen, da Nova die Art der Zutat
+ * bewertet, nicht deren Menge (anders als `calculateNutrition`). Deshalb
+ * bei Rezepten direkt mit `recipe.ingredients` aufrufen, nicht über
+ * `calculatePerServing`.
+ */
+export function calculateNovaGroup(
+  ingredients: RecipeIngredient[],
+  foodsById: Map<string, FoodItem>,
+): NovaSummary {
+  let group: 1 | 2 | 3 | 4 | null = null
+  let incomplete = false
+
+  for (const ingredient of ingredients) {
+    const food = foodsById.get(ingredient.foodId)
+    const novaGroup = food?.novaGroup
+    if (!food || novaGroup === undefined || novaGroup === null) {
+      incomplete = true
+      continue
+    }
+    if (group === null || novaGroup > group) {
+      group = novaGroup
+    }
+  }
+
+  return { group, incomplete }
+}
+
 export function calculateRecipeNutrition(
   recipe: Recipe,
   foodsById: Map<string, FoodItem>,

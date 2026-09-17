@@ -75,4 +75,16 @@ export interface FoodItem {
 
   vitamins: FoodVitamins
   minerals: FoodMinerals
+
+  /**
+   * Nova-Klassifikation nach Verarbeitungsgrad (Gruppe 1 = unverarbeitet/
+   * gering verarbeitet, bis Gruppe 4 = ultra-verarbeitet), Instruktion 17.
+   * `undefined`/`null` bedeutet "keine Angabe" — wie bei anderen unbekannten
+   * Werten in diesem Modell nicht geraten, nicht vorbelegt. Die generische
+   * Schweizer Nährwertdatenbank liefert dafür keine Datengrundlage (siehe
+   * `scripts/convert-food-db.ts`, `toFoodItem`) und lässt das Feld deshalb
+   * durchgehend weg — nur eigene Zutaten (`customFoodService.ts`) und
+   * optional `quellen/eigene-produkte.json` setzen es.
+   */
+  novaGroup?: 1 | 2 | 3 | 4 | null
 }

@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  calculateNovaGroup,
   calculateNutrition,
   calculatePerServing,
   calculateRecipeNutrition,
@@ -165,4 +166,54 @@ test('unbekannte foodId markiert alle Nährstoffe als unvollständig', () => {
     assert.equal(amount.incomplete, true)
     assert.equal(amount.value, 0)
   }
+})
+
+// Nova-Klassifikation (Instruktion 17) — unabhängig von amountGrams, daher
+// eigene, kleine Fixtures ohne Mengenbezug.
+const FOOD_NOVA_2 = makeFood({ id: 'nova2', novaGroup: 2 })
+const FOOD_NOVA_4 = makeFood({ id: 'nova4', novaGroup: 4 })
+const FOOD_NOVA_3 = makeFood({ id: 'nova3', novaGroup: 3 })
+const FOOD_NO_NOVA = makeFood({ id: 'no-nova' }) // novaGroup bleibt undefined
+
+const NOVA_FOODS = new Map([
+  ['nova2', FOOD_NOVA_2],
+  ['nova4', FOOD_NOVA_4],
+  ['nova3', FOOD_NOVA_3],
+  ['no-nova', FOOD_NO_NOVA],
+])
+
+test('calculateNovaGroup: leere Zutatenliste ergibt group null, incomplete false', () => {
+  assert.deepEqual(calculateNovaGroup([], NOVA_FOODS), { group: null, incomplete: false })
+})
+
+test('calculateNovaGroup: eine Zutat ohne novaGroup ergibt group null, incomplete true', () => {
+  const result = calculateNovaGroup([{ foodId: 'no-nova', amountGrams: 100 }], NOVA_FOODS)
+  assert.deepEqual(result, { group: null, incomplete: true })
+})
+
+test('calculateNovaGroup: nimmt die höchste bekannte Gruppe, unabhängig von amountGrams', () => {
+  const result = calculateNovaGroup(
+    [
+      { foodId: 'nova2', amountGrams: 500 },
+      { foodId: 'nova4', amountGrams: 1 },
+    ],
+    NOVA_FOODS,
+  )
+  assert.deepEqual(result, { group: 4, incomplete: false })
+})
+
+test('calculateNovaGroup: unbekannte foodId markiert als incomplete', () => {
+  const result = calculateNovaGroup([{ foodId: 'does-not-exist', amountGrams: 100 }], NOVA_FOODS)
+  assert.deepEqual(result, { group: null, incomplete: true })
+})
+
+test('calculateNovaGroup: bekannte Gruppe zählt trotz einzelner Lücke (incomplete zusätzlich true)', () => {
+  const result = calculateNovaGroup(
+    [
+      { foodId: 'nova3', amountGrams: 100 },
+      { foodId: 'does-not-exist', amountGrams: 100 },
+    ],
+    NOVA_FOODS,
+  )
+  assert.deepEqual(result, { group: 3, incomplete: true })
 })

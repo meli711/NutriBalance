@@ -54,6 +54,14 @@ export function isValidCustomFoodItem(value: unknown): value is FoodItem {
     return false
   }
 
+  if (
+    v.novaGroup !== undefined &&
+    v.novaGroup !== null &&
+    !(typeof v.novaGroup === 'number' && [1, 2, 3, 4].includes(v.novaGroup))
+  ) {
+    return false
+  }
+
   return (
     Object.values(v.vitamins as Record<string, unknown>).every(isValidNutrientValue) &&
     Object.values(v.minerals as Record<string, unknown>).every(isValidNutrientValue)
@@ -144,6 +152,8 @@ export interface CustomFoodInput {
   carbohydrates: number | null
   sugar: number | null
   fiber: number | null
+  /** Nova-Gruppe (Instruktion 17), `null` = keine Angabe. */
+  novaGroup: 1 | 2 | 3 | 4 | null
 }
 
 const DEFAULT_CATEGORY = 'Eigene Zutaten'
@@ -163,6 +173,7 @@ export function createCustomFood(input: CustomFoodInput): FoodItem {
     fiber: input.fiber,
     water: null,
     alcohol: null,
+    novaGroup: input.novaGroup,
     vitamins: emptyVitamins(),
     minerals: emptyMinerals(),
   }
@@ -181,6 +192,7 @@ export function applyCustomFoodInput(existing: FoodItem, input: CustomFoodInput)
     carbohydrates: input.carbohydrates,
     sugar: input.sugar,
     fiber: input.fiber,
+    novaGroup: input.novaGroup,
   }
 }
 

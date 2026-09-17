@@ -8,7 +8,12 @@ import {
   saveRequirementOverrides,
   saveUserProfile,
 } from '../../data/localStorageService.ts'
-import { addLogEntry, getAllLogEntries, getAllMenus, saveMenu } from '../../data/indexedDbService.ts'
+import {
+  addLogEntry,
+  getAllLogEntries,
+  getAllMenus,
+  saveMenu,
+} from '../../data/indexedDbService.ts'
 import { createCustomFood, getCustomFoods, saveCustomFoods } from '../../data/customFoodService.ts'
 import { BACKUP_SCHEMA_VERSION } from './models/backup.ts'
 import type { Menu } from '../menu-builder/models/menu.ts'
@@ -59,6 +64,7 @@ const customFood = createCustomFood({
   carbohydrates: 4,
   sugar: 4,
   fiber: 0,
+  novaGroup: 2,
 })
 
 test('Export -> Import (Round-Trip) ergibt identischen Datenzustand', async () => {
@@ -164,6 +170,21 @@ test('validateBackupData lehnt Log-Einträge mit ungültigem `factor` ab', () =>
   })
   assert.equal(result.ok, false)
   if (!result.ok) assert.match(result.error, /Log-Einträge/)
+})
+
+test('validateBackupData akzeptiert customFoods ohne novaGroup (Backup von vor Instruktion 17)', () => {
+  const foodWithoutNova = { ...customFood } as Record<string, unknown>
+  delete foodWithoutNova.novaGroup
+  const result = validateBackupData({
+    schemaVersion: BACKUP_SCHEMA_VERSION,
+    exportedAt: new Date(0).toISOString(),
+    profile: null,
+    requirementOverrides: {},
+    menus: [],
+    logEntries: [],
+    customFoods: [foodWithoutNova],
+  })
+  assert.equal(result.ok, true)
 })
 
 test('validateBackupData lehnt ungültige customFoods ab', () => {

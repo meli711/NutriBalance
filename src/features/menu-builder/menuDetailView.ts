@@ -6,7 +6,7 @@ import { buildMenuDeleteConfirmMessage, countMenuUsage } from '../shared/referen
 import { getRequirementOverrides } from '../../data/localStorageService.ts'
 import { getRequirementsForProfile } from '../nutrient-requirements/requirementService.ts'
 import type { NutrientRequirement } from '../nutrient-requirements/models/requirement.ts'
-import { calculateNutrition } from '../recipes/nutritionCalculator.ts'
+import { calculateNovaGroup, calculateNutrition } from '../recipes/nutritionCalculator.ts'
 import { getAllRecipes } from '../recipes/recipeService.ts'
 import { renderNutritionSummary } from '../nutrition-summary/nutritionSummaryView.ts'
 import type { NutritionSummaryHandle } from '../nutrition-summary/nutritionSummaryView.ts'
@@ -155,6 +155,7 @@ export async function renderMenuDetailView(options: MenuDetailViewOptions): Prom
   })
 
   const nutrientValues = calculateNutrition(menu.ingredients, foodsById)
+  const novaGroup = calculateNovaGroup(menu.ingredients, foodsById)
   const requirements = getRequirementsSafely(profile)
 
   const ingredientRows = menu.ingredients
@@ -196,6 +197,7 @@ export async function renderMenuDetailView(options: MenuDetailViewOptions): Prom
       requirements,
       profile,
       heading: 'Nährwerte',
+      novaGroup,
     })
   }
 

@@ -40,6 +40,7 @@ const input: CustomFoodInput = {
   carbohydrates: 4,
   sugar: 4,
   fiber: 0,
+  novaGroup: null,
 }
 
 test('createCustomFood erzeugt eine FoodItem mit custom-local-Präfix und leeren Vitaminen/Mineralstoffen', () => {
@@ -54,6 +55,14 @@ test('createCustomFood erzeugt eine FoodItem mit custom-local-Präfix und leeren
   assert.equal(food.alcohol, null)
   assert.equal(food.vitamins.c.value, null)
   assert.equal(food.minerals.calcium.value, null)
+})
+
+test('createCustomFood/applyCustomFoodInput übernehmen novaGroup aus dem Input', () => {
+  const withNova = createCustomFood({ ...input, novaGroup: 4 })
+  assert.equal(withNova.novaGroup, 4)
+
+  const updated = applyCustomFoodInput(withNova, { ...input, novaGroup: 1 })
+  assert.equal(updated.novaGroup, 1)
 })
 
 test('applyCustomFoodInput behält die id, überschreibt aber die Werte', () => {
@@ -118,4 +127,17 @@ test('isValidCustomFoodItem lehnt fehlende Pflichtfelder ab', () => {
   assert.equal(isValidCustomFoodItem({ ...valid, energyKcal: 'viel' }), false)
   assert.equal(isValidCustomFoodItem(null), false)
   assert.equal(isValidCustomFoodItem('food'), false)
+})
+
+test('isValidCustomFoodItem behandelt novaGroup korrekt (Instruktion 17)', () => {
+  const valid = createCustomFood(input)
+  const withoutNova = { ...valid } as Record<string, unknown>
+  delete withoutNova.novaGroup
+
+  // Fehlendes Feld = alter, vor Instruktion 17 angelegter Eintrag — bleibt gültig.
+  assert.equal(isValidCustomFoodItem(withoutNova), true)
+  assert.equal(isValidCustomFoodItem({ ...valid, novaGroup: null }), true)
+  assert.equal(isValidCustomFoodItem({ ...valid, novaGroup: 3 }), true)
+  assert.equal(isValidCustomFoodItem({ ...valid, novaGroup: 5 }), false)
+  assert.equal(isValidCustomFoodItem({ ...valid, novaGroup: '3' }), false)
 })

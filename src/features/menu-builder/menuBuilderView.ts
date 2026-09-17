@@ -3,7 +3,7 @@ import { saveMenu } from '../../data/indexedDbService.ts'
 import { getRequirementOverrides } from '../../data/localStorageService.ts'
 import { getRequirementsForProfile } from '../nutrient-requirements/requirementService.ts'
 import type { NutrientRequirement } from '../nutrient-requirements/models/requirement.ts'
-import { calculateNutrition } from '../recipes/nutritionCalculator.ts'
+import { calculateNovaGroup, calculateNutrition } from '../recipes/nutritionCalculator.ts'
 import type { RecipeIngredient } from '../recipes/models/recipe.ts'
 import type { Menu } from './models/menu.ts'
 import { renderNutritionSummary } from '../nutrition-summary/nutritionSummaryView.ts'
@@ -126,12 +126,14 @@ export function renderMenuBuilderView(options: MenuBuilderViewOptions): void {
     }
 
     const nutrientValues = calculateNutrition(ingredients, foodsById)
+    const novaGroup = calculateNovaGroup(ingredients, foodsById)
     activeSummary = renderNutritionSummary({
       container: summaryContainer,
       nutrientValues,
       requirements,
       profile,
       heading: 'Nährwerte',
+      novaGroup,
     })
   }
 

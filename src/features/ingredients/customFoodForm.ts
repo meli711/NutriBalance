@@ -31,6 +31,17 @@ function parseOptionalNumber(input: HTMLInputElement): number | null {
   return input.valueAsNumber
 }
 
+/**
+ * Nova-Klassifikation nach Verarbeitungsgrad (Instruktion 17) — keine
+ * amtliche Kennzeichnung in CH/EU, Einordnung bleibt Ermessenssache.
+ */
+const NOVA_OPTIONS: { value: 1 | 2 | 3 | 4; label: string }[] = [
+  { value: 1, label: '1 – Unverarbeitet / gering verarbeitet' },
+  { value: 2, label: '2 – Verarbeitete kulinarische Zutat' },
+  { value: 3, label: '3 – Verarbeitetes Lebensmittel' },
+  { value: 4, label: '4 – Ultra-verarbeitetes Lebensmittel' },
+]
+
 export function renderCustomFoodForm(options: CustomFoodFormOptions): void {
   const { container, existingFood, onSave, onCancel } = options
 
@@ -71,6 +82,21 @@ export function renderCustomFoodForm(options: CustomFoodFormOptions): void {
           value="${existingFood?.category ?? ''}"
         />
       </div>
+
+      <div class="field">
+        <label for="custom-food-novaGroup">Nova-Gruppe (optional)</label>
+        <select id="custom-food-novaGroup" name="novaGroup">
+          <option value="" ${existingFood?.novaGroup == null ? 'selected' : ''}>– keine Angabe –</option>
+          ${NOVA_OPTIONS.map(
+            ({ value, label }) =>
+              `<option value="${value}" ${existingFood?.novaGroup === value ? 'selected' : ''}>${label}</option>`,
+          ).join('')}
+        </select>
+      </div>
+      <p class="custom-food-form__hint">
+        Einstufung nach Verarbeitungsgrad (Nova-Klassifikation) — keine amtliche
+        Kennzeichnung in CH/EU, Einordnung bleibt Ermessenssache.
+      </p>
 
       <p class="custom-food-form__hint">
         Werte jeweils pro 100 g — Felder leer lassen, wenn unbekannt (wird als
@@ -121,7 +147,10 @@ export function renderCustomFoodForm(options: CustomFoodFormOptions): void {
 
     for (const { key, label } of NUTRIENT_FIELDS) {
       const input = form.querySelector<HTMLInputElement>(`#custom-food-${key}`)!
-      if (input.value.trim() !== '' && (!Number.isFinite(input.valueAsNumber) || input.valueAsNumber < 0)) {
+      if (
+        input.value.trim() !== '' &&
+        (!Number.isFinite(input.valueAsNumber) || input.valueAsNumber < 0)
+      ) {
         errorEl.textContent = `Bitte bei "${label}" eine Zahl grösser oder gleich 0 eingeben, oder das Feld leer lassen.`
         errorEl.hidden = false
         return
@@ -131,9 +160,13 @@ export function renderCustomFoodForm(options: CustomFoodFormOptions): void {
     errorEl.hidden = true
     errorEl.textContent = ''
 
+    const novaSelect = form.querySelector<HTMLSelectElement>('#custom-food-novaGroup')!
+    const novaGroup = novaSelect.value === '' ? null : (Number(novaSelect.value) as 1 | 2 | 3 | 4)
+
     const input: CustomFoodInput = {
       name,
       category: categoryInput.value,
+      novaGroup,
       energyKcal: parseOptionalNumber(form.querySelector('#custom-food-energyKcal')!),
       protein: parseOptionalNumber(form.querySelector('#custom-food-protein')!),
       fat: parseOptionalNumber(form.querySelector('#custom-food-fat')!),

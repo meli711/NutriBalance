@@ -250,6 +250,7 @@ textarea:focus-visible,
 
 .field input[type='number'],
 .field input[type='text'],
+.field select,
 .field textarea {
   min-height: 44px;
   padding: var(--space-sm) var(--space-md);
@@ -515,6 +516,28 @@ textarea:focus-visible,
 .recipe-detail__note {
   color: var(--color-text-muted);
   font-size: 0.875rem;
+}
+
+/* Nova-Badge (Instruktion 17) — neutraler Text/Rand, bewusst keine
+   Farbskala nach Gruppe (grün→rot o.Ä.) ohne vorherige Abstimmung, siehe
+   Vorgehen bei den Typ-Farben (Instruktion 16). */
+.nova-badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  margin: 0;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.875rem;
+}
+
+.nova-badge__incomplete {
+  color: var(--color-support);
+  cursor: help;
+  font-weight: 600;
 }
 
 /* Nährstoff-Vergleichs-Chart */
@@ -795,6 +818,29 @@ textarea:focus-visible,
 
 .daily-log__entry-row[data-entry-type='recipe'] .daily-log__type-dot {
   background-color: var(--color-type-recipe);
+}
+
+/* Nova-Tag pro Log-Zeile (Instruktion 17) — kompakte Variante des
+   `.nova-badge` aus der Nährwert-Zusammenfassung, für die einzelne Zeile. */
+.daily-log__nova-tag {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.5rem;
+  padding: 0 0.375rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background-color: var(--color-surface);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  cursor: help;
+}
+
+.daily-log__nova-tag--unknown {
+  border-style: dashed;
 }
 
 /* Typ-Farbe auf Listen-/Detail-Screens (Instruktion 16) — ersetzt die

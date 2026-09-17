@@ -10,7 +10,7 @@ import {
 } from '../../data/customFoodService.ts'
 import { getRequirementsForProfile } from '../nutrient-requirements/requirementService.ts'
 import type { NutrientRequirement } from '../nutrient-requirements/models/requirement.ts'
-import { calculateNutrition } from '../recipes/nutritionCalculator.ts'
+import { calculateNovaGroup, calculateNutrition } from '../recipes/nutritionCalculator.ts'
 import { renderNutritionSummary } from '../nutrition-summary/nutritionSummaryView.ts'
 import type { NutritionSummaryHandle } from '../nutrition-summary/nutritionSummaryView.ts'
 import { buildFoodDeleteConfirmMessage, countFoodUsage } from '../shared/referenceUsageService.ts'
@@ -75,7 +75,9 @@ export async function renderFoodDetailView(options: FoodDetailViewOptions): Prom
     destroyActiveSummary()
 
     const foodsById = new Map([[current.id, current]])
-    const nutrientValues = calculateNutrition([{ foodId: current.id, amountGrams: 100 }], foodsById)
+    const ingredients = [{ foodId: current.id, amountGrams: 100 }]
+    const nutrientValues = calculateNutrition(ingredients, foodsById)
+    const novaGroup = calculateNovaGroup(ingredients, foodsById)
     const requirements = getRequirementsSafely(profile)
 
     container.innerHTML = `
@@ -106,6 +108,7 @@ export async function renderFoodDetailView(options: FoodDetailViewOptions): Prom
         requirements,
         profile,
         heading: 'Nährwerte pro 100 g',
+        novaGroup,
       })
     }
 

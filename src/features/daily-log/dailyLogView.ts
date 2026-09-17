@@ -1,4 +1,5 @@
 import type { UserProfile } from '../../data/models/userProfile.ts'
+import type { FoodItem } from '../../data/models/food.ts'
 import { getFoodById } from '../../data/foodDatabaseService.ts'
 import {
   getLogEntriesForDate,
@@ -12,6 +13,9 @@ import { getRequirementsForProfile } from '../nutrient-requirements/requirementS
 import type { NutrientRequirement } from '../nutrient-requirements/models/requirement.ts'
 import { renderNutritionSummary } from '../nutrition-summary/nutritionSummaryView.ts'
 import type { NutritionSummaryHandle } from '../nutrition-summary/nutritionSummaryView.ts'
+import { calculateNovaGroup } from '../recipes/nutritionCalculator.ts'
+import type { NovaSummary } from '../recipes/nutritionCalculator.ts'
+import { NOVA_LABELS } from '../../utils/novaLabels.ts'
 import { calculateDailyNutrition } from './dailyNutritionService.ts'
 import type { LogEntry } from './models/logEntry.ts'
 import {
@@ -49,26 +53,69 @@ interface ResolvedEntry {
   entry: LogEntry
   label: string
   missing: boolean
+  /** Nova-Klassifikation dieses Eintrags (Instruktion 17), `null` bei `missing: true`. */
+  nova: NovaSummary | null
+}
+
+/** Baut die `foodId → FoodItem`-Map für eine Zutatenliste, analog zu `recipeDetailView.ts`/`menuDetailView.ts`. */
+async function buildFoodsById(ingredients: { foodId: string }[]): Promise<Map<string, FoodItem>> {
+  const foods = await Promise.all(ingredients.map((ing) => getFoodById(ing.foodId)))
+  const foodsById = new Map<string, FoodItem>()
+  foods.forEach((food, index) => {
+    if (food) foodsById.set(ingredients[index]!.foodId, food)
+  })
+  return foodsById
 }
 
 /** Löst einen Log-Eintrag für die Anzeige auf. `missing: true` = referenziertes Rezept/Menü/Zutat existiert nicht mehr (Instruktion 9, Edge Cases) — wird angezeigt statt abzustürzen. */
 async function resolveEntry(entry: LogEntry): Promise<ResolvedEntry> {
   if (entry.type === 'food') {
     const food = await getFoodById(entry.foodId)
-    return food
-      ? { entry, label: `${food.name.de} — ${formatNumber(entry.amountGrams)} g`, missing: false }
-      : { entry, label: 'Entfernte Zutat', missing: true }
+    if (!food) return { entry, label: 'Entfernte Zutat', missing: true, nova: null }
+    const ingredients = [{ foodId: entry.foodId, amountGrams: entry.amountGrams }]
+    const nova = calculateNovaGroup(ingredients, new Map([[food.id, food]]))
+    return {
+      entry,
+      label: `${food.name.de} — ${formatNumber(entry.amountGrams)} g`,
+      missing: false,
+      nova,
+    }
   }
   if (entry.type === 'recipe') {
     const recipe = await getRecipeById(entry.recipeId)
-    return recipe
-      ? { entry, label: recipe.name, missing: false }
-      : { entry, label: 'Entferntes Rezept', missing: true }
+    if (!recipe) return { entry, label: 'Entferntes Rezept', missing: true, nova: null }
+    const nova = calculateNovaGroup(recipe.ingredients, await buildFoodsById(recipe.ingredients))
+    return { entry, label: recipe.name, missing: false, nova }
   }
   const menu = await getMenuById(entry.menuId)
-  return menu
-    ? { entry, label: `${menu.name} — ganzes Menü`, missing: false }
-    : { entry, label: 'Entferntes Menü', missing: true }
+  if (!menu) return { entry, label: 'Entferntes Menü', missing: true, nova: null }
+  const nova = calculateNovaGroup(menu.ingredients, await buildFoodsById(menu.ingredients))
+  return { entry, label: `${menu.name} — ganzes Menü`, missing: false, nova }
+}
+
+/** Höchste Nova-Gruppe über alle Einträge des Tages — Nova hängt nicht von Menge/Faktor ab, daher genügt das Maximum der bereits pro Eintrag berechneten Werte (kein eigener Weg über `sumDailyNutrition` nötig). */
+function summarizeDayNova(resolved: ResolvedEntry[]): NovaSummary {
+  let group: 1 | 2 | 3 | 4 | null = null
+  let incomplete = false
+
+  for (const { missing, nova } of resolved) {
+    if (missing || !nova) {
+      incomplete = true
+      continue
+    }
+    if (nova.incomplete) incomplete = true
+    if (nova.group !== null && (group === null || nova.group > group)) group = nova.group
+  }
+
+  return { group, incomplete }
+}
+
+function formatNovaTag(nova: NovaSummary): string {
+  if (nova.group === null) {
+    return `<span class="daily-log__nova-tag daily-log__nova-tag--unknown" title="Keine Nova-Gruppe hinterlegt.">–</span>`
+  }
+  const title = `Nova ${nova.group} – ${NOVA_LABELS[nova.group]}${nova.incomplete ? ' (mind. eine Zutat ohne Angabe)' : ''}`
+  return `<span class="daily-log__nova-tag" title="${title}">N${nova.group}${nova.incomplete ? '*' : ''}</span>`
 }
 
 export async function renderDailyLogView(options: DailyLogViewOptions): Promise<void> {
@@ -86,7 +133,7 @@ export async function renderDailyLogView(options: DailyLogViewOptions): Promise<
   const isToday = date === getLocalDateString(new Date())
 
   const entryRows = resolved
-    .map(({ entry, label, missing }) => {
+    .map(({ entry, label, missing, nova }) => {
       // Genau ein Zahlenfeld pro Zeile: bei `recipe` die Portionen (decken
       // "wie viel/wie oft" hier bereits vollständig ab), sonst der Faktor.
       const quantityInput =
@@ -119,6 +166,7 @@ export async function renderDailyLogView(options: DailyLogViewOptions): Promise<
           ${servingsInput}${quantityInput}
           <span class="daily-log__type-dot" aria-hidden="true"></span>
           <span class="daily-log__entry-label">${missing ? `<em>${label}</em>` : label}</span>
+          ${missing || !nova ? '' : formatNovaTag(nova)}
           <button type="button" class="menu-list__delete" data-remove-entry-id="${entry.id}" aria-label="Eintrag entfernen">✕</button>
         </li>`
     })
@@ -169,6 +217,7 @@ export async function renderDailyLogView(options: DailyLogViewOptions): Promise<
         requirements,
         profile,
         heading: 'Nährwerte (Tagessumme)',
+        novaGroup: summarizeDayNova(resolved),
       })
     }
   }

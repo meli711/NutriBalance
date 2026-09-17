@@ -10,7 +10,6 @@ macOS, iPad/iPhone und Desktop-Browsern.
 npm install
 ```
 
-
 ## Entwicklung
 
 ```bash
@@ -92,7 +91,10 @@ in `.gitignore` und lokal nachzubauen:
      `FoodItem`-Objekten, Werte pro 100 g). Diese Datei _ist_ im Repo (im
      Gegensatz zu den Rohdaten Dritter) und wird von `convert:food-db` in die
      `food-database.json` gemischt: gleiche `id` überschreibt den generischen
-     Eintrag, neue `id` wird angehängt.
+     Eintrag, neue `id` wird angehängt. Einträge können optional ein
+     `novaGroup` (1–4, Nova-Klassifikation nach Verarbeitungsgrad,
+     Instruktion 17) mitbringen — die generische BLV-Datenbank liefert dafür
+     keine Datengrundlage und bleibt deshalb ohne diese Angabe.
    - Daneben lassen sich weitere eigene Zutaten **direkt in der App**
      erfassen (Nav-Reiter "Zutaten" → Tab "Eigene Zutaten", Instruktion 13,
      UI-Ort seit Instruktion 14) — ohne Build-Schritt, nur im `localStorage`
@@ -118,22 +120,25 @@ Die App wurde schrittweise mit Claude Code umgesetzt. Jeder Schritt ist als
 Auftrag in `Instruktionen/` dokumentiert (Kontext, Aufgaben, Abgrenzung) und
 entspricht grob einem Commit `Instruktion N: …`.
 
-| # | Thema | Datei |
-|---|-------|-------|
-| 1 | Projekt-Setup: Vite + TypeScript (strict) + PWA-Grundgerüst | [`01-claude-code-setup-instruktion.md`](Instruktionen/01-claude-code-setup-instruktion.md) |
-| 2 | Schweizer Nährwertdatenbank einbinden + Feature-Modul "Nährstoffbedarf" (DACH-Referenzwerte) | [`02-claude-code-datenbank-bedarf.md`](Instruktionen/02-claude-code-datenbank-bedarf.md) |
-| 3 | UI für die Profil-Eingabe (Alter, Grösse, Geschlecht …) + Anzeige des berechneten Bedarfs | [`03-claude-code-profil-ui.md`](Instruktionen/03-claude-code-profil-ui.md) |
-| 4 | Aufnahme-Feature: Rezepte mit Zutaten, Nährstoffberechnung pro Portion | [`04-claude-code-rezepte.md`](Instruktionen/04-claude-code-rezepte.md) |
-| 5 | Charts: Bedarf vs. Aufnahme als Radar- und Balkendiagramm (Chart.js) | [`05-claude-code-charts.md`](Instruktionen/05-claude-code-charts.md) |
-| 6 | Menü-Builder: eigene Menüs aus Zutaten zusammenstellen, Ablage in IndexedDB | [`06-claude-code-menu-builder.md`](Instruktionen/06-claude-code-menu-builder.md) |
-| 7 | Look & Feel: Branding, Design-Pass, Bildsprache (Detail-Plan in `DESIGN.md`) | [`07-claude-code-look-and-feel.md`](Instruktionen/07-claude-code-look-and-feel.md) |
-| 8 | JSON-Export eigener Menüs, Merge zurück in `recipes.json` | [`08-claude-code-menu-export.md`](Instruktionen/08-claude-code-menu-export.md) |
-| 9 | Tages-Log: Rezepte / Menüs / einzelne Zutaten pro Tag erfassen, neuer Startbildschirm | [`09-claude-code-tages-log.md`](Instruktionen/09-claude-code-tages-log.md) |
-| 10 | Daten-Backup (Export/Import als eine Datei) auf der Profilseite, Storage-Persistenz | [`10-claude-code-backup.md`](Instruktionen/10-claude-code-backup.md) |
-| 11 | Verlauf: Wochen-/Monatsübersicht der Aufnahme pro Nährstoff mit Bedarfs-Linie | [`11-claude-code-verlauf.md`](Instruktionen/11-claude-code-verlauf.md) |
-| 12 | Eigene Markenprodukte in `quellen/eigene-produkte.json` in die Lebensmitteldatenbank mischen; JSON ins PWA-Precache | [`12-claude-code-eigene-produkte.md`](Instruktionen/12-claude-code-eigene-produkte.md) |
-| 13 | Eigene Zutaten direkt in der App erfassen/bearbeiten/löschen (nur `localStorage`), Einbindung in Suche + Daten-Backup | [`13-claude-code-eigene-zutaten.md`](Instruktionen/13-claude-code-eigene-zutaten.md) |
-| 14 | Neuer Nav-Reiter "Zutaten": Datenbank durchsuchen inkl. Nährwerte + Chart, eigene Zutaten von der Profilseite hierher umgezogen, Nav-Reihenfolge neu sortiert | [`14-claude-code-zutaten-seite.md`](Instruktionen/14-claude-code-zutaten-seite.md) |
+| #   | Thema                                                                                                                                                         | Datei                                                                                      |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| 1   | Projekt-Setup: Vite + TypeScript (strict) + PWA-Grundgerüst                                                                                                   | [`01-claude-code-setup-instruktion.md`](Instruktionen/01-claude-code-setup-instruktion.md) |
+| 2   | Schweizer Nährwertdatenbank einbinden + Feature-Modul "Nährstoffbedarf" (DACH-Referenzwerte)                                                                  | [`02-claude-code-datenbank-bedarf.md`](Instruktionen/02-claude-code-datenbank-bedarf.md)   |
+| 3   | UI für die Profil-Eingabe (Alter, Grösse, Geschlecht …) + Anzeige des berechneten Bedarfs                                                                     | [`03-claude-code-profil-ui.md`](Instruktionen/03-claude-code-profil-ui.md)                 |
+| 4   | Aufnahme-Feature: Rezepte mit Zutaten, Nährstoffberechnung pro Portion                                                                                        | [`04-claude-code-rezepte.md`](Instruktionen/04-claude-code-rezepte.md)                     |
+| 5   | Charts: Bedarf vs. Aufnahme als Radar- und Balkendiagramm (Chart.js)                                                                                          | [`05-claude-code-charts.md`](Instruktionen/05-claude-code-charts.md)                       |
+| 6   | Menü-Builder: eigene Menüs aus Zutaten zusammenstellen, Ablage in IndexedDB                                                                                   | [`06-claude-code-menu-builder.md`](Instruktionen/06-claude-code-menu-builder.md)           |
+| 7   | Look & Feel: Branding, Design-Pass, Bildsprache (Detail-Plan in `DESIGN.md`)                                                                                  | [`07-claude-code-look-and-feel.md`](Instruktionen/07-claude-code-look-and-feel.md)         |
+| 8   | JSON-Export eigener Menüs, Merge zurück in `recipes.json`                                                                                                     | [`08-claude-code-menu-export.md`](Instruktionen/08-claude-code-menu-export.md)             |
+| 9   | Tages-Log: Rezepte / Menüs / einzelne Zutaten pro Tag erfassen, neuer Startbildschirm                                                                         | [`09-claude-code-tages-log.md`](Instruktionen/09-claude-code-tages-log.md)                 |
+| 10  | Daten-Backup (Export/Import als eine Datei) auf der Profilseite, Storage-Persistenz                                                                           | [`10-claude-code-backup.md`](Instruktionen/10-claude-code-backup.md)                       |
+| 11  | Verlauf: Wochen-/Monatsübersicht der Aufnahme pro Nährstoff mit Bedarfs-Linie                                                                                 | [`11-claude-code-verlauf.md`](Instruktionen/11-claude-code-verlauf.md)                     |
+| 12  | Eigene Markenprodukte in `quellen/eigene-produkte.json` in die Lebensmitteldatenbank mischen; JSON ins PWA-Precache                                           | [`12-claude-code-eigene-produkte.md`](Instruktionen/12-claude-code-eigene-produkte.md)     |
+| 13  | Eigene Zutaten direkt in der App erfassen/bearbeiten/löschen (nur `localStorage`), Einbindung in Suche + Daten-Backup                                         | [`13-claude-code-eigene-zutaten.md`](Instruktionen/13-claude-code-eigene-zutaten.md)       |
+| 14  | Neuer Nav-Reiter "Zutaten": Datenbank durchsuchen inkl. Nährwerte + Chart, eigene Zutaten von der Profilseite hierher umgezogen, Nav-Reihenfolge neu sortiert | [`14-claude-code-zutaten-seite.md`](Instruktionen/14-claude-code-zutaten-seite.md)         |
+| 15  | Faktor pro Log-Eintrag (Zutat/Rezept/Menü): wie oft ein Eintrag an einem Tag vorkommt                                                                         | [`15-claude-code-log-faktor.md`](Instruktionen/15-claude-code-log-faktor.md)               |
+| 16  | Typ-Farben für Zutat/Menü/Rezept (Tages-Log + Listen-/Detail-Screens)                                                                                         | [`16-claude-code-typ-farben.md`](Instruktionen/16-claude-code-typ-farben.md)               |
+| 17  | Nova-Score (Verarbeitungsgrad) für eigene Zutaten erfassbar, für Rezepte/Menüs/Tages-Log aus den Zutaten abgeleitet                                           | [`17-claude-code-nova-score.md`](Instruktionen/17-claude-code-nova-score.md)               |
 
 Ergänzend: [`DESIGN.md`](Instruktionen/DESIGN.md) — Design-Plan zu Instruktion 7
 (Farbpalette, Typografie, Bildsprache, konkrete UI-Anpassungen).

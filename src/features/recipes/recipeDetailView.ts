@@ -5,7 +5,7 @@ import { getRequirementOverrides } from '../../data/localStorageService.ts'
 import { getRequirementsForProfile } from '../nutrient-requirements/requirementService.ts'
 import type { NutrientRequirement } from '../nutrient-requirements/models/requirement.ts'
 import { getRecipeById } from './recipeService.ts'
-import { calculatePerServing } from './nutritionCalculator.ts'
+import { calculateNovaGroup, calculatePerServing } from './nutritionCalculator.ts'
 import { renderNutritionSummary } from '../nutrition-summary/nutritionSummaryView.ts'
 import type { NutritionSummaryHandle } from '../nutrition-summary/nutritionSummaryView.ts'
 import { formatNumber } from '../../utils/formatNumber.ts'
@@ -70,6 +70,9 @@ export async function renderRecipeDetailView(options: RecipeDetailViewOptions): 
   })
 
   const perServing = calculatePerServing(recipe, foodsById)
+  // Nova bewertet die Art der Zutat, nicht deren Menge — bewusst mit den
+  // unskalierten `recipe.ingredients` statt über `calculatePerServing`.
+  const novaGroup = calculateNovaGroup(recipe.ingredients, foodsById)
   const requirements = getRequirementsSafely(profile)
 
   const ingredientRows = recipe.ingredients
@@ -104,6 +107,7 @@ export async function renderRecipeDetailView(options: RecipeDetailViewOptions): 
       requirements,
       profile,
       heading: 'Nährwerte pro Portion',
+      novaGroup,
     })
   }
 
