@@ -433,6 +433,50 @@ textarea:focus-visible,
   color: var(--color-text-muted);
 }
 
+/* Import-Auswahl (Instruktion 18) — selektiver Import einzelner eigener
+   Zutaten/Menüs aus einer Backup-Datei, siehe `importSelectionView.ts`. */
+
+.import-selection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.import-selection__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  min-height: 44px;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.import-selection__item input[type='checkbox'] {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.import-selection__description {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.import-selection__select-all {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 /* Eigene Zutaten (Formular, Instruktion 13) */
 
 .custom-food-form__hint {
