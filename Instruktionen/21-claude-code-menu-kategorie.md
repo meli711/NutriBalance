@@ -1,4 +1,4 @@
-# Instruktion 21: Kategorie auch für eigene Menüs
+# Instruktion 21: Kategorie auch für eigene Menüs + Icons im Tages-Log
 
 ## Kontext
 
@@ -25,13 +25,22 @@ Aufbauend auf:
 - `src/features/recipes/recipeListView.ts` — Vorlage für die
   Icon-Anzeige: `.recipe-list__label` umschliesst optionales
   `.recipe-list__icon` (`renderMealCategoryIcon`) + `.recipe-list__name`.
+- `src/features/daily-log/dailyLogView.ts` — `resolveEntry(entry)` löst
+  jeden Log-Eintrag bereits auf ein konkretes `FoodItem`/`Recipe`/`Menu`
+  auf (`ResolvedEntry` mit `label`/`missing`/`nova`); die Zeilen-Vorlage
+  (`entryRows`) rendert pro Eintrag `.daily-log__type-dot` (Typ-Farbe,
+  Instruktion 16) + Label + Nova-Tag (Instruktion 17). Bisher **keine**
+  Kategorie-Anzeige, obwohl `resolveEntry` für `recipe`/`menu` bereits das
+  volle `Recipe`/`Menu`-Objekt lädt.
 
 Ziel: Menüs bekommen dieselbe, optionale Kategorie wie Rezepte — mit
 denselben Icons (kein separates Icon-Set). Auswahl über ein `<select>`-
 Dropdown im Menü-Erstellen-Formular (nicht per `window.prompt`, da hier —
 anders als beim seltenen "Als Rezept exportieren" — ein normales
 Formularfeld zur Verfügung steht). Das gewählte Icon erscheint danach in
-der Menü-Liste, analog zur Rezeptliste.
+der Menü-Liste, analog zur Rezeptliste, **und zusätzlich pro Zeile im
+Tages-Log** — sowohl für Rezept- als auch für Menü-Einträge (`food`-
+Einträge haben keine Kategorie, siehe Punkt 4).
 
 ---
 
@@ -73,6 +82,26 @@ der Menü-Liste, analog zur Rezeptliste.
   `.recipe-list__name`; das bestehende `.recipe-list__servings`-Datum
   bleibt als zweites Element im Button unverändert daneben stehen.
 
+### 4. Icons im Tages-Log
+
+`src/features/daily-log/dailyLogView.ts`:
+
+- `ResolvedEntry` um `category?: MealCategory` erweitern (Kommentar:
+  `undefined` bei `food`-Einträgen — keine Kategorie vorgesehen — oder
+  wenn das referenzierte Rezept/Menü keine gesetzt hat).
+- `resolveEntry`: im `recipe`-Zweig `category: recipe.category`
+  übernehmen, im `menu`-Zweig `category: menu.category` — beide Objekte
+  sind an dieser Stelle bereits geladen (für die Nova-Berechnung), kein
+  zusätzlicher Ladevorgang nötig. Im `food`-Zweig bleibt `category` weg
+  (Zutaten haben keine Kategorie).
+- In `entryRows` direkt nach `.daily-log__type-dot` und vor
+  `.daily-log__entry-label` ein optionales Icon einfügen, wiederverwendet
+  über dieselbe `.recipe-list__icon`-Klasse (kein neuer Style nötig, der
+  umgebende `.menu-builder__ingredient-row`/`.daily-log__entry-row` ist
+  bereits eine Flex-Row): nur rendern, wenn `!missing && category &&
+isMealCategory(category)` — bei einem entfernten Rezept/Menü (`missing:
+true`) gibt es kein Icon, analog zum bestehenden Nova-Tag.
+
 ---
 
 ## Was NICHT Teil dieses Auftrags ist
@@ -81,9 +110,14 @@ der Menü-Liste, analog zur Rezeptliste.
   Beschreibung/Kategorie nachträglich ändern) — es gibt aktuell generell
   keinen solchen Dialog, das bleibt unangetastet; Kategorie lässt sich nur
   beim Erstellen setzen.
-- **Keine Anzeige der Kategorie in `menuDetailView.ts`** — analog zu
-  Rezepten, wo die Kategorie ebenfalls nur in der Liste erscheint, nicht
-  in der Detailansicht.
+- **Keine Anzeige der Kategorie in `menuDetailView.ts`/`recipeDetailView.ts`**
+  — die Kategorie erscheint nur in den Listen (Rezepte/Menüs) und im
+  Tages-Log (Punkt 4), nicht in den Detailansichten.
+- **Keine Kategorie/kein Icon für `food`-Log-Einträge** — nur Rezepte und
+  Menüs haben eine Kategorie; einzeln geloggte Zutaten bleiben ohne Icon.
+- **Kein eigenes Kategorie-Tag in der Tagessumme** (`Nährwerte
+(Tagessumme)`, analog zum Nova-Badge dort) — die Icons erscheinen nur
+  pro einzelner Log-Zeile, nicht zusätzlich aggregiert für den ganzen Tag.
 - **Keine neuen Icons** — Menüs nutzen exakt dieselben fünf Kategorien/
   Icons wie Rezepte (`MEAL_CATEGORIES`, Instruktion 20).
 - **Keine Änderung an `menuToRecipe`/"Als Rezept exportieren"** — ob ein
@@ -100,5 +134,11 @@ Bitte zeigen:
   Menü-Namen.
 - Ein Menü ohne Kategorie erstellen (Dropdown auf "– keine Angabe –"
   lassen) → erscheint in der Liste ohne Icon, wie bisher.
+- Das kategorisierte Menü sowie ein Rezept mit Kategorie im Tages-Log
+  erfassen → beide Zeilen zeigen das jeweilige Icon zwischen Typ-Punkt und
+  Name; eine direkt geloggte Zutat (`food`) zeigt kein Icon.
+- Ein geloggtes Rezept/Menü anschliessend löschen (aus "Eigene Rezepte"/
+  "Eigene Menüs") und den betroffenen Log-Tag erneut öffnen → die Zeile
+  zeigt "Entferntes Rezept/Menü" ohne Icon, stürzt nicht ab.
 - `npm test`, `npm run typecheck`, `npm run lint` und `npm run build`
   grün.

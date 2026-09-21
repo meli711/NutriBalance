@@ -16,6 +16,8 @@ import type { NutritionSummaryHandle } from '../nutrition-summary/nutritionSumma
 import { calculateNovaGroup } from '../recipes/nutritionCalculator.ts'
 import type { NovaSummary } from '../recipes/nutritionCalculator.ts'
 import { NOVA_LABELS } from '../../utils/novaLabels.ts'
+import { isMealCategory, renderMealCategoryIcon } from '../../utils/mealCategoryIcon.ts'
+import type { MealCategory } from '../../utils/mealCategoryIcon.ts'
 import { calculateDailyNutrition } from './dailyNutritionService.ts'
 import type { LogEntry } from './models/logEntry.ts'
 import {
@@ -55,6 +57,8 @@ interface ResolvedEntry {
   missing: boolean
   /** Nova-Klassifikation dieses Eintrags (Instruktion 17), `null` bei `missing: true`. */
   nova: NovaSummary | null
+  /** Kategorie-Icon des referenzierten Rezepts/Menüs (Instruktion 21) — `undefined` bei `food`-Einträgen (keine Kategorie) oder wenn keine gesetzt ist. */
+  category?: MealCategory
 }
 
 /** Baut die `foodId → FoodItem`-Map für eine Zutatenliste, analog zu `recipeDetailView.ts`/`menuDetailView.ts`. */
@@ -85,12 +89,18 @@ async function resolveEntry(entry: LogEntry): Promise<ResolvedEntry> {
     const recipe = await getRecipeById(entry.recipeId)
     if (!recipe) return { entry, label: 'Entferntes Rezept', missing: true, nova: null }
     const nova = calculateNovaGroup(recipe.ingredients, await buildFoodsById(recipe.ingredients))
-    return { entry, label: recipe.name, missing: false, nova }
+    return { entry, label: recipe.name, missing: false, nova, category: recipe.category }
   }
   const menu = await getMenuById(entry.menuId)
   if (!menu) return { entry, label: 'Entferntes Menü', missing: true, nova: null }
   const nova = calculateNovaGroup(menu.ingredients, await buildFoodsById(menu.ingredients))
-  return { entry, label: `${menu.name} — ganzes Menü`, missing: false, nova }
+  return {
+    entry,
+    label: `${menu.name} — ganzes Menü`,
+    missing: false,
+    nova,
+    category: menu.category,
+  }
 }
 
 /** Höchste Nova-Gruppe über alle Einträge des Tages — Nova hängt nicht von Menge/Faktor ab, daher genügt das Maximum der bereits pro Eintrag berechneten Werte (kein eigener Weg über `sumDailyNutrition` nötig). */
@@ -133,7 +143,7 @@ export async function renderDailyLogView(options: DailyLogViewOptions): Promise<
   const isToday = date === getLocalDateString(new Date())
 
   const entryRows = resolved
-    .map(({ entry, label, missing, nova }) => {
+    .map(({ entry, label, missing, nova, category }) => {
       // Genau ein Zahlenfeld pro Zeile: der Faktor — bei allen drei Typen
       // einheitlich (ein Rezept entspricht seit Instruktion 19 immer genau
       // einer Portion, hat also keine eigene, zusätzliche Mengenangabe mehr).
@@ -153,6 +163,7 @@ export async function renderDailyLogView(options: DailyLogViewOptions): Promise<
         <li class="menu-builder__ingredient-row daily-log__entry-row" data-entry-type="${entry.type}">
           ${quantityInput}
           <span class="daily-log__type-dot" aria-hidden="true"></span>
+          ${!missing && category && isMealCategory(category) ? `<span class="recipe-list__icon">${renderMealCategoryIcon(category)}</span>` : ''}
           <span class="daily-log__entry-label">${missing ? `<em>${label}</em>` : label}</span>
           ${missing || !nova ? '' : formatNovaTag(nova)}
           <button type="button" class="menu-list__delete" data-remove-entry-id="${entry.id}" aria-label="Eintrag entfernen">✕</button>
