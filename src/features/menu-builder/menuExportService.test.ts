@@ -39,6 +39,17 @@ test('menuToRecipe übernimmt Name/Zutaten unverändert, ohne servings (Instrukt
   assert.equal(recipe.instructions, undefined)
 })
 
+test('menuToRecipe setzt category nur, wenn übergeben (Instruktion 20)', () => {
+  const menu = makeMenu({ name: 'Frühstücksbowl' })
+
+  const withCategory = menuToRecipe(menu, [], 'Snack')
+  assert.equal(withCategory.category, 'Snack')
+
+  const withoutCategory = menuToRecipe(menu)
+  assert.equal(withoutCategory.category, undefined)
+  assert.equal('category' in withoutCategory, false) // Feld fehlt komplett, nicht nur undefined-wertig
+})
+
 test('menuToRecipe erzeugt bei zwei Menüs mit identischem Namen unterschiedliche IDs', () => {
   const menuA = makeMenu({ id: 'menu-a', name: 'Frühstücksbowl' })
   const menuB = makeMenu({ id: 'menu-b', name: 'Frühstücksbowl' })
@@ -89,4 +100,12 @@ test('isValidRecipe lehnt unvollständige/kaputte Recipe-Objekte ab', () => {
     isValidRecipe({ id: 'x', name: 'y', ingredients: [{ foodId: '1' }] }),
     false, // amountGrams fehlt
   )
+})
+
+test('isValidRecipe prüft category nur auf den Typ, nicht gegen MEAL_CATEGORIES (Instruktion 20)', () => {
+  const base = { id: 'x', name: 'y', ingredients: [{ foodId: '1', amountGrams: 100 }] }
+  assert.equal(isValidRecipe({ ...base, category: 'Snack' }), true)
+  // Bewusst lax: eine (noch) unbekannte Kategorie macht das Rezept nicht ungültig.
+  assert.equal(isValidRecipe({ ...base, category: 'irgendwas-unbekanntes' }), true)
+  assert.equal(isValidRecipe({ ...base, category: 3 }), false) // falscher Typ
 })

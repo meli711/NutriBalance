@@ -1,6 +1,6 @@
 import { getAllRecipes } from './recipeService.ts'
 import type { Recipe } from './models/recipe.ts'
-import { getMealCategory, renderMealCategoryIcon } from '../../utils/mealCategoryIcon.ts'
+import { isMealCategory, renderMealCategoryIcon } from '../../utils/mealCategoryIcon.ts'
 
 export interface RecipeListViewOptions {
   container: HTMLElement
@@ -33,12 +33,12 @@ export async function renderRecipeListView(options: RecipeListViewOptions): Prom
   function renderItems(list: Recipe[]): string {
     return list
       .map((recipe) => {
-        const category = getMealCategory(recipe.id)
+        const category = recipe.category
         return `
           <li>
             <button type="button" class="recipe-list__item" data-recipe-id="${recipe.id}">
               <span class="recipe-list__label">
-                ${category ? `<span class="recipe-list__icon">${renderMealCategoryIcon(category)}</span>` : ''}
+                ${category && isMealCategory(category) ? `<span class="recipe-list__icon">${renderMealCategoryIcon(category)}</span>` : ''}
                 <span class="recipe-list__name">${recipe.name}</span>
               </span>
             </button>

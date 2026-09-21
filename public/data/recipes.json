@@ -2,11 +2,24 @@
   {
     "id": "overnight-oats-banane",
     "name": "Overnight Oats mit Banane",
+    "category": "Frühstück",
     "ingredients": [
-      { "foodId": "198", "amountGrams": 50 },
-      { "foodId": "62", "amountGrams": 200 },
-      { "foodId": "381", "amountGrams": 100 },
-      { "foodId": "472", "amountGrams": 10 }
+      {
+        "foodId": "198",
+        "amountGrams": 50
+      },
+      {
+        "foodId": "62",
+        "amountGrams": 200
+      },
+      {
+        "foodId": "381",
+        "amountGrams": 100
+      },
+      {
+        "foodId": "472",
+        "amountGrams": 10
+      }
     ],
     "instructions": [
       "Haferflocken mit Milch übergiessen und über Nacht im Kühlschrank quellen lassen.",
@@ -16,10 +29,20 @@
   {
     "id": "ruehrei-vollkornbrot",
     "name": "Rührei mit Vollkornbrot",
+    "category": "Frühstück",
     "ingredients": [
-      { "foodId": "290", "amountGrams": 120 },
-      { "foodId": "14297", "amountGrams": 10 },
-      { "foodId": "821", "amountGrams": 60 }
+      {
+        "foodId": "290",
+        "amountGrams": 120
+      },
+      {
+        "foodId": "14297",
+        "amountGrams": 10
+      },
+      {
+        "foodId": "821",
+        "amountGrams": 60
+      }
     ],
     "instructions": [
       "Eier in der Butter bei mittlerer Hitze unter Rühren stocken lassen.",
@@ -29,20 +52,43 @@
   {
     "id": "joghurt-honig-nuesse",
     "name": "Naturjoghurt mit Honig und Nüssen",
+    "category": "Snack",
     "ingredients": [
-      { "foodId": "52", "amountGrams": 150 },
-      { "foodId": "472", "amountGrams": 10 },
-      { "foodId": "1170", "amountGrams": 20 }
+      {
+        "foodId": "52",
+        "amountGrams": 150
+      },
+      {
+        "foodId": "472",
+        "amountGrams": 10
+      },
+      {
+        "foodId": "1170",
+        "amountGrams": 20
+      }
     ]
   },
   {
     "id": "pouletbrust-reis-broccoli",
     "name": "Pouletbrust mit Reis und Broccoli",
+    "category": "Hauptmahlzeit",
     "ingredients": [
-      { "foodId": "22", "amountGrams": 150 },
-      { "foodId": "1067", "amountGrams": 180 },
-      { "foodId": "1005", "amountGrams": 150 },
-      { "foodId": "591", "amountGrams": 10 }
+      {
+        "foodId": "22",
+        "amountGrams": 150
+      },
+      {
+        "foodId": "1067",
+        "amountGrams": 180
+      },
+      {
+        "foodId": "1005",
+        "amountGrams": 150
+      },
+      {
+        "foodId": "591",
+        "amountGrams": 10
+      }
     ],
     "instructions": [
       "Pouletbrust in Olivenöl braten, bis sie durchgegart ist.",
@@ -52,22 +98,51 @@
   {
     "id": "lachs-kartoffeln-spinat",
     "name": "Lachs mit Kartoffeln und Spinat",
+    "category": "Hauptmahlzeit",
     "ingredients": [
-      { "foodId": "13354", "amountGrams": 150 },
-      { "foodId": "1057", "amountGrams": 200 },
-      { "foodId": "1025", "amountGrams": 100 },
-      { "foodId": "591", "amountGrams": 10 }
+      {
+        "foodId": "13354",
+        "amountGrams": 150
+      },
+      {
+        "foodId": "1057",
+        "amountGrams": 200
+      },
+      {
+        "foodId": "1025",
+        "amountGrams": 100
+      },
+      {
+        "foodId": "591",
+        "amountGrams": 10
+      }
     ]
   },
   {
     "id": "quinoa-bowl-avocado-tomate",
     "name": "Quinoa-Bowl mit Avocado und Tomate",
+    "category": "Hauptmahlzeit",
     "ingredients": [
-      { "foodId": "13396", "amountGrams": 150 },
-      { "foodId": "380", "amountGrams": 80 },
-      { "foodId": "348", "amountGrams": 100 },
-      { "foodId": "605", "amountGrams": 10 },
-      { "foodId": "591", "amountGrams": 10 }
+      {
+        "foodId": "13396",
+        "amountGrams": 150
+      },
+      {
+        "foodId": "380",
+        "amountGrams": 80
+      },
+      {
+        "foodId": "348",
+        "amountGrams": 100
+      },
+      {
+        "foodId": "605",
+        "amountGrams": 10
+      },
+      {
+        "foodId": "591",
+        "amountGrams": 10
+      }
     ],
     "instructions": [
       "Quinoa mit gewürfelter Avocado und Tomate vermengen.",
@@ -77,25 +152,66 @@
   {
     "id": "magerquark-apfel-honig",
     "name": "Magerquark mit Apfel und Honig",
+    "category": "Snack",
     "ingredients": [
-      { "foodId": "71", "amountGrams": 150 },
-      { "foodId": "378", "amountGrams": 100 },
-      { "foodId": "472", "amountGrams": 5 }
+      {
+        "foodId": "71",
+        "amountGrams": 150
+      },
+      {
+        "foodId": "378",
+        "amountGrams": 100
+      },
+      {
+        "foodId": "472",
+        "amountGrams": 5
+      }
     ]
   },
   {
     "id": "gemuesepfanne-teigwaren",
     "name": "Gemüsepfanne mit Teigwaren",
+    "category": "Hauptmahlzeit",
     "ingredients": [
-      { "foodId": "367", "amountGrams": 75 },
-      { "foodId": "360", "amountGrams": 50 },
-      { "foodId": "368", "amountGrams": 25 },
-      { "foodId": "591", "amountGrams": 7.5 },
-      { "foodId": "1063", "amountGrams": 100 }
+      {
+        "foodId": "367",
+        "amountGrams": 75
+      },
+      {
+        "foodId": "360",
+        "amountGrams": 50
+      },
+      {
+        "foodId": "368",
+        "amountGrams": 25
+      },
+      {
+        "foodId": "591",
+        "amountGrams": 7.5
+      },
+      {
+        "foodId": "1063",
+        "amountGrams": 100
+      }
     ],
     "instructions": [
       "Zucchetti, Peperoni und Zwiebel in Olivenöl anbraten.",
       "Mit den gekochten Teigwaren vermengen."
+    ]
+  },
+  {
+    "id": "ice-kaffee-mub0zntv-erl0",
+    "name": "Ice Kaffee",
+    "category": "Getränk",
+    "ingredients": [
+      {
+        "foodId": "994",
+        "amountGrams": 100
+      },
+      {
+        "foodId": "1194",
+        "amountGrams": 150
+      }
     ]
   }
 ]

@@ -13,6 +13,8 @@ import type { NutritionSummaryHandle } from '../nutrition-summary/nutritionSumma
 import { formatNumber } from '../../utils/formatNumber.ts'
 import { isValidRecipeArray, menuToRecipe } from './menuExportService.ts'
 import type { Menu } from './models/menu.ts'
+import { MEAL_CATEGORIES, isMealCategory } from '../../utils/mealCategoryIcon.ts'
+import type { MealCategory } from '../../utils/mealCategoryIcon.ts'
 
 export interface MenuDetailViewOptions {
   container: HTMLElement
@@ -58,6 +60,20 @@ function downloadJson(filename: string, data: unknown): void {
   URL.revokeObjectURL(url)
 }
 
+/**
+ * `undefined` = keine Kategorie gewünscht (leerer/abgebrochener Prompt oder
+ * nicht erkannter Text) — rein kosmetisch, blockiert den Export deshalb
+ * anders als der frühere Portionen-Prompt (Instruktion 19) nicht.
+ */
+function promptForCategory(): MealCategory | undefined {
+  const raw = window.prompt(
+    `Kategorie fürs Icon in der Rezeptliste (${MEAL_CATEGORIES.join(' / ')}) — leer lassen für keine:`,
+    '',
+  )
+  const trimmed = raw?.trim()
+  return trimmed && isMealCategory(trimmed) ? trimmed : undefined
+}
+
 async function handleExportAsRecipe(menu: Menu, statusEl: HTMLElement): Promise<void> {
   statusEl.hidden = true
 
@@ -90,7 +106,8 @@ async function handleExportAsRecipe(menu: Menu, statusEl: HTMLElement): Promise<
   }
 
   const existingIds = currentRecipes.map((recipe) => recipe.id)
-  const newRecipe = menuToRecipe(menu, existingIds)
+  const category = promptForCategory()
+  const newRecipe = menuToRecipe(menu, existingIds, category)
   const updatedRecipes = [...currentRecipes, newRecipe]
 
   downloadJson('recipes-updated.json', updatedRecipes)

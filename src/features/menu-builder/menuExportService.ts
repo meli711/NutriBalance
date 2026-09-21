@@ -1,5 +1,6 @@
 import type { Recipe, RecipeIngredient } from '../recipes/models/recipe.ts'
 import type { Menu } from './models/menu.ts'
+import type { MealCategory } from '../../utils/mealCategoryIcon.ts'
 
 /** Slug aus dem Menü-Namen (Umlaute transliteriert, kein Sonderzeichen-Chaos in der ID). */
 function slugify(name: string): string {
@@ -50,9 +51,16 @@ export function generateUniqueRecipeId(name: string, existingIds: readonly strin
  * `existingIds` ist optional (Default: `[]`) — eine kleine, abwärtskompatible
  * Erweiterung der im Auftrag skizzierten Signatur `menuToRecipe(menu,
  * servings)`, weil die geforderte Kollisionsprüfung gegen die aktuell
- * geladene recipes.json sonst nicht möglich wäre.
+ * geladene recipes.json sonst nicht möglich wäre. `category` ist ebenfalls
+ * optional (Instruktion 20) — bleibt sie weg, wird das Feld gar nicht erst
+ * gesetzt statt `category: undefined` (kein unnötiges Feld im exportierten
+ * JSON).
  */
-export function menuToRecipe(menu: Menu, existingIds: readonly string[] = []): Recipe {
+export function menuToRecipe(
+  menu: Menu,
+  existingIds: readonly string[] = [],
+  category?: MealCategory,
+): Recipe {
   const ingredients: RecipeIngredient[] = menu.ingredients.map(({ foodId, amountGrams }) => ({
     foodId,
     amountGrams,
@@ -61,6 +69,7 @@ export function menuToRecipe(menu: Menu, existingIds: readonly string[] = []): R
   return {
     id: generateUniqueRecipeId(menu.name, existingIds),
     name: menu.name,
+    ...(category ? { category } : {}),
     ingredients,
   }
 }
@@ -87,6 +96,10 @@ export function isValidRecipe(value: unknown): value is Recipe {
     typeof v.id === 'string' &&
     v.id.length > 0 &&
     typeof v.name === 'string' &&
+    // `category` bewusst nicht gegen MEAL_CATEGORIES geprüft (Instruktion
+    // 20): eine unbekannte/spätere Kategorie soll nicht die ganze Datei als
+    // ungültig zurückweisen — im schlimmsten Fall fehlt nur das Icon.
+    (v.category === undefined || typeof v.category === 'string') &&
     Array.isArray(v.ingredients) &&
     v.ingredients.length > 0 &&
     v.ingredients.every(isValidRecipeIngredient) &&
