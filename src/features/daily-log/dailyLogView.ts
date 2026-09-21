@@ -139,7 +139,9 @@ export async function renderDailyLogView(options: DailyLogViewOptions): Promise<
   `
 
   const entries = await getLogEntriesForDate(date)
-  const resolved = await Promise.all(entries.map(resolveEntry))
+  const resolved = (await Promise.all(entries.map(resolveEntry))).sort((a, b) =>
+    a.label.localeCompare(b.label, 'de'),
+  )
   const isToday = date === getLocalDateString(new Date())
 
   const entryRows = resolved
