@@ -88,7 +88,7 @@ export function renderOwnFoodsPanel(options: OwnFoodsPanelOptions): void {
         <input id="own-food-search" type="text" autocomplete="off" placeholder="Name eingeben" aria-label="Eigene Zutaten durchsuchen" />
       </div>
       <ul class="recipe-list__items" data-list></ul>
-      <div class="profile-view__actions">
+      <div class="recipe-list__actions">
         <button type="button" class="button-secondary" data-action="add">+ Neue Zutat erfassen</button>
         <button type="button" class="button-secondary" data-action="import">Zutaten importieren</button>
       </div>

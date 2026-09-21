@@ -47,7 +47,9 @@ export function renderIngredientsPage(options: IngredientsPageOptions): void {
 
       <div class="recipe-list__tab-content" data-tab-content></div>
 
-      <button type="button" class="button-secondary" data-action="back">Zurück</button>
+      <div class="recipe-list__actions">
+        <button type="button" class="button-secondary" data-action="back">Zurück</button>
+      </div>
     </section>
   `
 
@@ -61,9 +63,15 @@ export function renderIngredientsPage(options: IngredientsPageOptions): void {
       button.setAttribute('aria-pressed', String(isActive))
     })
     if (tab === 'database') {
-      renderFoodDatabaseList({ container: tabContent, onSelectFood: (foodId) => onSelectFood(foodId, tab) })
+      renderFoodDatabaseList({
+        container: tabContent,
+        onSelectFood: (foodId) => onSelectFood(foodId, tab),
+      })
     } else {
-      renderOwnFoodsPanel({ container: tabContent, onSelectFood: (foodId) => onSelectFood(foodId, tab) })
+      renderOwnFoodsPanel({
+        container: tabContent,
+        onSelectFood: (foodId) => onSelectFood(foodId, tab),
+      })
     }
   }
 
