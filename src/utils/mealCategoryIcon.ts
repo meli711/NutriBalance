@@ -8,13 +8,14 @@
  * (bis Instruktion 20 gab es hier stattdessen eine feste ID→Kategorie-
  * Tabelle, die man beim Hinzufügen eines Rezepts leicht vergisst).
  */
-export type MealCategory = 'Frühstück' | 'Hauptmahlzeit' | 'Snack' | 'Getränk'
+export type MealCategory = 'Frühstück' | 'Hauptmahlzeit' | 'Snack' | 'Getränk' | 'Vorspeise'
 
 export const MEAL_CATEGORIES: readonly MealCategory[] = [
   'Frühstück',
   'Hauptmahlzeit',
   'Snack',
   'Getränk',
+  'Vorspeise',
 ]
 
 export function isMealCategory(value: unknown): value is MealCategory {
@@ -32,6 +33,8 @@ const CATEGORY_ICONS: Record<MealCategory, string> = {
   // Glas mit Trinkhalm
   Getränk:
     '<path d="M8 4h8l-.8 13.2a2 2 0 0 1-2 1.8h-2.4a2 2 0 0 1-2-1.8L8 4Z" /><path d="M9 8h6" /><path d="M14 3v3" />',
+  // Schale mit aufsteigendem Dampf
+  Vorspeise: '<path d="M4 12h16a8 8 0 0 1-16 0Z" /><path d="M9 12V9M12 12V8M15 12V9" />',
 }
 
 export function renderMealCategoryIcon(category: MealCategory): string {
