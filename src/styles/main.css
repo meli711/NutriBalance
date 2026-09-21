@@ -283,6 +283,14 @@ textarea:focus-visible,
   height: 1.25rem;
 }
 
+.recipe-list__search {
+  margin-bottom: var(--space-md);
+}
+
+.recipe-list__tab-content {
+  margin-top: var(--space-md);
+}
+
 .field-error {
   color: var(--color-error);
   font-weight: 600;
@@ -446,6 +454,13 @@ textarea:focus-visible,
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
+}
+
+.recipe-list__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
 }
 
 .recipe-list__item {

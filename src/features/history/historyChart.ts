@@ -206,7 +206,7 @@ export function renderHistoryChart(options: HistoryChartOptions): HistoryChartHa
       }
       if (hasIncomplete) {
         parts.push(
-          'An Tagen mit fehlenden Datenbankwerten ist der angezeigte Wert eine Unterschätzung.',
+          'An Tagen mit fehlenden Datenbankwerten ist der angezeigte Wert eine Schätzung.',
         )
       }
       notes.innerHTML = parts.map((text) => `<p class="chart-note">${text}</p>`).join('')

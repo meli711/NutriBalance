@@ -45,7 +45,7 @@ export function renderIngredientsPage(options: IngredientsPageOptions): void {
           .join('')}
       </div>
 
-      <div data-tab-content></div>
+      <div class="recipe-list__tab-content" data-tab-content></div>
 
       <button type="button" class="button-secondary" data-action="back">Zurück</button>
     </section>

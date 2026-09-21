@@ -15,16 +15,21 @@ const RESULT_LIMIT = 50
  * — `searchFoodsByName` mischt das bereits zusammen). Anders als
  * `foodPickerControl.ts` (kompaktes Such-Dropdown zum Auswählen einer
  * Menge) ist dies eine volle Seite zum Durchstöbern — bei leerer Suche wird
- * deshalb **nicht** die ganze Datenbank (über 1000 Einträge) gerendert,
- * sondern ein Hinweis gezeigt.
+ * deshalb **nicht** die ganze Datenbank (über 1000 Einträge) gerendert; der
+ * Platzhalter im Suchfeld weist stattdessen auf die Mindestzeichenzahl hin.
  */
 export function renderFoodDatabaseList(options: FoodDatabaseListOptions): void {
   const { container, onSelectFood } = options
 
   container.innerHTML = `
-    <div class="field">
-      <label for="ingredient-database-search">Zutat suchen</label>
-      <input id="ingredient-database-search" type="text" autocomplete="off" placeholder="z.B. Haferflocken" />
+    <div class="field recipe-list__search">
+      <input
+        id="ingredient-database-search"
+        type="text"
+        autocomplete="off"
+        placeholder="Suchbegriff eingeben (mind. ${MIN_QUERY_LENGTH} Zeichen)"
+        aria-label="Zutat suchen"
+      />
     </div>
     <ul class="recipe-list__items" data-results></ul>
   `
@@ -64,10 +69,8 @@ export function renderFoodDatabaseList(options: FoodDatabaseListOptions): void {
     })
   }
 
-  function showMinLengthHint(): void {
-    renderMessage(
-      `Suchbegriff eingeben (mind. ${MIN_QUERY_LENGTH} Zeichen) — die Datenbank enthält über 1000 Einträge.`,
-    )
+  function clearResults(): void {
+    resultsEl.innerHTML = ''
   }
 
   input.addEventListener('input', () => {
@@ -75,7 +78,7 @@ export function renderFoodDatabaseList(options: FoodDatabaseListOptions): void {
     const currentRequestId = ++requestId
 
     if (query.length < MIN_QUERY_LENGTH) {
-      showMinLengthHint()
+      clearResults()
       return
     }
 
@@ -89,5 +92,5 @@ export function renderFoodDatabaseList(options: FoodDatabaseListOptions): void {
     })
   })
 
-  showMinLengthHint()
+  clearResults()
 }

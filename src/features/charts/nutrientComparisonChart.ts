@@ -180,7 +180,7 @@ function buildExclusionNote(excluded: ExcludedNutrient[]): string {
 
 function buildIncompleteNote(included: IncludedNutrient[]): string {
   if (!included.some((n) => n.incomplete)) return ''
-  return `<p class="chart-note">* Für mindestens eine Zutat fehlt in der Datenbank ein Wert für diesen Nährstoff — die Angabe ist eine Unterschätzung.</p>`
+  return `<p class="chart-note">* Für mindestens eine Zutat fehlt in der Datenbank ein Wert für diesen Nährstoff — die Angabe ist eine Schätzung.</p>`
 }
 
 function chartLabel(nutrient: IncludedNutrient): string {

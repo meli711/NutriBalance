@@ -1,5 +1,4 @@
 import { createCustomFood, getCustomFoods, upsertCustomFood } from '../../data/customFoodService.ts'
-import { rankFoodsByQuery } from '../../data/foodDatabaseService.ts'
 import type { FoodItem } from '../../data/models/food.ts'
 import { formatNumber } from '../../utils/formatNumber.ts'
 import { renderCustomFoodForm } from './customFoodForm.ts'
@@ -45,9 +44,8 @@ export function renderOwnFoodsPanel(options: OwnFoodsPanelOptions): void {
         nach Zutaten gesucht wird, und werden im Daten-Backup auf der Profilseite
         mitgesichert.
       </p>
-      <div class="field">
-        <label for="own-food-search">Eigene Zutaten durchsuchen</label>
-        <input id="own-food-search" type="text" autocomplete="off" placeholder="Name eingeben" />
+      <div class="field recipe-list__search">
+        <input id="own-food-search" type="text" autocomplete="off" placeholder="Name eingeben" aria-label="Eigene Zutaten durchsuchen" />
       </div>
       <ul class="recipe-list__items" data-list></ul>
       <div class="profile-view__actions">
@@ -87,16 +85,14 @@ export function renderOwnFoodsPanel(options: OwnFoodsPanelOptions): void {
 
     function applyFilter(): void {
       const allFoods = getCustomFoods()
-      const query = searchInput.value.trim()
-      const foods =
-        query === ''
-          ? [...allFoods].sort((a, b) => a.name.de.localeCompare(b.name.de, 'de'))
-          : rankFoodsByQuery(allFoods, query)
-
       if (allFoods.length === 0) {
         listEl.innerHTML = '<li class="recipe-list__status">Noch keine eigenen Zutaten erfasst.</li>'
         return
       }
+
+      const query = searchInput.value.trim().toLowerCase()
+      const sorted = [...allFoods].sort((a, b) => a.name.de.localeCompare(b.name.de, 'de'))
+      const foods = query === '' ? sorted : sorted.filter((food) => food.name.de.toLowerCase().includes(query))
       renderRows(foods)
     }
 

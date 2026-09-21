@@ -68,7 +68,7 @@ export function renderNutritionSummary(options: NutritionSummaryOptions): Nutrit
       return `
         <tr>
           <td>${NUTRIENT_LABELS[amount.nutrientId] ?? amount.nutrientId}</td>
-          <td>${formatNumber(amount.value)}${amount.incomplete ? '<span class="recipe-detail__incomplete" title="Mindestens eine Zutat hat für diesen Nährstoff keinen Wert in der Datenbank – Wert ist eine Unterschätzung."> *</span>' : ''}</td>
+          <td>${formatNumber(amount.value)}${amount.incomplete ? '<span class="recipe-detail__incomplete" title="Mindestens eine Zutat hat für diesen Nährstoff keinen Wert in der Datenbank – Wert ist eine Schätzung."> *</span>' : ''}</td>
           <td>${UNIT_LABELS[amount.unit] ?? amount.unit}</td>
           <td>${percentageCell}</td>
         </tr>`
@@ -89,7 +89,7 @@ export function renderNutritionSummary(options: NutritionSummaryOptions): Nutrit
       </thead>
       <tbody>${rows}</tbody>
     </table>
-    ${hasIncomplete ? '<p class="recipe-detail__note">* Für mindestens eine Zutat fehlt in der Datenbank ein Wert für diesen Nährstoff — die Angabe ist eine Unterschätzung.</p>' : ''}
+    ${hasIncomplete ? '<p class="recipe-detail__note">* Für mindestens eine Zutat fehlt in der Datenbank ein Wert für diesen Nährstoff — die Angabe ist eine Schätzung.</p>' : ''}
     <p class="recipe-detail__note">
       % Tagesbedarf bezogen auf dein gespeichertes Profil (${profile.age} Jahre, ${profile.gender === 'male' ? 'männlich' : 'weiblich'}).
       Bei Fett/Kohlenhydraten aus dem DACH-Energiebedarf umgerechnet; „–“ bedeutet, dass kein Vergleich möglich ist.
