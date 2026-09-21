@@ -15,6 +15,7 @@ import { isValidRecipeArray, menuToRecipe } from './menuExportService.ts'
 import type { Menu } from './models/menu.ts'
 import { MEAL_CATEGORIES, isMealCategory } from '../../utils/mealCategoryIcon.ts'
 import type { MealCategory } from '../../utils/mealCategoryIcon.ts'
+import { renderMenuBuilderView } from './menuBuilderView.ts'
 
 export interface MenuDetailViewOptions {
   container: HTMLElement
@@ -182,6 +183,7 @@ export async function renderMenuDetailView(options: MenuDetailViewOptions): Prom
 
       <div class="profile-view__actions">
         <button type="button" class="button-secondary" data-action="export">Als Rezept exportieren</button>
+        <button type="button" class="button-secondary" data-action="edit">Bearbeiten</button>
         <button type="button" class="button-secondary" data-action="back">Zurück zur Menü-Liste</button>
         <button type="button" class="menu-list__delete-full" data-action="delete">Menü löschen</button>
       </div>
@@ -213,5 +215,21 @@ export async function renderMenuDetailView(options: MenuDetailViewOptions): Prom
   container.querySelector('[data-action="export"]')?.addEventListener('click', () => {
     if (!exportStatus) return
     void handleExportAsRecipe(menu, exportStatus)
+  })
+
+  // In-Place-Bearbeiten (Instruktion 22), analog zu `foodDetailView.ts#renderEdit`:
+  // Formular ersetzt die Detailansicht im selben Container, keine eigene
+  // Route in `main.ts`. Speichern/Abbrechen laden die Detailansicht danach
+  // frisch neu, damit garantiert die tatsächlich persistierte Version
+  // angezeigt wird.
+  container.querySelector('[data-action="edit"]')?.addEventListener('click', () => {
+    destroyActiveSummary()
+    void renderMenuBuilderView({
+      container,
+      profile,
+      existingMenu: menu,
+      onSaved: () => void renderMenuDetailView(options),
+      onCancel: () => void renderMenuDetailView(options),
+    })
   })
 }

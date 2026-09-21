@@ -146,7 +146,7 @@ function showMenuList(profile: UserProfile, onBack: () => void): void {
 function showMenuBuilder(profile: UserProfile, onBack: () => void): void {
   if (!app) return
   updateNav(profile, 'menus')
-  renderMenuBuilderView({
+  void renderMenuBuilderView({
     container: app,
     profile,
     onSaved: () => showMenuList(profile, onBack),

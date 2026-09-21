@@ -143,6 +143,7 @@ entspricht grob einem Commit `Instruktion N: …`.
 | 19  | `servings` aus dem Rezept-Modell entfernt — ein Rezept entspricht immer genau einer Portion, Rezept-Log-Einträge nutzen wie Menüs nur noch `factor`                             | [`19-claude-code-rezept-ohne-servings.md`](Instruktionen/19-claude-code-rezept-ohne-servings.md)               |
 | 20  | Rezept-Kategorie fürs Listen-Icon direkt in `recipes.json` (statt fester ID-Tabelle im Code), neue Kategorie "Getränk", optionale Abfrage beim Export                           | [`20-claude-code-rezept-kategorie-icon.md`](Instruktionen/20-claude-code-rezept-kategorie-icon.md)             |
 | 21  | Kategorie (mit Icon) auch für eigene Menüs, wählbar per Dropdown beim Erstellen; Kategorie-Icons zusätzlich pro Zeile im Tages-Log                                              | [`21-claude-code-menu-kategorie.md`](Instruktionen/21-claude-code-menu-kategorie.md)                           |
+| 22  | Eigene Menüs nachträglich bearbeiten (Name/Beschreibung/Kategorie/Zutaten), In-Place im Detail-Screen wie bei eigenen Zutaten                                                   | [`22-claude-code-menu-bearbeiten.md`](Instruktionen/22-claude-code-menu-bearbeiten.md)                         |
 
 Ergänzend: [`DESIGN.md`](Instruktionen/DESIGN.md) — Design-Plan zu Instruktion 7
 (Farbpalette, Typografie, Bildsprache, konkrete UI-Anpassungen).

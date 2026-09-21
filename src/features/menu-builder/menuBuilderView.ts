@@ -9,6 +9,7 @@ import type { Menu } from './models/menu.ts'
 import { renderNutritionSummary } from '../nutrition-summary/nutritionSummaryView.ts'
 import type { NutritionSummaryHandle } from '../nutrition-summary/nutritionSummaryView.ts'
 import { renderFoodPicker } from '../shared/foodPickerControl.ts'
+import { getFoodById } from '../../data/foodDatabaseService.ts'
 import type { FoodItem } from '../../data/models/food.ts'
 import { formatNumber } from '../../utils/formatNumber.ts'
 import { MEAL_CATEGORIES, isMealCategory } from '../../utils/mealCategoryIcon.ts'
@@ -18,6 +19,8 @@ export interface MenuBuilderViewOptions {
   profile: UserProfile
   onSaved: () => void
   onCancel: () => void
+  /** Gesetzt beim Bearbeiten eines bestehenden Menüs (Instruktion 22) — fehlt beim Neu-Erstellen. */
+  existingMenu?: Menu
 }
 
 interface BuilderIngredient extends RecipeIngredient {
@@ -42,33 +45,54 @@ function formatDefaultMenuName(): string {
   return `Menü vom ${today}`
 }
 
-export function renderMenuBuilderView(options: MenuBuilderViewOptions): void {
-  const { container, profile, onSaved, onCancel } = options
+export async function renderMenuBuilderView(options: MenuBuilderViewOptions): Promise<void> {
+  const { container, profile, onSaved, onCancel, existingMenu } = options
 
   const ingredients: BuilderIngredient[] = []
   const foodsById = new Map<string, FoodItem>()
   const requirements = getRequirementsSafely(profile)
   let activeSummary: NutritionSummaryHandle | null = null
 
+  if (existingMenu) {
+    container.innerHTML = `
+      <section class="menu-builder">
+        <p class="recipe-list__status">Lade Menü…</p>
+      </section>
+    `
+    const foods = await Promise.all(existingMenu.ingredients.map((ing) => getFoodById(ing.foodId)))
+    existingMenu.ingredients.forEach((ing, index) => {
+      const food = foods[index]
+      if (food) foodsById.set(ing.foodId, food)
+      ingredients.push({
+        foodId: ing.foodId,
+        amountGrams: ing.amountGrams,
+        foodName: food?.name.de ?? 'Unbekannte Zutat',
+      })
+    })
+  }
+
   container.innerHTML = `
     <section class="menu-builder">
-      <h1>Neues Menü erstellen</h1>
+      <h1>${existingMenu ? 'Menü bearbeiten' : 'Neues Menü erstellen'}</h1>
 
       <div class="field">
         <label for="menu-name">Name</label>
-        <input id="menu-name" type="text" placeholder="${formatDefaultMenuName()}" />
+        <input id="menu-name" type="text" placeholder="${formatDefaultMenuName()}" value="${existingMenu?.name ?? ''}" />
       </div>
 
       <div class="field">
         <label for="menu-description">Beschreibung</label>
-        <textarea id="menu-description" rows="2"></textarea>
+        <textarea id="menu-description" rows="2">${existingMenu?.description ?? ''}</textarea>
       </div>
 
       <div class="field">
         <label for="menu-category">Kategorie (optional)</label>
         <select id="menu-category">
-          <option value="">– keine Angabe –</option>
-          ${MEAL_CATEGORIES.map((category) => `<option value="${category}">${category}</option>`).join('')}
+          <option value="" ${!existingMenu?.category ? 'selected' : ''}>– keine Angabe –</option>
+          ${MEAL_CATEGORIES.map(
+            (category) =>
+              `<option value="${category}" ${existingMenu?.category === category ? 'selected' : ''}>${category}</option>`,
+          ).join('')}
         </select>
       </div>
 
@@ -170,10 +194,10 @@ export function renderMenuBuilderView(options: MenuBuilderViewOptions): void {
 
       const category = categorySelect.value
       const menu: Menu = {
-        id: crypto.randomUUID(),
+        id: existingMenu?.id ?? crypto.randomUUID(),
         name: nameInput.value.trim() || formatDefaultMenuName(),
         description: descriptionInput.value.trim(),
-        createdAt: new Date().toISOString(),
+        createdAt: existingMenu?.createdAt ?? new Date().toISOString(),
         ...(category && isMealCategory(category) ? { category } : {}),
         ingredients: ingredients.map(({ foodId, amountGrams }) => ({ foodId, amountGrams })),
       }
