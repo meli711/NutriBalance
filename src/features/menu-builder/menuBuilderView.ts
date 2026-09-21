@@ -11,6 +11,7 @@ import type { NutritionSummaryHandle } from '../nutrition-summary/nutritionSumma
 import { renderFoodPicker } from '../shared/foodPickerControl.ts'
 import type { FoodItem } from '../../data/models/food.ts'
 import { formatNumber } from '../../utils/formatNumber.ts'
+import { MEAL_CATEGORIES, isMealCategory } from '../../utils/mealCategoryIcon.ts'
 
 export interface MenuBuilderViewOptions {
   container: HTMLElement
@@ -63,6 +64,14 @@ export function renderMenuBuilderView(options: MenuBuilderViewOptions): void {
         <textarea id="menu-description" rows="2"></textarea>
       </div>
 
+      <div class="field">
+        <label for="menu-category">Kategorie (optional)</label>
+        <select id="menu-category">
+          <option value="">– keine Angabe –</option>
+          ${MEAL_CATEGORIES.map((category) => `<option value="${category}">${category}</option>`).join('')}
+        </select>
+      </div>
+
       <div data-food-picker></div>
 
       <h2>Zutatenliste</h2>
@@ -81,6 +90,7 @@ export function renderMenuBuilderView(options: MenuBuilderViewOptions): void {
 
   const nameInput = container.querySelector<HTMLInputElement>('#menu-name')!
   const descriptionInput = container.querySelector<HTMLTextAreaElement>('#menu-description')!
+  const categorySelect = container.querySelector<HTMLSelectElement>('#menu-category')!
   const ingredientListEl = container.querySelector<HTMLUListElement>('[data-ingredient-list]')!
   const formError = container.querySelector<HTMLParagraphElement>('[data-form-error]')!
   const summaryContainer = container.querySelector<HTMLDivElement>('[data-summary-container]')!
@@ -158,11 +168,13 @@ export function renderMenuBuilderView(options: MenuBuilderViewOptions): void {
       }
       formError.hidden = true
 
+      const category = categorySelect.value
       const menu: Menu = {
         id: crypto.randomUUID(),
         name: nameInput.value.trim() || formatDefaultMenuName(),
         description: descriptionInput.value.trim(),
         createdAt: new Date().toISOString(),
+        ...(category && isMealCategory(category) ? { category } : {}),
         ingredients: ingredients.map(({ foodId, amountGrams }) => ({ foodId, amountGrams })),
       }
 

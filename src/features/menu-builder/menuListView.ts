@@ -16,6 +16,7 @@ import {
 import { renderImportSelection } from '../backup/importSelectionView.ts'
 import type { FoodItem } from '../../data/models/food.ts'
 import type { Menu } from './models/menu.ts'
+import { isMealCategory, renderMealCategoryIcon } from '../../utils/mealCategoryIcon.ts'
 
 export interface MenuListViewOptions {
   container: HTMLElement
@@ -84,16 +85,20 @@ export async function renderMenuListView(options: MenuListViewOptions): Promise<
 
   function renderItems(list: Menu[]): string {
     return list
-      .map(
-        (menu) => `
+      .map((menu) => {
+        const category = menu.category
+        return `
           <li class="menu-list__row">
             <button type="button" class="recipe-list__item" data-menu-id="${menu.id}">
-              <span class="recipe-list__name">${menu.name}</span>
+              <span class="recipe-list__label">
+                ${category && isMealCategory(category) ? `<span class="recipe-list__icon">${renderMealCategoryIcon(category)}</span>` : ''}
+                <span class="recipe-list__name">${menu.name}</span>
+              </span>
               <span class="recipe-list__servings">${formatDate(menu.createdAt)}</span>
             </button>
             <button type="button" class="menu-list__delete" data-delete-id="${menu.id}" aria-label="Menü löschen">✕</button>
-          </li>`,
-      )
+          </li>`
+      })
       .join('')
   }
 
