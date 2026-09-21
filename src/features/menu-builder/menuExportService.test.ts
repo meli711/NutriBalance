@@ -18,7 +18,7 @@ function makeMenu(overrides: Partial<Menu> & { name: string }): Menu {
   }
 }
 
-test('menuToRecipe übernimmt Name/Zutaten unverändert und übernimmt die angegebenen servings', () => {
+test('menuToRecipe übernimmt Name/Zutaten unverändert, ohne servings (Instruktion 19)', () => {
   const menu = makeMenu({
     name: 'Frühstücksbowl',
     ingredients: [
@@ -27,10 +27,9 @@ test('menuToRecipe übernimmt Name/Zutaten unverändert und übernimmt die angeg
     ],
   })
 
-  const recipe = menuToRecipe(menu, 3)
+  const recipe = menuToRecipe(menu)
 
   assert.equal(recipe.name, 'Frühstücksbowl')
-  assert.equal(recipe.servings, 3)
   assert.deepEqual(recipe.ingredients, [
     { foodId: '198', amountGrams: 50 },
     { foodId: '62', amountGrams: 200 },
@@ -44,10 +43,10 @@ test('menuToRecipe erzeugt bei zwei Menüs mit identischem Namen unterschiedlich
   const menuA = makeMenu({ id: 'menu-a', name: 'Frühstücksbowl' })
   const menuB = makeMenu({ id: 'menu-b', name: 'Frühstücksbowl' })
 
-  const recipeA = menuToRecipe(menuA, 1)
+  const recipeA = menuToRecipe(menuA)
   // Realer Ablauf: recipeA.id wäre jetzt Teil der aktuell geladenen
   // recipes.json, gegen die der zweite Export prüft.
-  const recipeB = menuToRecipe(menuB, 2, [recipeA.id])
+  const recipeB = menuToRecipe(menuB, [recipeA.id])
 
   assert.notEqual(recipeA.id, recipeB.id)
 })
@@ -73,7 +72,7 @@ test('generateUniqueRecipeId erkennt eine echte Kollision und generiert einen ne
 
 test('isValidRecipe/isValidRecipeArray erkennen eine exportierte Struktur als gültig', () => {
   const menu = makeMenu({ name: 'Testmenü' })
-  const recipe = menuToRecipe(menu, 2)
+  const recipe = menuToRecipe(menu)
 
   // Round-Trip durch echtes JSON (wie beim Download), nicht nur das In-Memory-Objekt.
   const roundTripped: unknown = JSON.parse(JSON.stringify(recipe))
@@ -85,13 +84,9 @@ test('isValidRecipe/isValidRecipeArray erkennen eine exportierte Struktur als g�
 test('isValidRecipe lehnt unvollständige/kaputte Recipe-Objekte ab', () => {
   assert.equal(isValidRecipe(null), false)
   assert.equal(isValidRecipe({}), false)
-  assert.equal(isValidRecipe({ id: 'x', name: 'y', servings: 0, ingredients: [] }), false) // servings <= 0
+  assert.equal(isValidRecipe({ id: 'x', name: 'y', ingredients: [] }), false) // keine Zutaten
   assert.equal(
-    isValidRecipe({ id: 'x', name: 'y', servings: 1, ingredients: [] }),
-    false, // keine Zutaten
-  )
-  assert.equal(
-    isValidRecipe({ id: 'x', name: 'y', servings: 1, ingredients: [{ foodId: '1' }] }),
+    isValidRecipe({ id: 'x', name: 'y', ingredients: [{ foodId: '1' }] }),
     false, // amountGrams fehlt
   )
 })

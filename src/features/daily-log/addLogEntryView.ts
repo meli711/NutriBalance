@@ -88,15 +88,13 @@ export function renderAddLogEntryView(options: AddLogEntryViewOptions): void {
         const recipeId = button.dataset.recipeId
         if (!recipeId) return
 
-        // Direkt mit Default-Werten hinzufügen (kein Prompt-Popup) —
-        // Portionen/Faktor lassen sich danach im Log direkt anpassen
-        // (Instruktion 15).
+        // Direkt mit Default-Werten hinzufügen (kein Prompt-Popup) — der
+        // Faktor lässt sich danach im Log direkt anpassen (Instruktion 15).
         void addLogEntry({
           id: crypto.randomUUID(),
           date,
           type: 'recipe',
           recipeId,
-          servings: 1,
           factor: 1,
         }).then(onAdded)
       })

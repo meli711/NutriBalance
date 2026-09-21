@@ -3,7 +3,6 @@ import assert from 'node:assert/strict'
 import {
   calculateNovaGroup,
   calculateNutrition,
-  calculatePerServing,
   calculateRecipeNutrition,
 } from './nutritionCalculator.ts'
 import type { FoodItem, FoodMinerals, FoodVitamins } from '../../data/models/food.ts'
@@ -88,11 +87,10 @@ const FOODS = new Map([
   ['B', FOOD_B],
 ])
 
-// 200g von A + 50g von B, 2 Portionen.
+// 200g von A + 50g von B (= 1 Portion, siehe Instruktion 19).
 const RECIPE: Recipe = {
   id: 'test-recipe',
   name: 'Testrezept',
-  servings: 2,
   ingredients: [
     { foodId: 'A', amountGrams: 200 },
     { foodId: 'B', amountGrams: 50 },
@@ -126,18 +124,7 @@ test('calculateRecipeNutrition summiert und skaliert Nährwerte pro Zutat', () =
   assert.equal(find(total, 'protein').incomplete, true)
 })
 
-test('calculatePerServing teilt durch die Anzahl Portionen', () => {
-  const perServing = calculatePerServing(RECIPE, FOODS)
-
-  assert.equal(find(perServing, 'energy').value, 225) // 450 / 2
-  assert.equal(find(perServing, 'fat').value, 5.25) // 10.5 / 2
-  assert.equal(find(perServing, 'carbohydrates').value, 22.5) // 45 / 2
-  assert.equal(find(perServing, 'fiber').value, 2) // 4 / 2
-  assert.equal(find(perServing, 'protein').value, 10) // 20 / 2
-  assert.equal(find(perServing, 'protein').incomplete, true) // bleibt unvollständig
-})
-
-test('calculateNutrition funktioniert mit einer reinen Zutatenliste (z.B. für Menüs ohne Recipe/servings)', () => {
+test('calculateNutrition funktioniert mit einer reinen Zutatenliste (z.B. für Menüs ohne Recipe)', () => {
   // 100g von A + 100g von B, manuell zu einem "Menü" zusammengestellt.
   const total = calculateNutrition(
     [
@@ -157,7 +144,6 @@ test('unbekannte foodId markiert alle Nährstoffe als unvollständig', () => {
   const recipeWithUnknownFood: Recipe = {
     id: 'unknown-food-recipe',
     name: 'Rezept mit unbekannter Zutat',
-    servings: 1,
     ingredients: [{ foodId: 'does-not-exist', amountGrams: 100 }],
   }
 

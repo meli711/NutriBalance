@@ -41,7 +41,6 @@ export async function renderRecipeListView(options: RecipeListViewOptions): Prom
                 ${category ? `<span class="recipe-list__icon">${renderMealCategoryIcon(category)}</span>` : ''}
                 <span class="recipe-list__name">${recipe.name}</span>
               </span>
-              <span class="recipe-list__servings">${recipe.servings} Portion${recipe.servings === 1 ? '' : 'en'}</span>
             </button>
           </li>`
       })
@@ -81,9 +80,14 @@ export async function renderRecipeListView(options: RecipeListViewOptions): Prom
     const searchInput = container.querySelector<HTMLInputElement>('#recipe-search')!
     searchInput.addEventListener('input', () => {
       const query = searchInput.value.trim().toLowerCase()
-      const filtered = query === '' ? recipes : recipes.filter((recipe) => recipe.name.toLowerCase().includes(query))
+      const filtered =
+        query === ''
+          ? recipes
+          : recipes.filter((recipe) => recipe.name.toLowerCase().includes(query))
       listEl.innerHTML =
-        filtered.length === 0 ? '<li class="recipe-list__status">Keine Rezepte gefunden.</li>' : renderItems(filtered)
+        filtered.length === 0
+          ? '<li class="recipe-list__status">Keine Rezepte gefunden.</li>'
+          : renderItems(filtered)
       bindItemClicks()
     })
   }

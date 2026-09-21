@@ -58,21 +58,6 @@ function downloadJson(filename: string, data: unknown): void {
   URL.revokeObjectURL(url)
 }
 
-/** `null` = Nutzer:in hat abgebrochen oder ungültige Eingabe gemacht (Fehlermeldung ist bereits gesetzt). */
-function promptForServings(statusEl: HTMLElement): number | null {
-  const raw = window.prompt('Wie viele Portionen ergibt dieses Menü?', '1')
-  if (raw === null) return null // Abbruch, keine Fehlermeldung nötig
-
-  const servings = Number(raw.trim().replace(',', '.'))
-  if (!Number.isFinite(servings) || servings <= 0) {
-    statusEl.textContent = 'Bitte eine Zahl grösser als 0 eingeben.'
-    statusEl.className = 'field-error'
-    statusEl.hidden = false
-    return null
-  }
-  return servings
-}
-
 async function handleExportAsRecipe(menu: Menu, statusEl: HTMLElement): Promise<void> {
   statusEl.hidden = true
 
@@ -84,9 +69,6 @@ async function handleExportAsRecipe(menu: Menu, statusEl: HTMLElement): Promise<
     statusEl.hidden = false
     return
   }
-
-  const servings = promptForServings(statusEl)
-  if (servings === null) return
 
   let currentRecipes
   try {
@@ -108,7 +90,7 @@ async function handleExportAsRecipe(menu: Menu, statusEl: HTMLElement): Promise<
   }
 
   const existingIds = currentRecipes.map((recipe) => recipe.id)
-  const newRecipe = menuToRecipe(menu, servings, existingIds)
+  const newRecipe = menuToRecipe(menu, existingIds)
   const updatedRecipes = [...currentRecipes, newRecipe]
 
   downloadJson('recipes-updated.json', updatedRecipes)

@@ -84,7 +84,6 @@ const FOOD_B = makeFood({
 const RECIPE_X: Recipe = {
   id: 'recipe-x',
   name: 'Testrezept X',
-  servings: 1,
   ingredients: [{ foodId: 'A', amountGrams: 100 }],
 }
 
@@ -114,7 +113,7 @@ function find(values: ReturnType<typeof sumDailyNutrition>, nutrientId: string) 
 test('sumDailyNutrition summiert Rezept + Zutat + Menü an einem Tag korrekt', () => {
   const entries: LogEntry[] = [
     // Rezept X: 1 Portion = 100g von A. 2x gegessen → alles verdoppelt.
-    { id: 'e1', date: '2026-08-22', type: 'recipe', recipeId: 'recipe-x', servings: 2, factor: 1 },
+    { id: 'e1', date: '2026-08-22', type: 'recipe', recipeId: 'recipe-x', factor: 2 },
     // Zutat: 50g von B direkt geloggt.
     { id: 'e2', date: '2026-08-22', type: 'food', foodId: 'B', amountGrams: 50, factor: 1 },
     // Menü Y: 50g von A (kein Multiplikator).
@@ -150,7 +149,6 @@ test('sumDailyNutrition ignoriert Einträge mit nicht mehr existierendem Rezept/
       date: '2026-08-22',
       type: 'recipe',
       recipeId: 'does-not-exist',
-      servings: 1,
       factor: 1,
     },
     { id: 'e2', date: '2026-08-22', type: 'menu', menuId: 'does-not-exist', factor: 1 },
@@ -176,7 +174,7 @@ test('sumDailyNutrition liefert ein leeres Array für einen Tag ohne Einträge',
   assert.deepEqual(sumDailyNutrition([], CONTEXT), [])
 })
 
-test('factor multipliziert das Ergebnis eines Eintrags zusätzlich, unabhängig von amountGrams/servings/Menü (Instruktion 15)', () => {
+test('factor multipliziert das Ergebnis eines Eintrags zusätzlich, unabhängig von amountGrams/Menü (Instruktion 15)', () => {
   const entries: LogEntry[] = [
     // Menü Y: 50g von A, 2x an diesem Tag ("zweiter Milchkaffee").
     { id: 'e1', date: '2026-08-22', type: 'menu', menuId: 'menu-y', factor: 2 },
@@ -188,21 +186,14 @@ test('factor multipliziert das Ergebnis eines Eintrags zusätzlich, unabhängig 
   assert.equal(find(total, 'energy').value, 200)
 })
 
-test('factor und servings multiplizieren sich bei Rezepten unabhängig voneinander (Instruktion 15)', () => {
+test('factor multipliziert bei Rezepten wie bei Menüs/Zutaten (Instruktion 19: kein eigenes servings mehr)', () => {
   const entries: LogEntry[] = [
-    // Rezept X: 1 Portion = 100g von A (Energie 200). 1.5 Portionen, 2x an diesem Tag.
-    {
-      id: 'e1',
-      date: '2026-08-22',
-      type: 'recipe',
-      recipeId: 'recipe-x',
-      servings: 1.5,
-      factor: 2,
-    },
+    // Rezept X: 1 Portion = 100g von A (Energie 200). 3x an diesem Tag.
+    { id: 'e1', date: '2026-08-22', type: 'recipe', recipeId: 'recipe-x', factor: 3 },
   ]
 
   const total = sumDailyNutrition(entries, CONTEXT)
 
-  // 200 * 1.5 (Portionen) * 2 (Faktor) = 600
+  // 200 * 3 (Faktor) = 600
   assert.equal(find(total, 'energy').value, 600)
 })

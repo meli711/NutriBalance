@@ -140,6 +140,7 @@ entspricht grob einem Commit `Instruktion N: …`.
 | 16  | Typ-Farben für Zutat/Menü/Rezept (Tages-Log + Listen-/Detail-Screens)                                                                                                           | [`16-claude-code-typ-farben.md`](Instruktionen/16-claude-code-typ-farben.md)                                   |
 | 17  | Nova-Score (Verarbeitungsgrad) für eigene Zutaten erfassbar, für Rezepte/Menüs/Tages-Log aus den Zutaten abgeleitet                                                             | [`17-claude-code-nova-score.md`](Instruktionen/17-claude-code-nova-score.md)                                   |
 | 18  | Selektiver Import einzelner eigener Zutaten/Menüs aus einer Backup-Datei (z.B. von einer anderen Person), inkl. automatischem Mitimport referenzierter, lokal fehlender Zutaten | [`18-claude-code-import-eigene-zutaten-menus.md`](Instruktionen/18-claude-code-import-eigene-zutaten-menus.md) |
+| 19  | `servings` aus dem Rezept-Modell entfernt — ein Rezept entspricht immer genau einer Portion, Rezept-Log-Einträge nutzen wie Menüs nur noch `factor`                             | [`19-claude-code-rezept-ohne-servings.md`](Instruktionen/19-claude-code-rezept-ohne-servings.md)               |
 
 Ergänzend: [`DESIGN.md`](Instruktionen/DESIGN.md) — Design-Plan zu Instruktion 7
 (Farbpalette, Typografie, Bildsprache, konkrete UI-Anpassungen).

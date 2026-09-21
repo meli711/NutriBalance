@@ -53,7 +53,11 @@ function isValidLogEntry(value: unknown): value is LogEntry {
     case 'food':
       return typeof v.foodId === 'string' && typeof v.amountGrams === 'number'
     case 'recipe':
-      return typeof v.recipeId === 'string' && typeof v.servings === 'number'
+      // `servings` wird bewusst nicht mehr geprüft/verlangt (Instruktion 19,
+      // Feld entfernt) — ein altes Backup, das es noch enthält, bleibt
+      // trotzdem gültig: `normalizeLogEntry` faltet es beim nächsten Lesen
+      // in `factor`, statt es zu verwerfen.
+      return typeof v.recipeId === 'string'
     case 'menu':
       return typeof v.menuId === 'string'
     default:

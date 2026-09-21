@@ -109,20 +109,10 @@ export function calculateNovaGroup(
   return { group, incomplete }
 }
 
+/** Ein Rezept entspricht immer genau einer Portion (Instruktion 19) — keine Division mehr nötig, wie früher bei `calculatePerServing`. */
 export function calculateRecipeNutrition(
   recipe: Recipe,
   foodsById: Map<string, FoodItem>,
 ): NutrientValues {
   return calculateNutrition(recipe.ingredients, foodsById)
-}
-
-export function calculatePerServing(
-  recipe: Recipe,
-  foodsById: Map<string, FoodItem>,
-): NutrientValues {
-  const total = calculateRecipeNutrition(recipe, foodsById)
-  return total.map((amount) => ({
-    ...amount,
-    value: amount.value / recipe.servings,
-  }))
 }

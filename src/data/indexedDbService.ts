@@ -21,7 +21,10 @@ const DB_NAME = 'nutribalance'
 // IndexedDB validiert gespeicherte Objekte nicht gegen ein Schema, ein neues
 // optionales Feld erfordert keine upgrade()-Änderung. Alte, bereits
 // gespeicherte Einträge ohne `factor` werden beim Lesen über
-// `normalizeLogEntry` defensiv ergänzt (siehe unten).
+// `normalizeLogEntry` defensiv ergänzt (siehe unten). Instruktion 19
+// entfernt `RecipeLogEntry.servings` wieder, ebenfalls ohne Versions-
+// erhöhung: alte Einträge mit noch vorhandenem `servings` werden dort
+// zusätzlich rückwärtskompatibel in `factor` gefaltet statt verworfen.
 const DB_VERSION = 2
 
 let dbPromise: Promise<IDBPDatabase<NutriBalanceDB>> | null = null
@@ -84,14 +87,33 @@ export async function removeLogEntry(id: string): Promise<void> {
 /**
  * Ergänzt `factor` defensiv auf `1`, falls der Eintrag vor Instruktion 15
  * gespeichert wurde und das Feld daher zur Laufzeit fehlt (auch wenn der Typ
- * es als Pflichtfeld deklariert). Zentral an dieser Stelle, damit sich keine
- * andere Stelle im Code um alte Datensätze kümmern muss.
+ * es als Pflichtfeld deklariert). Zusätzlich faltet sie bei `recipe`-
+ * Einträgen ein evtl. noch vorhandenes altes `servings`-Feld (vor
+ * Instruktion 19, "Anzahl gegessener Portionen") multiplikativ in `factor`
+ * (`factor_neu = factor_alt * servings_alt`), statt es einfach zu
+ * ignorieren — sonst würde z.B. "0.5 Portionen, 2x" (Summe: 1) nach dem
+ * Entfernen des Feldes als "2x die ganze Portion" gelesen und die
+ * historische Tagessumme dieses bereits vergangenen Tages würde sich
+ * rückwirkend ändern. Zentral an dieser Stelle, damit sich keine andere
+ * Stelle im Code um alte Datensätze kümmern muss. Reine Lese-
+ * Normalisierung (kein Zurückschreiben in den Store) — eine spätere
+ * Bearbeitung des Eintrags (z.B. Faktor ändern im Tages-Log) persistiert
+ * die gefaltete, `servings`-freie Form automatisch beim nächsten
+ * `updateLogEntry`.
  */
 function normalizeLogEntry(entry: LogEntry): LogEntry {
-  // Cast, weil `factor` im Typ Pflicht ist, bei alten Datensätzen zur
-  // Laufzeit aber fehlen kann — siehe Kommentar auf `LogEntryBase.factor`.
-  const factor = (entry as { factor?: number }).factor
-  return factor === undefined ? { ...entry, factor: 1 } : entry
+  // Cast, weil `factor` im Typ Pflicht ist und `servings` bei `recipe`
+  // seit Instruktion 19 gar nicht mehr existiert — bei alten Datensätzen
+  // können beide zur Laufzeit trotzdem vorkommen.
+  const raw = entry as LogEntry & { factor?: number; servings?: number }
+  const factor = raw.factor ?? 1
+
+  if (raw.type === 'recipe' && raw.servings !== undefined) {
+    const { servings, ...rest } = raw
+    return { ...rest, factor: factor * servings }
+  }
+
+  return raw.factor === undefined ? { ...entry, factor: 1 } : entry
 }
 
 /** Nutzt den `by-date`-Index — lädt nur die Einträge des Tages, nicht den ganzen Store. */

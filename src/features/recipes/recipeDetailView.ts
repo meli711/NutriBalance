@@ -5,7 +5,7 @@ import { getRequirementOverrides } from '../../data/localStorageService.ts'
 import { getRequirementsForProfile } from '../nutrient-requirements/requirementService.ts'
 import type { NutrientRequirement } from '../nutrient-requirements/models/requirement.ts'
 import { getRecipeById } from './recipeService.ts'
-import { calculateNovaGroup, calculatePerServing } from './nutritionCalculator.ts'
+import { calculateNovaGroup, calculateRecipeNutrition } from './nutritionCalculator.ts'
 import { renderNutritionSummary } from '../nutrition-summary/nutritionSummaryView.ts'
 import type { NutritionSummaryHandle } from '../nutrition-summary/nutritionSummaryView.ts'
 import { formatNumber } from '../../utils/formatNumber.ts'
@@ -69,7 +69,7 @@ export async function renderRecipeDetailView(options: RecipeDetailViewOptions): 
     if (food) foodsById.set(recipe.ingredients[index]!.foodId, food)
   })
 
-  const perServing = calculatePerServing(recipe, foodsById)
+  const nutrientValues = calculateRecipeNutrition(recipe, foodsById)
   // Nova bewertet die Art der Zutat, nicht deren Menge — bewusst mit den
   // unskalierten `recipe.ingredients` statt über `calculatePerServing`.
   const novaGroup = calculateNovaGroup(recipe.ingredients, foodsById)
@@ -86,7 +86,6 @@ export async function renderRecipeDetailView(options: RecipeDetailViewOptions): 
   container.innerHTML = `
     <section class="recipe-detail">
       <h1 class="type-heading-recipe">${recipe.name}</h1>
-      <p class="recipe-detail__meta">${recipe.servings} Portion${recipe.servings === 1 ? '' : 'en'}</p>
 
       <h2>Zutaten</h2>
       <table class="recipe-detail__table">
@@ -103,10 +102,10 @@ export async function renderRecipeDetailView(options: RecipeDetailViewOptions): 
   if (summaryContainer) {
     activeSummary = renderNutritionSummary({
       container: summaryContainer,
-      nutrientValues: perServing,
+      nutrientValues,
       requirements,
       profile,
-      heading: 'Nährwerte pro Portion',
+      heading: 'Nährwerte',
       novaGroup,
     })
   }

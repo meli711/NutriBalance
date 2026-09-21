@@ -22,8 +22,6 @@ export interface FoodLogEntry extends LogEntryBase {
 export interface RecipeLogEntry extends LogEntryBase {
   type: 'recipe'
   recipeId: string
-  /** Anzahl gegessener Portionen, z.B. 0.5 für eine halbe Portion. */
-  servings: number
 }
 
 export interface MenuLogEntry extends LogEntryBase {

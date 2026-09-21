@@ -134,12 +134,12 @@ export async function renderDailyLogView(options: DailyLogViewOptions): Promise<
 
   const entryRows = resolved
     .map(({ entry, label, missing, nova }) => {
-      // Genau ein Zahlenfeld pro Zeile: bei `recipe` die Portionen (decken
-      // "wie viel/wie oft" hier bereits vollständig ab), sonst der Faktor.
-      const quantityInput =
-        missing || entry.type === 'recipe'
-          ? ''
-          : `<input
+      // Genau ein Zahlenfeld pro Zeile: der Faktor — bei allen drei Typen
+      // einheitlich (ein Rezept entspricht seit Instruktion 19 immer genau
+      // einer Portion, hat also keine eigene, zusätzliche Mengenangabe mehr).
+      const quantityInput = missing
+        ? ''
+        : `<input
               type="number"
               class="daily-log__qty-input"
               data-factor-input-id="${entry.id}"
@@ -148,22 +148,10 @@ export async function renderDailyLogView(options: DailyLogViewOptions): Promise<
               step="1"
               aria-label="Faktor (wie oft dieser Eintrag heute vorkommt)"
             />`
-      const servingsInput =
-        !missing && entry.type === 'recipe'
-          ? `<input
-              type="number"
-              class="daily-log__qty-input"
-              data-servings-input-id="${entry.id}"
-              value="${entry.servings}"
-              min="0"
-              step="1"
-              aria-label="Portionen"
-            />`
-          : ''
 
       return `
         <li class="menu-builder__ingredient-row daily-log__entry-row" data-entry-type="${entry.type}">
-          ${servingsInput}${quantityInput}
+          ${quantityInput}
           <span class="daily-log__type-dot" aria-hidden="true"></span>
           <span class="daily-log__entry-label">${missing ? `<em>${label}</em>` : label}</span>
           ${missing || !nova ? '' : formatNovaTag(nova)}
@@ -267,28 +255,6 @@ export async function renderDailyLogView(options: DailyLogViewOptions): Promise<
         }
 
         await updateLogEntry({ ...current, factor })
-        destroyActiveSummary()
-        await renderDailyLogView(options)
-      })()
-    })
-  })
-
-  container.querySelectorAll<HTMLInputElement>('[data-servings-input-id]').forEach((input) => {
-    input.addEventListener('change', () => {
-      void (async () => {
-        const id = input.dataset.servingsInputId
-        if (!id) return
-        const current = resolved.find((r) => r.entry.id === id)?.entry
-        if (!current || current.type !== 'recipe') return
-
-        const servings = Number(input.value)
-        if (!Number.isFinite(servings) || servings <= 0) {
-          window.alert('Bitte eine Zahl grösser als 0 eingeben.')
-          input.value = String(current.servings)
-          return
-        }
-
-        await updateLogEntry({ ...current, servings })
         destroyActiveSummary()
         await renderDailyLogView(options)
       })()

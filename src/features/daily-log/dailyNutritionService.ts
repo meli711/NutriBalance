@@ -1,7 +1,7 @@
 import { getFoodById } from '../../data/foodDatabaseService.ts'
 import { getLogEntriesForDate, getMenuById } from '../../data/indexedDbService.ts'
 import { getRecipeById } from '../recipes/recipeService.ts'
-import { calculateNutrition, calculatePerServing } from '../recipes/nutritionCalculator.ts'
+import { calculateNutrition, calculateRecipeNutrition } from '../recipes/nutritionCalculator.ts'
 import type { FoodItem } from '../../data/models/food.ts'
 import type { Recipe, RecipeIngredient } from '../recipes/models/recipe.ts'
 import type { Menu } from '../menu-builder/models/menu.ts'
@@ -65,8 +65,7 @@ function calculateSingleOccurrence(
     case 'recipe': {
       const recipe = context.recipesById.get(entry.recipeId)
       if (!recipe) return null
-      const perServing = calculatePerServing(recipe, context.foodsById)
-      return perServing.map((amount) => ({ ...amount, value: amount.value * entry.servings }))
+      return calculateRecipeNutrition(recipe, context.foodsById)
     }
     case 'menu': {
       const menu = context.menusById.get(entry.menuId)
@@ -79,7 +78,8 @@ function calculateSingleOccurrence(
 /**
  * Berechnet die Nährwerte eines einzelnen Log-Eintrags inkl. `factor` — "wie
  * oft dieser Eintrag an diesem Tag vorkommt" (Instruktion 15), unabhängig
- * von `amountGrams`/`servings` ("wie viel pro Vorkommen").
+ * von `amountGrams` ("wie viel pro Vorkommen"; ein Rezept entspricht seit
+ * Instruktion 19 immer genau einer Portion, ohne eigene Mengenangabe).
  */
 function calculateEntryNutrition(entry: LogEntry, context: DailyLogContext): NutrientValues | null {
   const single = calculateSingleOccurrence(entry, context)

@@ -2,7 +2,6 @@
   {
     "id": "overnight-oats-banane",
     "name": "Overnight Oats mit Banane",
-    "servings": 1,
     "ingredients": [
       { "foodId": "198", "amountGrams": 50 },
       { "foodId": "62", "amountGrams": 200 },
@@ -17,7 +16,6 @@
   {
     "id": "ruehrei-vollkornbrot",
     "name": "Rührei mit Vollkornbrot",
-    "servings": 1,
     "ingredients": [
       { "foodId": "290", "amountGrams": 120 },
       { "foodId": "14297", "amountGrams": 10 },
@@ -31,7 +29,6 @@
   {
     "id": "joghurt-honig-nuesse",
     "name": "Naturjoghurt mit Honig und Nüssen",
-    "servings": 1,
     "ingredients": [
       { "foodId": "52", "amountGrams": 150 },
       { "foodId": "472", "amountGrams": 10 },
@@ -41,7 +38,6 @@
   {
     "id": "pouletbrust-reis-broccoli",
     "name": "Pouletbrust mit Reis und Broccoli",
-    "servings": 1,
     "ingredients": [
       { "foodId": "22", "amountGrams": 150 },
       { "foodId": "1067", "amountGrams": 180 },
@@ -56,7 +52,6 @@
   {
     "id": "lachs-kartoffeln-spinat",
     "name": "Lachs mit Kartoffeln und Spinat",
-    "servings": 1,
     "ingredients": [
       { "foodId": "13354", "amountGrams": 150 },
       { "foodId": "1057", "amountGrams": 200 },
@@ -67,7 +62,6 @@
   {
     "id": "quinoa-bowl-avocado-tomate",
     "name": "Quinoa-Bowl mit Avocado und Tomate",
-    "servings": 1,
     "ingredients": [
       { "foodId": "13396", "amountGrams": 150 },
       { "foodId": "380", "amountGrams": 80 },
@@ -83,7 +77,6 @@
   {
     "id": "magerquark-apfel-honig",
     "name": "Magerquark mit Apfel und Honig",
-    "servings": 1,
     "ingredients": [
       { "foodId": "71", "amountGrams": 150 },
       { "foodId": "378", "amountGrams": 100 },
@@ -93,13 +86,12 @@
   {
     "id": "gemuesepfanne-teigwaren",
     "name": "Gemüsepfanne mit Teigwaren",
-    "servings": 2,
     "ingredients": [
-      { "foodId": "367", "amountGrams": 150 },
-      { "foodId": "360", "amountGrams": 100 },
-      { "foodId": "368", "amountGrams": 50 },
-      { "foodId": "591", "amountGrams": 15 },
-      { "foodId": "1063", "amountGrams": 200 }
+      { "foodId": "367", "amountGrams": 75 },
+      { "foodId": "360", "amountGrams": 50 },
+      { "foodId": "368", "amountGrams": 25 },
+      { "foodId": "591", "amountGrams": 7.5 },
+      { "foodId": "1063", "amountGrams": 100 }
     ],
     "instructions": [
       "Zucchetti, Peperoni und Zwiebel in Olivenöl anbraten.",

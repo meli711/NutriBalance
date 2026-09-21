@@ -42,18 +42,17 @@ export function generateUniqueRecipeId(name: string, existingIds: readonly strin
 /**
  * Wandelt ein gespeichertes Menü in ein `Recipe` um, wie es in `recipes.json`
  * (Instruktion 4) stehen würde. `instructions` bleibt bewusst weg (optional,
- * kann später manuell in der JSON-Datei ergänzt werden).
+ * kann später manuell in der JSON-Datei ergänzt werden). Kein `servings`
+ * mehr zu setzen (Instruktion 19, Feld entfernt) — ein Rezept entspricht
+ * immer genau einer Portion, das Menü wird 1:1 mit seinen Zutatenmengen
+ * übernommen.
  *
  * `existingIds` ist optional (Default: `[]`) — eine kleine, abwärtskompatible
  * Erweiterung der im Auftrag skizzierten Signatur `menuToRecipe(menu,
  * servings)`, weil die geforderte Kollisionsprüfung gegen die aktuell
  * geladene recipes.json sonst nicht möglich wäre.
  */
-export function menuToRecipe(
-  menu: Menu,
-  servings: number,
-  existingIds: readonly string[] = [],
-): Recipe {
+export function menuToRecipe(menu: Menu, existingIds: readonly string[] = []): Recipe {
   const ingredients: RecipeIngredient[] = menu.ingredients.map(({ foodId, amountGrams }) => ({
     foodId,
     amountGrams,
@@ -62,7 +61,6 @@ export function menuToRecipe(
   return {
     id: generateUniqueRecipeId(menu.name, existingIds),
     name: menu.name,
-    servings,
     ingredients,
   }
 }
@@ -89,9 +87,6 @@ export function isValidRecipe(value: unknown): value is Recipe {
     typeof v.id === 'string' &&
     v.id.length > 0 &&
     typeof v.name === 'string' &&
-    typeof v.servings === 'number' &&
-    Number.isFinite(v.servings) &&
-    v.servings > 0 &&
     Array.isArray(v.ingredients) &&
     v.ingredients.length > 0 &&
     v.ingredients.every(isValidRecipeIngredient) &&

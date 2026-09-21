@@ -75,3 +75,30 @@ test('getLogEntriesForDate/getAllLogEntries ergänzen `factor: 1` bei Alt-Eintr�
   assert.equal(byDate.find((e) => e.id === 'legacy-entry-1')?.factor, 1)
   assert.equal(all.find((e) => e.id === 'legacy-entry-1')?.factor, 1)
 })
+
+test('getLogEntriesForDate/getAllLogEntries falten ein altes `servings`-Feld bei Rezept-Einträgen multiplikativ in `factor` (Instruktion 19)', async () => {
+  // Simuliert einen vor Instruktion 19 gespeicherten Rezept-Eintrag: "0.5
+  // Portionen, 2x an diesem Tag" (Summe: 1) — `servings` existiert im Typ
+  // nicht mehr, kann zur Laufzeit aber noch im Store liegen.
+  const legacyRecipeEntry = {
+    id: 'legacy-recipe-1',
+    date: '2026-01-02',
+    type: 'recipe',
+    recipeId: 'recipe-x',
+    servings: 0.5,
+    factor: 2,
+  } as unknown as LogEntry
+  await addLogEntry(legacyRecipeEntry)
+
+  const byDate = await getLogEntriesForDate('2026-01-02')
+  const all = await getAllLogEntries()
+
+  const expectedFactor = 1 // 0.5 * 2
+  const fromByDate = byDate.find((e) => e.id === 'legacy-recipe-1')
+  const fromAll = all.find((e) => e.id === 'legacy-recipe-1')
+
+  assert.equal(fromByDate?.factor, expectedFactor)
+  assert.equal(fromAll?.factor, expectedFactor)
+  assert.equal((fromByDate as unknown as { servings?: number })?.servings, undefined)
+  assert.equal((fromAll as unknown as { servings?: number })?.servings, undefined)
+})
