@@ -13,12 +13,16 @@ export const NUTRIENT_LABELS: Record<string, string> = {
   calcium: 'Calcium',
   iron: 'Eisen',
   vitaminC: 'Vitamin C',
+  vitaminB12: 'Vitamin B12',
+  folate: 'Folat',
 }
 
 export const UNIT_LABELS: Record<string, string> = {
   kcal: 'kcal',
   g: 'g',
   mg: 'mg',
+  // U+00B5 MICRO SIGN, identisch mit `food.ts`/`customFoodService.ts`
+  µg: 'µg',
   '%energy': '% der Energie',
   'g/1000kcal': 'g pro 1000 kcal',
 }

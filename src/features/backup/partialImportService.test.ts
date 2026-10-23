@@ -8,6 +8,8 @@ import {
 } from './partialImportService.ts'
 import { createCustomFood } from '../../data/customFoodService.ts'
 import type { Menu } from '../menu-builder/models/menu.ts'
+import { readFileSync } from 'node:fs'
+import { parseBackupJson } from './backupService.ts'
 
 // `localStorage` gibt es unter Node (ohne DOM) standardmässig nicht —
 // `createCustomFood`/`isOwnCustomFoodId` selbst brauchen es zwar nicht, aber
@@ -167,4 +169,20 @@ test('remapMenuIngredients: nur betroffene Zutaten ändern sich, Original bleibt
 
 test('remapMenuIngredients: leeres idRemap gibt dasselbe Objekt zurück', () => {
   assert.equal(remapMenuIngredients(menu, new Map()), menu)
+})
+
+test('Teil-Import aus einem Backup im Format vor B12/Folat (Instruktion 23): Menü + eigene Zutat werden aufgelöst', () => {
+  const raw = readFileSync(
+    new URL('./fixtures/backup-v2-vor-b12-folat.json', import.meta.url),
+    'utf-8',
+  )
+  const parsed = parseBackupJson(raw)
+  assert.ok(parsed.ok, parsed.ok ? '' : parsed.error)
+
+  const merged = mergeImportedItems([], parsed.data.menus, makeIdGenerator('menu'))
+  assert.deepEqual(merged.items, parsed.data.menus)
+
+  const resolved = resolveReferencedCustomFoods(parsed.data.menus, parsed.data.customFoods, [])
+  assert.deepEqual(resolved.foods, parsed.data.customFoods)
+  assert.deepEqual(resolved.unresolvedIds, [])
 })

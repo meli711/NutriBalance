@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 2,
+  "exportedAt": "2026-10-22T18:00:00.000Z",
+  "profile": {
+    "age": 17,
+    "gender": "female",
+    "heightCm": 168
+  },
+  "requirementOverrides": {
+    "energy": 2100,
+    "protein": 55,
+    "iron": 15
+  },
+  "menus": [
+    {
+      "id": "fixture-menu-1",
+      "name": "Frühstück",
+      "description": "",
+      "createdAt": "2026-10-01T07:00:00.000Z",
+      "ingredients": [
+        {
+          "foodId": "198",
+          "amountGrams": 50
+        },
+        {
+          "foodId": "custom-local-0f6c2d1e-7a3b-4c5d-9e8f-123456789abc",
+          "amountGrams": 150
+        }
+      ]
+    }
+  ],
+  "logEntries": [
+    {
+      "id": "fixture-log-1",
+      "date": "2026-10-22",
+      "type": "food",
+      "foodId": "198",
+      "amountGrams": 100,
+      "factor": 1
+    },
+    {
+      "id": "fixture-log-2",
+      "date": "2026-10-22",
+      "type": "menu",
+      "menuId": "fixture-menu-1",
+      "factor": 1
+    }
+  ],
+  "customFoods": [
+    {
+      "id": "custom-local-0f6c2d1e-7a3b-4c5d-9e8f-123456789abc",
+      "name": {
+        "de": "Skyr Natur"
+      },
+      "category": "Eigene Zutaten",
+      "energyKcal": 63,
+      "protein": 11,
+      "fat": 0.2,
+      "saturatedFat": 0.1,
+      "carbohydrates": 4,
+      "sugar": 4,
+      "fiber": 0,
+      "water": null,
+      "alcohol": null,
+      "novaGroup": 2,
+      "vitamins": {
+        "aRetinolEquivalent": {
+          "value": null,
+          "unit": "µg"
+        },
+        "aRetinolActivityEquivalent": {
+          "value": null,
+          "unit": "µg"
+        },
+        "retinol": {
+          "value": null,
+          "unit": "µg"
+        },
+        "betaCaroteneActivity": {
+          "value": null,
+          "unit": "µg"
+        },
+        "betaCarotene": {
+          "value": null,
+          "unit": "µg"
+        },
+        "b1Thiamin": {
+          "value": null,
+          "unit": "mg"
+        },
+        "b2Riboflavin": {
+          "value": null,
+          "unit": "mg"
+        },
+        "b6Pyridoxin": {
+          "value": null,
+          "unit": "mg"
+        },
+        "b12Cobalamin": {
+          "value": null,
+          "unit": "µg"
+        },
+        "niacinEquivalent": {
+          "value": null,
+          "unit": "mg"
+        },
+        "niacin": {
+          "value": null,
+          "unit": "mg"
+        },
+        "folate": {
+          "value": null,
+          "unit": "µg"
+        },
+        "pantothenicAcid": {
+          "value": null,
+          "unit": "mg"
+        },
+        "c": {
+          "value": null,
+          "unit": "mg"
+        },
+        "d": {
+          "value": null,
+          "unit": "µg"
+        },
+        "e": {
+          "value": null,
+          "unit": "mg"
+        }
+      },
+      "minerals": {
+        "potassium": {
+          "value": null,
+          "unit": "mg"
+        },
+        "sodium": {
+          "value": null,
+          "unit": "mg"
+        },
+        "chloride": {
+          "value": null,
+          "unit": "mg"
+        },
+        "calcium": {
+          "value": null,
+          "unit": "mg"
+        },
+        "magnesium": {
+          "value": null,
+          "unit": "mg"
+        },
+        "phosphorus": {
+          "value": null,
+          "unit": "mg"
+        },
+        "iron": {
+          "value": null,
+          "unit": "mg"
+        },
+        "iodine": {
+          "value": null,
+          "unit": "µg"
+        },
+        "zinc": {
+          "value": null,
+          "unit": "mg"
+        },
+        "selenium": {
+          "value": null,
+          "unit": "µg"
+        },
+        "salt": {
+          "value": null,
+          "unit": "g"
+        }
+      }
+    }
+  ]
+}

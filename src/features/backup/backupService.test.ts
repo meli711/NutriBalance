@@ -18,6 +18,8 @@ import { createCustomFood, getCustomFoods, saveCustomFoods } from '../../data/cu
 import { BACKUP_SCHEMA_VERSION } from './models/backup.ts'
 import type { Menu } from '../menu-builder/models/menu.ts'
 import type { LogEntry } from '../daily-log/models/logEntry.ts'
+import { readFileSync } from 'node:fs'
+import { calculateNutrition } from '../recipes/nutritionCalculator.ts'
 
 // `localStorage` gibt es unter Node (ohne DOM) standardmässig nicht — für die
 // getUserProfile/saveUserProfile-Aufrufe in backupService reicht ein
@@ -252,4 +254,55 @@ test('parseBackupJson akzeptiert ein valides Backup', () => {
     assert.deepEqual(result.data.logEntries, [logEntry])
     assert.deepEqual(result.data.customFoods, [customFood])
   }
+})
+
+// --- Abwärtskompatibilität Vitamin B12/Folat (Instruktion 23) ---
+
+/**
+ * Backup im Format von vor Instruktion 23 (schemaVersion 2, Overrides ohne
+ * B12/Folat, eigene Zutat mit `b12Cobalamin`/`folate` = null). Bewusst als
+ * fixe Datei statt über `createCustomFood` erzeugt, damit sich das Fixture
+ * nicht still mit dem Code mitverändert.
+ */
+const LEGACY_BACKUP_RAW = readFileSync(
+  new URL('./fixtures/backup-v2-vor-b12-folat.json', import.meta.url),
+  'utf-8',
+)
+
+test('Backup im Format vor B12/Folat bleibt importierbar und unverändert', async () => {
+  const parsed = parseBackupJson(LEGACY_BACKUP_RAW)
+  assert.ok(parsed.ok, parsed.ok ? '' : parsed.error)
+  const expected = JSON.parse(LEGACY_BACKUP_RAW)
+
+  await importBackup(parsed.data)
+
+  assert.deepEqual(getUserProfile(), expected.profile)
+  assert.deepEqual(getRequirementOverrides(), expected.requirementOverrides)
+  assert.deepEqual(await getAllMenus(), expected.menus)
+  assert.deepEqual(await getAllLogEntries(), expected.logEntries)
+  assert.deepEqual(getCustomFoods(), expected.customFoods)
+
+  // Importierte eigene Zutat ohne B12-/Folat-Wert → "kein Wert" (Stern), kein Fehler.
+  const [food] = getCustomFoods()
+  const values = calculateNutrition(
+    [{ foodId: food.id, amountGrams: 150 }],
+    new Map([[food.id, food]]),
+  )
+  assert.equal(values.find((v) => v.nutrientId === 'vitaminB12')?.incomplete, true)
+  assert.equal(values.find((v) => v.nutrientId === 'folate')?.incomplete, true)
+})
+
+test('Override für folate übersteht den Export -> Import (Round-Trip)', async () => {
+  const overrides = { energy: 2000, folate: 400, vitaminB12: 5 }
+  saveUserProfile(profile)
+  saveRequirementOverrides(overrides)
+
+  const exported = await exportBackup()
+  saveRequirementOverrides({})
+
+  const reparsed = parseBackupJson(JSON.stringify(exported))
+  assert.ok(reparsed.ok)
+  await importBackup(reparsed.data)
+
+  assert.deepEqual(getRequirementOverrides(), overrides)
 })

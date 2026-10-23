@@ -53,6 +53,15 @@ Chart.register(
  *   bei über 90% der Lebensmittel einen Wert (kein `k.A.`) — deutlich besser
  *   als z.B. Selen (70.5%) oder Jod (92.4%, aber fachlich stark
  *   jodierungsabhängig und daher schwerer allgemein zu interpretieren).
+ *
+ * Ergänzt um Vitamin B12 und Folat (Instruktion 23):
+ * - Fachlich zentral: B12 ist v.a. bei vegetarischer/veganer Ernährung
+ *   kritisch (kommt fast nur in tierischen Lebensmitteln vor), Folat ist
+ *   für Zellteilung und Blutbildung wichtig und v.a. in Gemüse und
+ *   Hülsenfrüchten enthalten — zusammen decken die beiden also sowohl die
+ *   tierische als auch die pflanzliche Seite ab.
+ * - Datenverfügbarkeit: B12 bei 97.5 %, Folat bei 96.5 % der Lebensmittel
+ *   mit Wert — sogar besser als Vitamin C (90.1 %).
  */
 export const CORE_NUTRIENT_IDS = [
   'protein',
@@ -62,6 +71,8 @@ export const CORE_NUTRIENT_IDS = [
   'calcium',
   'iron',
   'vitaminC',
+  'vitaminB12',
+  'folate',
 ]
 
 export interface NutrientComparisonChartOptions {
@@ -195,7 +206,9 @@ export function renderNutrientComparisonChart(
 
   if (included.length === 0) {
     container.innerHTML = `<p class="chart-note">Für dieses Rezept/Profil lässt sich aktuell kein Chart darstellen (${
-      excluded.length > 0 ? 'keine vergleichbaren Referenzwerte für dieses Profil' : 'keine passenden Nährstoffe'
+      excluded.length > 0
+        ? 'keine vergleichbaren Referenzwerte für dieses Profil'
+        : 'keine passenden Nährstoffe'
     }).</p>`
     return { destroy() {} }
   }

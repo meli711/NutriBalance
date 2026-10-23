@@ -3,6 +3,11 @@ import assert from 'node:assert/strict'
 import { calculateDailyRequirementPercentage } from './dailyRequirementPercentage.ts'
 import type { NutrientRequirement } from '../nutrient-requirements/models/requirement.ts'
 import type { NutrientValues } from './models/nutritionValues.ts'
+import type { FoodItem } from '../../data/models/food.ts'
+import type { UserProfile } from '../../data/models/userProfile.ts'
+import { calculateNutrition } from './nutritionCalculator.ts'
+import { createCustomFood } from '../../data/customFoodService.ts'
+import { getRequirementsForProfile } from '../nutrient-requirements/requirementService.ts'
 
 function requirement(
   overrides: Partial<NutrientRequirement> & { nutrientId: string },
@@ -61,4 +66,44 @@ test('gibt null zurück, wenn kein Referenzwert für den Nährstoff existiert', 
   ]
   const result = calculateDailyRequirementPercentage(perServing, REQUIREMENTS)
   assert.equal(result.get('unknown'), null)
+})
+
+test('Vitamin B12: 2 µg bei Bedarf 4 µg ergibt 50 % (Einheit aus Berechnung = Referenzwert)', () => {
+  const profile: UserProfile = { age: 30, heightCm: 165, gender: 'female' }
+  const requirements = getRequirementsForProfile(profile)
+  const base = createCustomFood({
+    name: 'B12-Test',
+    category: '',
+    energyKcal: null,
+    protein: null,
+    fat: null,
+    saturatedFat: null,
+    carbohydrates: null,
+    sugar: null,
+    fiber: null,
+    novaGroup: null,
+  })
+  const food: FoodItem = {
+    ...base,
+    id: 'b12-test',
+    vitamins: {
+      ...base.vitamins,
+      b12Cobalamin: { value: 2, unit: 'µg' },
+      folate: { value: 150, unit: 'µg' },
+    },
+  }
+  // Echte Berechnung + echte Referenzwerte, damit ein abweichendes µ-Zeichen auffallen würde.
+  const intake = calculateNutrition(
+    [{ foodId: 'b12-test', amountGrams: 100 }],
+    new Map([['b12-test', food]]),
+  ).filter((v) => v.nutrientId === 'vitaminB12' || v.nutrientId === 'folate')
+
+  const b12Intake = intake.find((v) => v.nutrientId === 'vitaminB12')
+  const b12Requirement = requirements.find((r) => r.nutrientId === 'vitaminB12')
+  assert.equal(b12Intake?.unit, b12Requirement?.unit)
+  assert.equal(b12Intake?.unit.codePointAt(0), 0x00b5)
+
+  const result = calculateDailyRequirementPercentage(intake, requirements)
+  assert.equal(result.get('vitaminB12'), 50) // 2/4
+  assert.equal(result.get('folate'), 50) // 150/300
 })

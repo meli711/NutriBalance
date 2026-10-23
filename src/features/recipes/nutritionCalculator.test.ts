@@ -7,6 +7,7 @@ import {
 } from './nutritionCalculator.ts'
 import type { FoodItem, FoodMinerals, FoodVitamins } from '../../data/models/food.ts'
 import type { Recipe } from './models/recipe.ts'
+import { isValidCustomFoodItem } from '../../data/customFoodService.ts'
 
 function zeroNutrient(unit: string) {
   return { value: 0, unit }
@@ -202,4 +203,111 @@ test('calculateNovaGroup: bekannte Gruppe zählt trotz einzelner Lücke (incompl
     NOVA_FOODS,
   )
   assert.deepEqual(result, { group: 3, incomplete: true })
+})
+
+// --- Vitamin B12 / Folat (Instruktion 23) ---
+
+function withVitamins(b12: number | null, folate: number | null): FoodVitamins {
+  return {
+    ...EMPTY_VITAMINS,
+    b12Cobalamin: { value: b12, unit: 'µg' },
+    folate: { value: folate, unit: 'µg' },
+  }
+}
+
+test('Vitamin B12 und Folat werden in µg korrekt summiert', () => {
+  const foods = new Map([
+    ['leber', makeFood({ id: 'leber', vitamins: withVitamins(60, 200) })],
+    ['spinat', makeFood({ id: 'spinat', vitamins: withVitamins(0, 150) })],
+  ])
+  const total = calculateNutrition(
+    [
+      { foodId: 'leber', amountGrams: 50 },
+      { foodId: 'spinat', amountGrams: 200 },
+    ],
+    foods,
+  )
+
+  // B12: (60/100*50) + (0/100*200) = 30
+  assert.deepEqual(find(total, 'vitaminB12'), {
+    nutrientId: 'vitaminB12',
+    unit: 'µg',
+    value: 30,
+    incomplete: false,
+  })
+  // Folat: (200/100*50) + (150/100*200) = 100 + 300 = 400
+  assert.deepEqual(find(total, 'folate'), {
+    nutrientId: 'folate',
+    unit: 'µg',
+    value: 400,
+    incomplete: false,
+  })
+})
+
+test('Vitamin B12/Folat mit value null ergibt incomplete: true', () => {
+  const foods = new Map([['x', makeFood({ id: 'x', vitamins: withVitamins(null, null) })]])
+  const total = calculateNutrition([{ foodId: 'x', amountGrams: 100 }], foods)
+  assert.equal(find(total, 'vitaminB12').incomplete, true)
+  assert.equal(find(total, 'folate').incomplete, true)
+})
+
+test('Lebensmittel ohne B12-/Folat-Feld im vitamins-Objekt stürzt nicht ab und ergibt incomplete: true', () => {
+  // Simuliert eine sehr alte eigene Zutat oder einen Fremd-Import, bei dem die
+  // Felder fehlen. `isValidCustomFoodItem` prüft nur, dass `vitamins` ein
+  // Objekt ist, nicht welche Felder es enthält — dieser Fall ist also möglich.
+  const vitaminsWithoutB12Folate: Partial<FoodVitamins> = { ...EMPTY_VITAMINS }
+  delete vitaminsWithoutB12Folate.b12Cobalamin
+  delete vitaminsWithoutB12Folate.folate
+  const legacy = makeFood({
+    id: 'legacy',
+    energyKcal: 100,
+    vitamins: vitaminsWithoutB12Folate as FoodVitamins,
+  })
+  const foods = new Map([['legacy', legacy]])
+
+  const total = calculateNutrition([{ foodId: 'legacy', amountGrams: 100 }], foods)
+  assert.equal(find(total, 'vitaminB12').incomplete, true)
+  assert.equal(find(total, 'vitaminB12').value, 0)
+  assert.equal(find(total, 'folate').incomplete, true)
+  assert.equal(find(total, 'folate').value, 0)
+  assert.equal(find(total, 'energy').value, 100)
+})
+
+test('Lebensmittel ganz ohne vitamins-Objekt wird von isValidCustomFoodItem abgewiesen (erreicht die Berechnung nie)', () => {
+  const withoutVitamins: Partial<FoodItem> = makeFood({ id: 'custom-local-x' })
+  delete withoutVitamins.vitamins
+  assert.equal(isValidCustomFoodItem(withoutVitamins), false)
+})
+
+test('die bestehenden 8 Nährstoffe bleiben in Reihenfolge, Einheit und Wert unverändert', () => {
+  const food = makeFood({
+    id: 'voll',
+    energyKcal: 200,
+    protein: 10,
+    fat: 5,
+    carbohydrates: 20,
+    fiber: 2,
+    minerals: {
+      ...EMPTY_MINERALS,
+      calcium: { value: 120, unit: 'mg' },
+      iron: { value: 2, unit: 'mg' },
+    },
+    vitamins: { ...withVitamins(1, 50), c: { value: 30, unit: 'mg' } },
+  })
+  const total = calculateNutrition([{ foodId: 'voll', amountGrams: 50 }], new Map([['voll', food]]))
+
+  assert.deepEqual(total.slice(0, 8), [
+    { nutrientId: 'energy', unit: 'kcal', value: 100, incomplete: false },
+    { nutrientId: 'protein', unit: 'g', value: 5, incomplete: false },
+    { nutrientId: 'fat', unit: 'g', value: 2.5, incomplete: false },
+    { nutrientId: 'carbohydrates', unit: 'g', value: 10, incomplete: false },
+    { nutrientId: 'fiber', unit: 'g', value: 1, incomplete: false },
+    { nutrientId: 'calcium', unit: 'mg', value: 60, incomplete: false },
+    { nutrientId: 'iron', unit: 'mg', value: 1, incomplete: false },
+    { nutrientId: 'vitaminC', unit: 'mg', value: 15, incomplete: false },
+  ])
+  assert.deepEqual(
+    total.slice(8).map((v) => v.nutrientId),
+    ['vitaminB12', 'folate'],
+  )
 })

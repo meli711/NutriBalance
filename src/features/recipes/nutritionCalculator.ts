@@ -14,9 +14,12 @@ import type { NutrientAmount, NutrientValues } from './models/nutritionValues.ts
  *
  * Kompatibilität mit `NutrientRequirement` (Instruktion 2): Nährstoff-IDs
  * ('energy', 'protein', 'fat', 'carbohydrates', 'fiber', 'calcium', 'iron',
- * 'vitaminC') sind identisch. Einheiten stimmen für 'energy' (kcal),
- * 'protein' (g), 'fiber' (g, für die Altersgruppen ab 19 Jahren), 'calcium'
- * (mg), 'iron' (mg) und 'vitaminC' (mg) direkt überein. 'fat' und
+ * 'vitaminC', 'vitaminB12', 'folate') sind identisch. Einheiten stimmen für
+ * 'energy' (kcal), 'protein' (g), 'fiber' (g, für die Altersgruppen ab 19
+ * Jahren), 'calcium' (mg), 'iron' (mg), 'vitaminC' (mg), 'vitaminB12' (µg)
+ * und 'folate' (µg) direkt überein. µ ist dabei überall U+00B5 (MICRO SIGN),
+ * wie in `food.ts`/`customFoodService.ts`, sonst schlägt der
+ * Einheitenvergleich in `dailyRequirementPercentage.ts` still fehl. 'fat' und
  * 'carbohydrates' werden hier — wie in der Lebensmitteldatenbank — in Gramm
  * berechnet, während die DACH-Referenzwerte dafür bewusst in %-der-Energie
  * angegeben sind (da der Grammbedarf vom individuellen Energiebedarf
@@ -26,6 +29,10 @@ import type { NutrientAmount, NutrientValues } from './models/nutritionValues.ts
  *
  * Calcium/Eisen/Vitamin C wurden für das Chart aus Instruktion 5 ergänzt,
  * siehe `features/charts/nutrientComparisonChart.ts` für die Auswahlbegründung.
+ * Vitamin B12/Folat kamen mit Instruktion 23 dazu. Sie werden defensiv
+ * gelesen (`?.`), damit ein Eintrag ohne `vitamins`-Objekt (z.B. sehr alte
+ * eigene Zutat oder Fremd-Import) nicht abstürzt, sondern als "kein Wert"
+ * (`incomplete: true`) zählt.
  */
 const NUTRIENT_DEFINITIONS: {
   nutrientId: string
@@ -40,6 +47,12 @@ const NUTRIENT_DEFINITIONS: {
   { nutrientId: 'calcium', unit: 'mg', getPer100g: (food) => food.minerals.calcium.value },
   { nutrientId: 'iron', unit: 'mg', getPer100g: (food) => food.minerals.iron.value },
   { nutrientId: 'vitaminC', unit: 'mg', getPer100g: (food) => food.vitamins.c.value },
+  {
+    nutrientId: 'vitaminB12',
+    unit: 'µg',
+    getPer100g: (food) => food.vitamins?.b12Cobalamin?.value ?? null,
+  },
+  { nutrientId: 'folate', unit: 'µg', getPer100g: (food) => food.vitamins?.folate?.value ?? null },
 ]
 
 /**

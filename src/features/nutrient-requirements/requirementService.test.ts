@@ -2,6 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { findAgeGroup, getRequirementsForProfile } from './requirementService.ts'
 import type { UserProfile } from '../../data/models/userProfile.ts'
+import { AGE_GROUPS, REFERENCE_VALUES } from './data/referenceValues.ts'
 
 test('findAgeGroup ordnet Alter der richtigen DACH-Gruppe zu', () => {
   assert.equal(findAgeGroup(17).id, '15-19')
@@ -31,8 +32,10 @@ test('getRequirementsForProfile liefert Makro- und Kern-Mikronährstoffe für ei
     'energy',
     'fat',
     'fiber',
+    'folate',
     'iron',
     'protein',
+    'vitaminB12',
     'vitaminC',
   ])
 
@@ -99,4 +102,36 @@ test('getRequirementsForProfile ignoriert Overrides für Nährstoffe ohne recomm
 
   assert.equal(fiber?.recommended, undefined)
   assert.equal(fiber?.isOverridden, undefined)
+})
+
+test('REFERENCE_VALUES: genau ein Eintrag für vitaminB12 und folate je Altersgruppe × Geschlecht, in µg', () => {
+  for (const group of AGE_GROUPS) {
+    for (const gender of ['male', 'female'] as const) {
+      const b12 = REFERENCE_VALUES.filter(
+        (e) => e.ageGroupId === group.id && e.gender === gender && e.nutrientId === 'vitaminB12',
+      )
+      const folate = REFERENCE_VALUES.filter(
+        (e) => e.ageGroupId === group.id && e.gender === gender && e.nutrientId === 'folate',
+      )
+      assert.equal(b12.length, 1, `vitaminB12 ${group.id}/${gender}`)
+      assert.equal(folate.length, 1, `folate ${group.id}/${gender}`)
+
+      // U+00B5 MICRO SIGN — dasselbe Zeichen wie in food.ts/nutritionCalculator.ts
+      assert.equal(b12[0].unit, 'µg')
+      assert.equal(folate[0].unit, 'µg')
+      assert.equal(b12[0].referenceType, 'schaetzwert')
+      assert.equal(b12[0].recommended, 4)
+      assert.equal(folate[0].referenceType, 'empfohleneZufuhr')
+      assert.equal(folate[0].recommended, 300)
+    }
+  }
+})
+
+test('getRequirementsForProfile: Override für folate wird angewendet', () => {
+  const profile: UserProfile = { age: 30, heightCm: 165, gender: 'female' }
+  const folate = getRequirementsForProfile(profile, { folate: 400 }).find(
+    (r) => r.nutrientId === 'folate',
+  )
+  assert.equal(folate?.recommended, 400)
+  assert.equal(folate?.isOverridden, true)
 })

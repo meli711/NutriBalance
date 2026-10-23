@@ -82,3 +82,29 @@ test('parseStoredHistorySettings ersetzt ein ungültiges period durch den Defaul
     period: DEFAULT_HISTORY_SETTINGS.period,
   })
 })
+
+// --- Abwärtskompatibilität Vitamin B12/Folat (Instruktion 23) ---
+
+test('parseStoredHistorySettings liest alte Einstellungen (vor B12/Folat) unverändert', () => {
+  const raw = JSON.stringify({ nutrientIds: ['protein', 'iron'], period: 'week' })
+  assert.deepEqual(parseStoredHistorySettings(raw), {
+    nutrientIds: ['protein', 'iron'],
+    period: 'week',
+  })
+})
+
+test('parseStoredHistorySettings akzeptiert vitaminB12 und folate', () => {
+  const raw = JSON.stringify({ nutrientIds: ['protein', 'vitaminB12', 'folate'], period: 'month' })
+  assert.deepEqual(parseStoredHistorySettings(raw), {
+    nutrientIds: ['protein', 'vitaminB12', 'folate'],
+    period: 'month',
+  })
+})
+
+test('parseStoredRequirementOverrides: alte Overrides ohne B12/Folat bleiben gültig, neue mit folate ebenso', () => {
+  const old = { energy: 2100, protein: 55, iron: 15 }
+  assert.deepEqual(parseStoredRequirementOverrides(JSON.stringify(old)), old)
+
+  const withFolate = { ...old, folate: 400 }
+  assert.deepEqual(parseStoredRequirementOverrides(JSON.stringify(withFolate)), withFolate)
+})

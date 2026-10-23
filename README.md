@@ -109,7 +109,10 @@ in `.gitignore` und lokal nachzubauen:
      SGE für die Schweiz übernommen, [sge-ssn.ch](https://www.sge-ssn.ch/))
    - Konkret verwendete Unterseiten: `energie`, `protein`,
      `fett-essenzielle-fettsaeuren`, `kohlenhydrate`, `ballaststoffe`,
-     `calcium`, `eisen`, `vitamin-c`
+     `calcium`, `eisen`, `vitamin-c`, `vitamin-b12`, `folat`
+   - Ausgewertete Nährstoffe (Bedarf vs. Aufnahme): Energie, Protein, Fett,
+     Kohlenhydrate, Ballaststoffe, Calcium, Eisen, Vitamin C, Vitamin B12,
+     Folat
    - Für die schriftliche Arbeit wurden lokale HTML-Snapshots dieser Seiten
      archiviert (Stand siehe `source`-Angaben in `referenceValues.ts`) —
      ebenfalls nicht im Repo, da fremder Seiteninhalt.
@@ -144,6 +147,7 @@ entspricht grob einem Commit `Instruktion N: …`.
 | 20  | Rezept-Kategorie fürs Listen-Icon direkt in `recipes.json` (statt fester ID-Tabelle im Code), neue Kategorie "Getränk", optionale Abfrage beim Export                           | [`20-claude-code-rezept-kategorie-icon.md`](Instruktionen/20-claude-code-rezept-kategorie-icon.md)             |
 | 21  | Kategorie (mit Icon) auch für eigene Menüs, wählbar per Dropdown beim Erstellen; Kategorie-Icons zusätzlich pro Zeile im Tages-Log                                              | [`21-claude-code-menu-kategorie.md`](Instruktionen/21-claude-code-menu-kategorie.md)                           |
 | 22  | Eigene Menüs nachträglich bearbeiten (Name/Beschreibung/Kategorie/Zutaten), In-Place im Detail-Screen wie bei eigenen Zutaten                                                   | [`22-claude-code-menu-bearbeiten.md`](Instruktionen/22-claude-code-menu-bearbeiten.md)                         |
+| 23  | Vitamin B12 und Folat als ausgewertete Nährstoffe (Nährwerttabellen, Chart, Profil, Verlauf), ohne Datenmigration                                                               | [`23-claude-code-vitamin-b12-folat.md`](Instruktionen/23-claude-code-vitamin-b12-folat.md)                     |
 
 Ergänzend: [`DESIGN.md`](Instruktionen/DESIGN.md) — Design-Plan zu Instruktion 7
 (Farbpalette, Typografie, Bildsprache, konkrete UI-Anpassungen).

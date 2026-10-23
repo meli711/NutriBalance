@@ -13,11 +13,13 @@ import type { AgeGroup, Gender, NutrientRequirement } from '../models/requiremen
  * Abgedeckt sind die Makronährstoffe (Energie, Protein, Fett, Kohlenhydrate,
  * Ballaststoffe) für 5 Altersgruppen je Geschlecht — das sind die realen
  * DACH-Altersklassen (nicht künstlich zusammengefasst), da sich z.B. Energie-
- * und Proteinbedarf zwischen 51–65 und 65+ deutlich unterscheiden. Dazu drei
- * Mikronährstoffe (Calcium, Eisen, Vitamin C) für das Chart aus Instruktion 5
- * — ausgewählt, weil sie sowohl fachlich relevant sind als auch in der
- * Lebensmitteldatenbank kaum fehlende Werte haben (siehe Auswahlbegründung
- * in `features/charts/nutrientComparisonChart.ts`). Weitere Mikronährstoffe
+ * und Proteinbedarf zwischen 51–65 und 65+ deutlich unterscheiden. Dazu fünf
+ * Mikronährstoffe: Calcium, Eisen, Vitamin C (für das Chart aus Instruktion 5)
+ * sowie Vitamin B12 und Folat (Instruktion 23) — ausgewählt, weil sie sowohl
+ * fachlich zentral sind als auch in der Lebensmitteldatenbank kaum fehlende
+ * Werte haben (B12 bei 97.5 %, Folat bei 96.5 % der Einträge, also sogar
+ * besser als Vitamin C mit 90.1 %; siehe Auswahlbegründung in
+ * `features/charts/nutrientComparisonChart.ts`). Weitere Mikronährstoffe
  * sind im `NutrientRequirement`-Modell vorbereitet, aber noch nicht befüllt.
  */
 
@@ -46,6 +48,9 @@ const CALCIUM_SOURCE = 'https://www.dge.de/wissenschaft/referenzwerte/calcium/ (
 const IRON_SOURCE = 'https://www.dge.de/wissenschaft/referenzwerte/eisen/ (Abruf: 22.08.2026)'
 const VITAMIN_C_SOURCE =
   'https://www.dge.de/wissenschaft/referenzwerte/vitamin-c/ (Abruf: 22.08.2026)'
+const VITAMIN_B12_SOURCE =
+  'https://www.dge.de/wissenschaft/referenzwerte/vitamin-b12/ (Abruf: 23.10.2026)'
+const FOLATE_SOURCE = 'https://www.dge.de/wissenschaft/referenzwerte/folat/ (Abruf: 23.10.2026)'
 
 /**
  * Energiebedarf ist ein "Richtwert" und hängt vom Aktivitätsniveau (PAL) ab.
@@ -189,6 +194,46 @@ function vitaminCForAgeGroup(ageGroupId: string, gender: Gender): ReferenceValue
   }
 }
 
+/**
+ * Vitamin B12: Die DGE gibt nur einen Schätzwert an (Bedarf nicht exakt
+ * bestimmbar), für Jugendliche ab 15 und Erwachsene einheitlich 4.0 µg/Tag,
+ * ohne Unterschied nach Geschlecht. Schwangere/Stillende (4.5/5.5 µg) werden
+ * wie bei den übrigen Nährstoffen nicht abgebildet.
+ */
+function vitaminB12ForAgeGroup(ageGroupId: string, gender: Gender): ReferenceValueEntry {
+  return {
+    ageGroupId,
+    gender,
+    nutrientId: 'vitaminB12',
+    unit: 'µg',
+    referenceType: 'schaetzwert',
+    recommended: 4.0,
+    source: VITAMIN_B12_SOURCE,
+  }
+}
+
+/**
+ * Folat: 300 µg/Tag für Jugendliche ab 15 und Erwachsene, ohne Unterschied
+ * nach Geschlecht. Die DGE gibt den Wert in Folat-Äquivalenten an
+ * (1 µg Folat-Äquivalent = 1 µg Nahrungsfolat = 0.5 µg synthetische
+ * Folsäure). Die Lebensmitteldatenbank (BLV) liefert "Folat" in µg ohne
+ * Umrechnung von zugesetzter Folsäure — bei angereicherten Lebensmitteln
+ * kann der Vergleich deshalb leicht abweichen. Bewusste Vereinfachung.
+ * Nicht abgebildet: Schwangere/Stillende (550/450 µg) und die zusätzliche
+ * Supplement-Empfehlung (400 µg Folsäure) für Frauen mit Kinderwunsch.
+ */
+function folateForAgeGroup(ageGroupId: string, gender: Gender): ReferenceValueEntry {
+  return {
+    ageGroupId,
+    gender,
+    nutrientId: 'folate',
+    unit: 'µg',
+    referenceType: 'empfohleneZufuhr',
+    recommended: 300,
+    source: FOLATE_SOURCE,
+  }
+}
+
 const GENDERS: Gender[] = ['male', 'female']
 
 export const REFERENCE_VALUES: ReferenceValueEntry[] = [
@@ -235,4 +280,12 @@ export const REFERENCE_VALUES: ReferenceValueEntry[] = [
 
   // Vitamin C (mg/Tag)
   ...AGE_GROUPS.flatMap((group) => GENDERS.map((gender) => vitaminCForAgeGroup(group.id, gender))),
+
+  // Vitamin B12 (µg/Tag, Schätzwert)
+  ...AGE_GROUPS.flatMap((group) =>
+    GENDERS.map((gender) => vitaminB12ForAgeGroup(group.id, gender)),
+  ),
+
+  // Folat (µg Folat-Äquivalente/Tag)
+  ...AGE_GROUPS.flatMap((group) => GENDERS.map((gender) => folateForAgeGroup(group.id, gender))),
 ]
