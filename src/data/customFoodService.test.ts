@@ -141,3 +141,11 @@ test('isValidCustomFoodItem behandelt novaGroup korrekt (Instruktion 17)', () =>
   assert.equal(isValidCustomFoodItem({ ...valid, novaGroup: 5 }), false)
   assert.equal(isValidCustomFoodItem({ ...valid, novaGroup: '3' }), false)
 })
+
+test('isValidCustomFoodItem: eigene Zutat ohne ungesättigte Fettsäuren (vor Instruktion 24) bleibt gültig', () => {
+  const food = createCustomFood(input)
+  assert.equal('monounsaturatedFat' in food, false)
+  assert.equal('polyunsaturatedFat' in food, false)
+  assert.equal(isValidCustomFoodItem(food), true)
+  assert.deepEqual(parseStoredCustomFoods(JSON.stringify([food])), [food])
+})

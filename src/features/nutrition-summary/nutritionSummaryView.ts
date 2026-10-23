@@ -3,7 +3,12 @@ import type { NutrientRequirement } from '../nutrient-requirements/models/requir
 import type { NutrientValues } from '../recipes/models/nutritionValues.ts'
 import type { NovaSummary } from '../recipes/nutritionCalculator.ts'
 import { calculateDailyRequirementPercentage } from '../recipes/dailyRequirementPercentage.ts'
-import { NUTRIENT_LABELS, UNIT_LABELS } from '../../utils/nutrientLabels.ts'
+import {
+  NUTRIENT_LABELS,
+  SUB_NUTRIENT_PARENT,
+  UNIT_LABELS,
+  orderForNutritionTable,
+} from '../../utils/nutrientLabels.ts'
 import { NOVA_LABELS } from '../../utils/novaLabels.ts'
 import { formatNumber } from '../../utils/formatNumber.ts'
 import { renderNutrientComparisonChart } from '../charts/nutrientComparisonChart.ts'
@@ -57,7 +62,7 @@ export function renderNutritionSummary(options: NutritionSummaryOptions): Nutrit
       }
     </p>`
 
-  const rows = nutrientValues
+  const rows = orderForNutritionTable(nutrientValues)
     .map((amount) => {
       const percentage = dailyPercentages.get(amount.nutrientId) ?? null
       const percentageCell =
@@ -65,9 +70,12 @@ export function renderNutritionSummary(options: NutritionSummaryOptions): Nutrit
           ? '<span title="Kein Vergleich möglich – für diesen Nährstoff/diese Altersgruppe liegt kein passender Referenzwert vor.">–</span>'
           : `${Math.round(percentage)} %`
 
+      const label = NUTRIENT_LABELS[amount.nutrientId] ?? amount.nutrientId
+      const isSubNutrient = amount.nutrientId in SUB_NUTRIENT_PARENT
+
       return `
-        <tr>
-          <td>${NUTRIENT_LABELS[amount.nutrientId] ?? amount.nutrientId}</td>
+        <tr${isSubNutrient ? ' class="requirements-table__row--sub"' : ''}>
+          <td>${isSubNutrient ? `davon ${label}` : label}</td>
           <td>${formatNumber(amount.value)}${amount.incomplete ? '<span class="recipe-detail__incomplete" title="Mindestens eine Zutat hat für diesen Nährstoff keinen Wert in der Datenbank – Wert ist eine Schätzung."> *</span>' : ''}</td>
           <td>${UNIT_LABELS[amount.unit] ?? amount.unit}</td>
           <td>${percentageCell}</td>

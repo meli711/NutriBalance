@@ -290,6 +290,14 @@ test('Backup im Format vor B12/Folat bleibt importierbar und unverändert', asyn
   )
   assert.equal(values.find((v) => v.nutrientId === 'vitaminB12')?.incomplete, true)
   assert.equal(values.find((v) => v.nutrientId === 'folate')?.incomplete, true)
+
+  // Instruktion 24: gesättigte Fettsäuren sind im Fixture vorhanden, die
+  // ungesättigten nicht → Stern, kein Fehler.
+  const saturated = values.find((v) => v.nutrientId === 'saturatedFat')
+  assert.equal(saturated?.incomplete, false)
+  assert.equal(Math.round(saturated!.value * 100) / 100, 0.15) // 0.1 g/100 g × 150 g
+  assert.equal(values.find((v) => v.nutrientId === 'monounsaturatedFat')?.incomplete, true)
+  assert.equal(values.find((v) => v.nutrientId === 'polyunsaturatedFat')?.incomplete, true)
 })
 
 test('Override für folate übersteht den Export -> Import (Round-Trip)', async () => {

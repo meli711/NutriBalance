@@ -307,7 +307,74 @@ test('die bestehenden 8 Nährstoffe bleiben in Reihenfolge, Einheit und Wert unv
     { nutrientId: 'vitaminC', unit: 'mg', value: 15, incomplete: false },
   ])
   assert.deepEqual(
-    total.slice(8).map((v) => v.nutrientId),
+    total.slice(8, 10).map((v) => v.nutrientId),
     ['vitaminB12', 'folate'],
   )
+  // Instruktion 24: Fettsäuren hinten angehängt, B12/Folat bleiben an Position 8/9.
+  assert.deepEqual(
+    total.slice(10).map((v) => v.nutrientId),
+    ['saturatedFat', 'monounsaturatedFat', 'polyunsaturatedFat'],
+  )
+})
+
+// --- Fettsäuren (Instruktion 24) ---
+
+test('gesättigte, einfach und mehrfach ungesättigte Fettsäuren werden in g summiert', () => {
+  const foods = new Map([
+    [
+      'oel',
+      makeFood({
+        id: 'oel',
+        fat: 100,
+        saturatedFat: 14,
+        monounsaturatedFat: 73,
+        polyunsaturatedFat: 11,
+      }),
+    ],
+    [
+      'butter',
+      makeFood({
+        id: 'butter',
+        fat: 82,
+        saturatedFat: 52,
+        monounsaturatedFat: 20,
+        polyunsaturatedFat: 2,
+      }),
+    ],
+  ])
+  const total = calculateNutrition(
+    [
+      { foodId: 'oel', amountGrams: 10 },
+      { foodId: 'butter', amountGrams: 50 },
+    ],
+    foods,
+  )
+
+  // gesättigt: 1.4 + 26 = 27.4; einfach: 7.3 + 10 = 17.3; mehrfach: 1.1 + 1 = 2.1
+  assert.equal(Math.round(find(total, 'saturatedFat').value * 10) / 10, 27.4)
+  assert.equal(Math.round(find(total, 'monounsaturatedFat').value * 10) / 10, 17.3)
+  assert.equal(Math.round(find(total, 'polyunsaturatedFat').value * 10) / 10, 2.1)
+  for (const id of ['saturatedFat', 'monounsaturatedFat', 'polyunsaturatedFat']) {
+    assert.equal(find(total, id).unit, 'g')
+    assert.equal(find(total, id).incomplete, false)
+  }
+})
+
+test('fehlende ungesättigte Fettsäuren (z.B. eigene Zutat von vor Instruktion 24) ergeben incomplete: true ohne Absturz', () => {
+  // `makeFood` setzt monounsaturatedFat/polyunsaturatedFat gar nicht — wie bei
+  // bestehenden eigenen Zutaten im localStorage.
+  const food = makeFood({ id: 'alt', fat: 10, saturatedFat: 4 })
+  assert.equal('monounsaturatedFat' in food, false)
+
+  const total = calculateNutrition([{ foodId: 'alt', amountGrams: 100 }], new Map([['alt', food]]))
+  assert.deepEqual(find(total, 'saturatedFat'), {
+    nutrientId: 'saturatedFat',
+    unit: 'g',
+    value: 4,
+    incomplete: false,
+  })
+  assert.equal(find(total, 'monounsaturatedFat').incomplete, true)
+  assert.equal(find(total, 'monounsaturatedFat').value, 0)
+  assert.equal(find(total, 'polyunsaturatedFat').incomplete, true)
+  assert.equal(find(total, 'fat').value, 10)
 })

@@ -33,6 +33,13 @@ import type { NutrientAmount, NutrientValues } from './models/nutritionValues.ts
  * gelesen (`?.`), damit ein Eintrag ohne `vitamins`-Objekt (z.B. sehr alte
  * eigene Zutat oder Fremd-Import) nicht abstürzt, sondern als "kein Wert"
  * (`incomplete: true`) zählt.
+ *
+ * Die Fettsäuren 'saturatedFat', 'monounsaturatedFat' und
+ * 'polyunsaturatedFat' (g, Instruktion 24) sind eine reine Aufschlüsselung
+ * des Fetts für die Nährwerttabelle: Für sie gibt es bewusst keinen
+ * Referenzwert (die DGE empfiehlt nur qualitativ "weniger gesättigte, mehr
+ * ungesättigte Fettsäuren"), "% Tagesbedarf" bleibt deshalb leer. Die
+ * ungesättigten Felder sind im Modell optional, daher `?? null`.
  */
 const NUTRIENT_DEFINITIONS: {
   nutrientId: string
@@ -53,6 +60,17 @@ const NUTRIENT_DEFINITIONS: {
     getPer100g: (food) => food.vitamins?.b12Cobalamin?.value ?? null,
   },
   { nutrientId: 'folate', unit: 'µg', getPer100g: (food) => food.vitamins?.folate?.value ?? null },
+  { nutrientId: 'saturatedFat', unit: 'g', getPer100g: (food) => food.saturatedFat ?? null },
+  {
+    nutrientId: 'monounsaturatedFat',
+    unit: 'g',
+    getPer100g: (food) => food.monounsaturatedFat ?? null,
+  },
+  {
+    nutrientId: 'polyunsaturatedFat',
+    unit: 'g',
+    getPer100g: (food) => food.polyunsaturatedFat ?? null,
+  },
 ]
 
 /**

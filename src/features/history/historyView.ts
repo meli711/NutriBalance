@@ -7,7 +7,7 @@ import {
 import type { HistorySettings } from '../../data/localStorageService.ts'
 import { getRequirementsForProfile } from '../nutrient-requirements/requirementService.ts'
 import type { NutrientRequirement } from '../nutrient-requirements/models/requirement.ts'
-import { NUTRIENT_LABELS } from '../../utils/nutrientLabels.ts'
+import { HISTORY_NUTRIENT_IDS, NUTRIENT_LABELS } from '../../utils/nutrientLabels.ts'
 import { getDateRange, getLocalDateString } from '../../utils/date.ts'
 import { calculateNutritionHistory } from './historyNutritionService.ts'
 import { renderHistoryChart } from './historyChart.ts'
@@ -76,17 +76,15 @@ export function renderHistoryView(options: HistoryViewOptions): void {
       </div>
 
       <div class="history__nutrients" role="group" aria-label="Nährstoffe für die Darstellung wählen" data-nutrient-toggle>
-        ${Object.keys(NUTRIENT_LABELS)
-          .map(
-            (nutrientId) => `
+        ${HISTORY_NUTRIENT_IDS.map(
+          (nutrientId) => `
               <button
                 type="button"
                 class="history__chip${settings.nutrientIds.includes(nutrientId) ? ' is-active' : ''}"
                 data-nutrient="${nutrientId}"
                 aria-pressed="${settings.nutrientIds.includes(nutrientId)}"
               >${NUTRIENT_LABELS[nutrientId]}</button>`,
-          )
-          .join('')}
+        ).join('')}
       </div>
 
       <div data-charts>
@@ -129,12 +127,10 @@ export function renderHistoryView(options: HistoryViewOptions): void {
         <p class="recipe-list__status">Für diesen Zeitraum ist noch nichts im Tages-Log erfasst.</p>
         <button type="button" class="button-primary" data-action="open-log">Zum Tages-Log</button>
       `
-      chartsSlot
-        .querySelector('[data-action="open-log"]')
-        ?.addEventListener('click', () => {
-          destroyActiveChart()
-          onOpenLog()
-        })
+      chartsSlot.querySelector('[data-action="open-log"]')?.addEventListener('click', () => {
+        destroyActiveChart()
+        onOpenLog()
+      })
       return
     }
 
@@ -169,7 +165,7 @@ export function renderHistoryView(options: HistoryViewOptions): void {
         settings.nutrientIds = settings.nutrientIds.filter((id) => id !== nutrientId)
       } else {
         // Reihenfolge der Labels beibehalten, damit die Charts stabil sortiert sind.
-        settings.nutrientIds = Object.keys(NUTRIENT_LABELS).filter(
+        settings.nutrientIds = HISTORY_NUTRIENT_IDS.filter(
           (id) => settings.nutrientIds.includes(id) || id === nutrientId,
         )
       }

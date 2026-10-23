@@ -107,3 +107,16 @@ test('Vitamin B12: 2 µg bei Bedarf 4 µg ergibt 50 % (Einheit aus Berechnung = 
   assert.equal(result.get('vitaminB12'), 50) // 2/4
   assert.equal(result.get('folate'), 50) // 150/300
 })
+
+test('Fettsäuren (Instruktion 24) haben keinen Referenzwert und ergeben null', () => {
+  const profile: UserProfile = { age: 30, heightCm: 165, gender: 'female' }
+  const perServing: NutrientValues = [
+    { nutrientId: 'saturatedFat', unit: 'g', value: 10, incomplete: false },
+    { nutrientId: 'monounsaturatedFat', unit: 'g', value: 10, incomplete: false },
+    { nutrientId: 'polyunsaturatedFat', unit: 'g', value: 10, incomplete: false },
+  ]
+  const result = calculateDailyRequirementPercentage(perServing, getRequirementsForProfile(profile))
+  assert.equal(result.get('saturatedFat'), null)
+  assert.equal(result.get('monounsaturatedFat'), null)
+  assert.equal(result.get('polyunsaturatedFat'), null)
+})

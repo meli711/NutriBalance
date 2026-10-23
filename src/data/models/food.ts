@@ -66,6 +66,14 @@ export interface FoodItem {
   protein: number | null
   fat: number | null
   saturatedFat: number | null
+  /**
+   * Einfach/mehrfach ungesättigte Fettsäuren (Instruktion 24). Optional, weil
+   * eigene Zutaten (`customFoodService.ts`), Backups und
+   * `quellen/eigene-produkte.json` aus der Zeit davor diese Felder nicht
+   * haben. Fehlt ein Feld, gilt das wie `null` als "keine Angabe".
+   */
+  monounsaturatedFat?: number | null
+  polyunsaturatedFat?: number | null
   carbohydrates: number | null
   sugar: number | null
   fiber: number | null

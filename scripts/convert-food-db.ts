@@ -67,6 +67,8 @@ const COL = {
   energyKcal: 11, // "Energie, Kilokalorien (kcal)"
   fat: 14, // "Fett, total (g)"
   saturatedFat: 17, // "Fettsäuren, gesättigt (g)"
+  monounsaturatedFat: 20, // "Fettsäuren, einfach ungesättigt (g)"
+  polyunsaturatedFat: 23, // "Fettsäuren, mehrfach ungesättigt (g)"
   carbohydrates: 41, // "Kohlenhydrate, verfügbar (g)"
   sugar: 44, // "Zucker (g)"
   fiber: 50, // "Nahrungsfasern (g)"
@@ -171,6 +173,8 @@ function toFoodItem(row: SourceRow): FoodItem {
     protein: parseNutrientValue(row[COL.protein]),
     fat: parseNutrientValue(row[COL.fat]),
     saturatedFat: parseNutrientValue(row[COL.saturatedFat]),
+    monounsaturatedFat: parseNutrientValue(row[COL.monounsaturatedFat]),
+    polyunsaturatedFat: parseNutrientValue(row[COL.polyunsaturatedFat]),
     carbohydrates: parseNutrientValue(row[COL.carbohydrates]),
     sugar: parseNutrientValue(row[COL.sugar]),
     fiber: parseNutrientValue(row[COL.fiber]),

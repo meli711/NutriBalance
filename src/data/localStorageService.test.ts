@@ -108,3 +108,11 @@ test('parseStoredRequirementOverrides: alte Overrides ohne B12/Folat bleiben gü
   const withFolate = { ...old, folate: 400 }
   assert.deepEqual(parseStoredRequirementOverrides(JSON.stringify(withFolate)), withFolate)
 })
+
+test('parseStoredHistorySettings filtert Fettsäuren-IDs heraus (Instruktion 24, nicht im Verlauf wählbar)', () => {
+  const raw = JSON.stringify({ nutrientIds: ['protein', 'saturatedFat', 'fat'], period: 'week' })
+  assert.deepEqual(parseStoredHistorySettings(raw), {
+    nutrientIds: ['protein', 'fat'],
+    period: 'week',
+  })
+})

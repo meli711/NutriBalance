@@ -112,7 +112,9 @@ in `.gitignore` und lokal nachzubauen:
      `calcium`, `eisen`, `vitamin-c`, `vitamin-b12`, `folat`
    - Ausgewertete Nährstoffe (Bedarf vs. Aufnahme): Energie, Protein, Fett,
      Kohlenhydrate, Ballaststoffe, Calcium, Eisen, Vitamin C, Vitamin B12,
-     Folat
+     Folat. Zusätzlich wird Fett in der Nährwerttabelle nach gesättigten,
+     einfach und mehrfach ungesättigten Fettsäuren aufgeschlüsselt (ohne
+     Bedarfsvergleich, da die DGE dafür keinen Zahlenwert angibt)
    - Für die schriftliche Arbeit wurden lokale HTML-Snapshots dieser Seiten
      archiviert (Stand siehe `source`-Angaben in `referenceValues.ts`) —
      ebenfalls nicht im Repo, da fremder Seiteninhalt.
@@ -148,6 +150,7 @@ entspricht grob einem Commit `Instruktion N: …`.
 | 21  | Kategorie (mit Icon) auch für eigene Menüs, wählbar per Dropdown beim Erstellen; Kategorie-Icons zusätzlich pro Zeile im Tages-Log                                              | [`21-claude-code-menu-kategorie.md`](Instruktionen/21-claude-code-menu-kategorie.md)                           |
 | 22  | Eigene Menüs nachträglich bearbeiten (Name/Beschreibung/Kategorie/Zutaten), In-Place im Detail-Screen wie bei eigenen Zutaten                                                   | [`22-claude-code-menu-bearbeiten.md`](Instruktionen/22-claude-code-menu-bearbeiten.md)                         |
 | 23  | Vitamin B12 und Folat als ausgewertete Nährstoffe (Nährwerttabellen, Chart, Profil, Verlauf), ohne Datenmigration                                                               | [`23-claude-code-vitamin-b12-folat.md`](Instruktionen/23-claude-code-vitamin-b12-folat.md)                     |
+| 24  | Fett in der Nährwerttabelle nach gesättigten/einfach/mehrfach ungesättigten Fettsäuren aufgeschlüsselt (reine Information, ohne Bedarfsvergleich)                               | [`24-claude-code-fettsaeuren.md`](Instruktionen/24-claude-code-fettsaeuren.md)                                 |
 
 Ergänzend: [`DESIGN.md`](Instruktionen/DESIGN.md) — Design-Plan zu Instruktion 7
 (Farbpalette, Typografie, Bildsprache, konkrete UI-Anpassungen).

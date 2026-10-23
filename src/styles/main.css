@@ -368,6 +368,15 @@ textarea:focus-visible,
   font-weight: 600;
 }
 
+.requirements-table__row--sub td {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.requirements-table__row--sub td:first-child {
+  padding-inline-start: calc(var(--space-md) * 2);
+}
+
 .requirements-table__row--overridden {
   background-color: var(--chart-color-requirement-fill);
 }

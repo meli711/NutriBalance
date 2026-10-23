@@ -1,5 +1,5 @@
 import type { Gender, UserProfile } from './models/userProfile.ts'
-import { NUTRIENT_LABELS } from '../utils/nutrientLabels.ts'
+import { HISTORY_NUTRIENT_IDS } from '../utils/nutrientLabels.ts'
 
 const STORAGE_KEYS = {
   userProfile: 'nutribalance:userProfile',
@@ -100,8 +100,9 @@ export const DEFAULT_HISTORY_SETTINGS: HistorySettings = {
 /**
  * Reine Parsing-Logik, analog zu `parseStoredProfile`: beschädigte/fremde
  * Daten führen zum Default statt zu einem Fehler. Unbekannte Nährstoff-IDs
- * (nicht in `NUTRIENT_LABELS`) werden herausgefiltert; bleibt danach nichts
- * übrig, greift der Default.
+ * (nicht in `HISTORY_NUTRIENT_IDS`, also auch die Fettsäuren-Aufschlüsselung
+ * aus Instruktion 24) werden herausgefiltert; bleibt danach nichts übrig,
+ * greift der Default.
  */
 export function parseStoredHistorySettings(raw: string | null): HistorySettings {
   if (!raw) return { ...DEFAULT_HISTORY_SETTINGS }
@@ -114,13 +115,12 @@ export function parseStoredHistorySettings(raw: string | null): HistorySettings 
 
     const nutrientIds = Array.isArray(candidate.nutrientIds)
       ? candidate.nutrientIds.filter(
-          (id): id is string => typeof id === 'string' && id in NUTRIENT_LABELS,
+          (id): id is string => typeof id === 'string' && HISTORY_NUTRIENT_IDS.includes(id),
         )
       : []
 
     return {
-      nutrientIds:
-        nutrientIds.length > 0 ? nutrientIds : [...DEFAULT_HISTORY_SETTINGS.nutrientIds],
+      nutrientIds: nutrientIds.length > 0 ? nutrientIds : [...DEFAULT_HISTORY_SETTINGS.nutrientIds],
       period:
         candidate.period === 'week' || candidate.period === 'month'
           ? candidate.period
